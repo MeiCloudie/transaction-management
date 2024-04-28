@@ -35,8 +35,8 @@
       "day": 2,
       "month": 5,
       "year": 2024,
-      "unit_price": 25137.0,
-      "quantity": 1000,
+      "unit_price": 50,
+      "quantity": 2,
       "type": "currency",
       "currency_type": 1,
       "exchange_rate": 25137.0
@@ -46,8 +46,8 @@
       "day": 28,
       "month": 4,
       "year": 2024,
-      "unit_price": 26777.56,
-      "quantity": 500,
+      "unit_price": 500,
+      "quantity": 1,
       "type": "currency",
       "currency_type": 2,
       "exchange_rate": 26777.56
@@ -57,8 +57,8 @@
       "day": 12,
       "month": 4,
       "year": 2024,
-      "unit_price": 1,
-      "quantity": 500000,
+      "unit_price": 500000,
+      "quantity": 2,
       "type": "currency",
       "currency_type": 0,
       "exchange_rate": 1
