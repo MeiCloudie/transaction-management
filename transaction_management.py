@@ -30,8 +30,7 @@ class TransactionApp(customtkinter.CTk):
             self, columns=(
                 "ID", "Day", "Month", "Year",
                 "Unit Price", "Quantity", "Gold Type", "Total Amount"
-            ))
-        self.gold_transaction_treeview.heading("#0", text="STT")
+            ), show="headings")
         self.gold_transaction_treeview.heading("ID", text="ID")
         self.gold_transaction_treeview.heading("Day", text="Day")
         self.gold_transaction_treeview.heading("Month", text="Month")
@@ -46,7 +45,7 @@ class TransactionApp(customtkinter.CTk):
         # Tạo bảng TreeView cho giao dịch tiền tệ
         self.currency_transaction_treeview = ttk.Treeview(self, columns=(
             "ID", "Day", "Month", "Year", "Unit Price", "Quantity",
-            "Currency Type", "Exchange Rate", "Total Amount"))
+            "Currency Type", "Exchange Rate", "Total Amount"), show="headings")
         self.currency_transaction_treeview.heading("#0", text="STT")
         self.currency_transaction_treeview.heading("ID", text="ID")
         self.currency_transaction_treeview.heading("Day", text="Day")
