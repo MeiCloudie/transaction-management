@@ -1,0 +1,93 @@
+{
+  "transactions": [
+    {
+      "id": "GLD001",
+      "day": 24,
+      "month": 4,
+      "year": 2024,
+      "unit_price": 82000000.0,
+      "quantity": 2,
+      "type": "gold",
+      "gold_type": "SJC 1L"
+    },
+    {
+      "id": "GLD002",
+      "day": 21,
+      "month": 3,
+      "year": 2024,
+      "unit_price": 73100000.0,
+      "quantity": 1,
+      "type": "gold",
+      "gold_type": "SJC Ring"
+    },
+    {
+      "id": "GLD003",
+      "day": 22,
+      "month": 4,
+      "year": 2024,
+      "unit_price": 72900000.0,
+      "quantity": 3,
+      "type": "gold",
+      "gold_type": "Jewelry 99%"
+    },
+    {
+      "id": "CUR001",
+      "day": 2,
+      "month": 5,
+      "year": 2024,
+      "unit_price": 50.0,
+      "quantity": 2,
+      "type": "currency",
+      "currency_type": 1,
+      "exchange_rate": 25137.0
+    },
+    {
+      "id": "CUR002",
+      "day": 28,
+      "month": 4,
+      "year": 2024,
+      "unit_price": 500.0,
+      "quantity": 1,
+      "type": "currency",
+      "currency_type": 2,
+      "exchange_rate": 26777.56
+    },
+    {
+      "id": "CUR003",
+      "day": 12,
+      "month": 4,
+      "year": 2024,
+      "unit_price": 500000.0,
+      "quantity": 2,
+      "type": "currency",
+      "currency_type": 0,
+      "exchange_rate": 1
+    }
+  ],
+  "exchange_rates": [
+    {
+      "id": 1,
+      "currency_type": 0,
+      "rate": 1.0,
+      "effective_day": 1,
+      "effective_month": 1,
+      "effective_year": 2024
+    },
+    {
+      "id": 2,
+      "currency_type": 1,
+      "rate": 25137.0,
+      "effective_day": 1,
+      "effective_month": 1,
+      "effective_year": 2024
+    },
+    {
+      "id": 3,
+      "currency_type": 2,
+      "rate": 26777.56,
+      "effective_day": 1,
+      "effective_month": 1,
+      "effective_year": 2024
+    }
+  ]
+}
