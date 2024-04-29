@@ -107,7 +107,7 @@ class TransactionApp(customtkinter.CTk):
                     transaction._quantity,
                     transaction._currency_type.name,
                     transaction._exchange_rate._rate,
-                    transaction.cal_total_amount(),
+                    transaction.calculate_total_amount(),
                     "Currency"
                 )
                 self.currency_transaction_treeview.insert(
@@ -228,12 +228,12 @@ class ExchangeRate:
 class CurrencyTransaction(Transaction):
     def __init__(self, id, day, month, year, unit_price, quantity,
                  currency_type, exchange_rate):
-        super().__init__(id, day, month, year, unit_price, quantity)
         self._currency_type = currency_type
         self._exchange_rate = exchange_rate
-        self._total_amount = self.cal_total_amount()
+        super().__init__(id, day, month, year, unit_price, quantity)
+        self._total_amount = self.calculate_total_amount()
 
-    def cal_total_amount(self):
+    def calculate_total_amount(self):
         if self._currency_type == CurrencyType.VND:
             return self._unit_price * self._quantity
         elif self._currency_type == CurrencyType.USD \
