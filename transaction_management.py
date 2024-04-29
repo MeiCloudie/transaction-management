@@ -106,7 +106,7 @@ class TransactionApp(customtkinter.CTk):
                     transaction._unit_price,
                     transaction._quantity,
                     transaction._currency_type.name,
-                    transaction._exchange_rate,
+                    transaction._exchange_rate._rate,
                     transaction.cal_total_amount(),
                     "Currency"
                 )
@@ -148,6 +148,15 @@ class TransactionApp(customtkinter.CTk):
                             transaction_data["gold_type"]
                         )
                     elif transaction_data["type"] == "currency":
+                        exchange_rate_data = transaction_data["exchange_rate"]
+                        exchange_rate = ExchangeRate(
+                            exchange_rate_data["id"],
+                            CurrencyType(exchange_rate_data["currency_type"]),
+                            exchange_rate_data["rate"],
+                            exchange_rate_data["effective_day"],
+                            exchange_rate_data["effective_month"],
+                            exchange_rate_data["effective_year"]
+                        )
                         transaction = CurrencyTransaction(
                             transaction_data["id"],
                             transaction_data["day"],
@@ -156,7 +165,7 @@ class TransactionApp(customtkinter.CTk):
                             transaction_data["unit_price"],
                             transaction_data["quantity"],
                             CurrencyType(transaction_data["currency_type"]),
-                            transaction_data["exchange_rate"]
+                            exchange_rate
                         )
                     else:
                         continue
@@ -229,7 +238,8 @@ class CurrencyTransaction(Transaction):
             return self._unit_price * self._quantity
         elif self._currency_type == CurrencyType.USD \
                 or self._currency_type == CurrencyType.EUR:
-            return self._unit_price * self._quantity * self._exchange_rate
+            return self._unit_price * self._quantity \
+                * self._exchange_rate._rate
         else:
             return 0
 
