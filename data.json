@@ -39,7 +39,14 @@
       "quantity": 2,
       "type": "currency",
       "currency_type": 1,
-      "exchange_rate": 25137.0
+      "exchange_rate": {
+        "id": 2,
+        "currency_type": 1,
+        "rate": 25137.0,
+        "effective_day": 1,
+        "effective_month": 1,
+        "effective_year": 2024
+      }
     },
     {
       "id": "CUR002",
@@ -50,7 +57,14 @@
       "quantity": 1,
       "type": "currency",
       "currency_type": 2,
-      "exchange_rate": 26777.56
+      "exchange_rate": {
+        "id": 3,
+        "currency_type": 2,
+        "rate": 26777.56,
+        "effective_day": 1,
+        "effective_month": 1,
+        "effective_year": 2024
+      }
     },
     {
       "id": "CUR003",
@@ -61,7 +75,14 @@
       "quantity": 2,
       "type": "currency",
       "currency_type": 0,
-      "exchange_rate": 1
+      "exchange_rate": {
+        "id": 1,
+        "currency_type": 0,
+        "rate": 1.0,
+        "effective_day": 1,
+        "effective_month": 1,
+        "effective_year": 2024
+      }
     }
   ],
   "exchange_rates": [
