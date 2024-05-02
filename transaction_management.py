@@ -3,12 +3,96 @@ from tkinter import ttk, messagebox
 import customtkinter
 import os
 from enum import Enum
+from abc import ABC, abstractmethod
 
 
 class CurrencyType(Enum):
     VND = 0
     USD = 1
     EUR = 2
+
+
+class AbstractTransaction(ABC):
+    def __init__(self, id, day, month, year, unit_price, quantity):
+        self._id = id
+        self._day = day
+        self._month = month
+        self._year = year
+        self._unit_price = unit_price
+        self._quantity = quantity
+        self._total_amount = self.calculate_total_amount()
+
+    @abstractmethod
+    def calculate_total_amount(self):
+        pass
+
+
+class Transaction(AbstractTransaction):
+    def calculate_total_amount(self):
+        return self._unit_price * self._quantity
+
+
+class GoldTransaction(AbstractTransaction):
+    def __init__(self, id, day, month, year, unit_price, quantity, gold_type):
+        super().__init__(id, day, month, year, unit_price, quantity)
+        self._gold_type = gold_type
+
+    def calculate_total_amount(self):
+        return self._unit_price * self._quantity
+
+
+class ExchangeRate:
+    def __init__(self, id, currency_type, rate, effective_day, effective_month,
+                 effective_year):
+        self._id = id
+        self._currency_type = currency_type
+        self._rate = rate
+        self._effective_day = effective_day
+        self._effective_month = effective_month
+        self._effective_year = effective_year
+
+
+class CurrencyTransaction(AbstractTransaction):
+    def __init__(self, id, day, month, year, unit_price, quantity,
+                 currency_type, exchange_rate):
+        self._currency_type = currency_type
+        self._exchange_rate = exchange_rate
+        super().__init__(id, day, month, year, unit_price, quantity)
+
+    def calculate_total_amount(self):
+        if self._currency_type == CurrencyType.VND:
+            return self._unit_price * self._quantity
+        elif self._currency_type == CurrencyType.USD \
+                or self._currency_type == CurrencyType.EUR:
+            return self._unit_price * self._quantity \
+                * self._exchange_rate._rate
+        else:
+            return 0
+
+
+class TransactionList:
+    def __init__(self):
+        self._transactions = []
+        self._total_gold_transactions = 0
+        self._total_currency_transactions = 0
+        self._total_gold_amount = 0.0
+        self._total_currency_amount = 0.0
+
+    def add_transaction(self, transaction):
+        self._transactions.append(transaction)
+        if isinstance(transaction, GoldTransaction):
+            self._total_gold_transactions += 1
+            self._total_gold_amount += transaction._total_amount
+        elif isinstance(transaction, CurrencyTransaction):
+            self._total_currency_transactions += 1
+            self._total_currency_amount += transaction._total_amount
+
+    def remove_transaction(self, transaction):
+        if transaction in self._transactions:
+            self._transactions.remove(transaction)
+
+    def get_transactions(self):
+        return self._transactions
 
 
 class TransactionApp(customtkinter.CTk):
@@ -72,63 +156,6 @@ class TransactionApp(customtkinter.CTk):
         )
         self.total_label.pack(pady=5)
 
-    def add_transaction(self):
-        pass
-
-    def refresh_transaction_list(self):
-        for row in self.gold_transaction_treeview.get_children():
-            self.gold_transaction_treeview.delete(row)
-
-        for row in self.currency_transaction_treeview.get_children():
-            self.currency_transaction_treeview.delete(row)
-
-        for transaction in self.transaction_list.get_transactions():
-            if isinstance(transaction, GoldTransaction):
-                transaction_data = (
-                    transaction._id,
-                    transaction._day,
-                    transaction._month,
-                    transaction._year,
-                    transaction._unit_price,
-                    transaction._quantity,
-                    transaction._gold_type,
-                    transaction.calculate_total_amount(),
-                    "Gold"
-                )
-                self.gold_transaction_treeview.insert(
-                    "", "end", values=transaction_data)
-            elif isinstance(transaction, CurrencyTransaction):
-                transaction_data = (
-                    transaction._id,
-                    transaction._day,
-                    transaction._month,
-                    transaction._year,
-                    transaction._unit_price,
-                    transaction._quantity,
-                    transaction._currency_type.name,
-                    transaction._exchange_rate._rate,
-                    transaction.calculate_total_amount(),
-                    "Currency"
-                )
-                self.currency_transaction_treeview.insert(
-                    "", "end", values=transaction_data)
-            else:
-                continue
-
-        self.update_total_label()
-
-    def update_total_label(self):
-        total_label_content = (
-            f"Total Gold Transactions: {
-                self.transaction_list._total_gold_transactions} | "
-            f"Total Currency Transactions: {
-                self.transaction_list._total_currency_transactions} | "
-            f"Total Gold Amount: {self.transaction_list._total_gold_amount} | "
-            f"Total Currency Amount: {
-                self.transaction_list._total_currency_amount}"
-        )
-        self.total_label.config(text=total_label_content)
-
     def load_data_from_json(self):
         try:
             with open("data.json", "r") as json_file:
@@ -189,84 +216,59 @@ class TransactionApp(customtkinter.CTk):
 
         self.refresh_transaction_list()
 
+    def refresh_transaction_list(self):
+        for row in self.gold_transaction_treeview.get_children():
+            self.gold_transaction_treeview.delete(row)
 
-class Transaction:
-    def __init__(self, id, day, month, year, unit_price, quantity):
-        self._id = id
-        self._day = day
-        self._month = month
-        self._year = year
-        self._unit_price = unit_price
-        self._quantity = quantity
-        self._total_amount = self.calculate_total_amount()
+        for row in self.currency_transaction_treeview.get_children():
+            self.currency_transaction_treeview.delete(row)
 
-    def calculate_total_amount(self):
-        return self._unit_price * self._quantity
+        for transaction in self.transaction_list.get_transactions():
+            if isinstance(transaction, GoldTransaction):
+                transaction_data = (
+                    transaction._id,
+                    transaction._day,
+                    transaction._month,
+                    transaction._year,
+                    transaction._unit_price,
+                    transaction._quantity,
+                    transaction._gold_type,
+                    transaction.calculate_total_amount(),
+                    "Gold"
+                )
+                self.gold_transaction_treeview.insert(
+                    "", "end", values=transaction_data)
+            elif isinstance(transaction, CurrencyTransaction):
+                transaction_data = (
+                    transaction._id,
+                    transaction._day,
+                    transaction._month,
+                    transaction._year,
+                    transaction._unit_price,
+                    transaction._quantity,
+                    transaction._currency_type.name,
+                    transaction._exchange_rate._rate,
+                    transaction.calculate_total_amount(),
+                    "Currency"
+                )
+                self.currency_transaction_treeview.insert(
+                    "", "end", values=transaction_data)
+            else:
+                continue
 
+        self.update_total_label()
 
-class GoldTransaction(Transaction):
-    def __init__(self, id, day, month, year, unit_price, quantity, gold_type):
-        super().__init__(id, day, month, year, unit_price, quantity)
-        self._gold_type = gold_type
-        self._total_amount = self.calculate_total_amount()
-
-    def calculate_total_amount(self):
-        return self._unit_price * self._quantity
-
-
-class ExchangeRate:
-    def __init__(self, id, currency_type, rate, effective_day, effective_month,
-                 effective_year):
-        self._id = id
-        self._currency_type = currency_type
-        self._rate = rate
-        self._effective_day = effective_day
-        self._effective_month = effective_month
-        self._effective_year = effective_year
-
-
-class CurrencyTransaction(Transaction):
-    def __init__(self, id, day, month, year, unit_price, quantity,
-                 currency_type, exchange_rate):
-        self._currency_type = currency_type
-        self._exchange_rate = exchange_rate
-        super().__init__(id, day, month, year, unit_price, quantity)
-        self._total_amount = self.calculate_total_amount()
-
-    def calculate_total_amount(self):
-        if self._currency_type == CurrencyType.VND:
-            return self._unit_price * self._quantity
-        elif self._currency_type == CurrencyType.USD \
-                or self._currency_type == CurrencyType.EUR:
-            return self._unit_price * self._quantity \
-                * self._exchange_rate._rate
-        else:
-            return 0
-
-
-class TransactionList:
-    def __init__(self):
-        self._transactions = []
-        self._total_gold_transactions = 0
-        self._total_currency_transactions = 0
-        self._total_gold_amount = 0.0
-        self._total_currency_amount = 0.0
-
-    def add_transaction(self, transaction):
-        self._transactions.append(transaction)
-        if isinstance(transaction, GoldTransaction):
-            self._total_gold_transactions += 1
-            self._total_gold_amount += transaction._total_amount
-        elif isinstance(transaction, CurrencyTransaction):
-            self._total_currency_transactions += 1
-            self._total_currency_amount += transaction._total_amount
-
-    def remove_transaction(self, transaction):
-        if transaction in self._transactions:
-            self._transactions.remove(transaction)
-
-    def get_transactions(self):
-        return self._transactions
+    def update_total_label(self):
+        total_label_content = (
+            f"Total Gold Transactions: {
+                self.transaction_list._total_gold_transactions} | "
+            f"Total Currency Transactions: {
+                self.transaction_list._total_currency_transactions} | "
+            f"Total Gold Amount: {self.transaction_list._total_gold_amount} | "
+            f"Total Currency Amount: {
+                self.transaction_list._total_currency_amount}"
+        )
+        self.total_label.config(text=total_label_content)
 
 
 if __name__ == "__main__":
