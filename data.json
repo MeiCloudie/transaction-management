@@ -5,7 +5,7 @@
       "day": 24,
       "month": 4,
       "year": 2024,
-      "unit_price": 82000000.0,
+      "unit_price": 85200000.0,
       "quantity": 2.0,
       "type": "gold",
       "gold_type": 0
@@ -15,8 +15,8 @@
       "day": 21,
       "month": 3,
       "year": 2024,
-      "unit_price": 73100000.0,
-      "quantity": 1.0,
+      "unit_price": 75500000.0,
+      "quantity": 3.0,
       "type": "gold",
       "gold_type": 1
     },
@@ -25,7 +25,7 @@
       "day": 22,
       "month": 4,
       "year": 2024,
-      "unit_price": 72900000.0,
+      "unit_price": 84800000.0,
       "quantity": 3.0,
       "type": "gold",
       "gold_type": 2
