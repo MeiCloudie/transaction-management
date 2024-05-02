@@ -32,7 +32,7 @@ class Transaction(AbstractTransaction):
         return self._unit_price * self._quantity
 
 
-class GoldTransaction(AbstractTransaction):
+class GoldTransaction(Transaction):
     def __init__(self, id, day, month, year, unit_price, quantity, gold_type):
         super().__init__(id, day, month, year, unit_price, quantity)
         self._gold_type = gold_type
@@ -52,7 +52,7 @@ class ExchangeRate:
         self._effective_year = effective_year
 
 
-class CurrencyTransaction(AbstractTransaction):
+class CurrencyTransaction(Transaction):
     def __init__(self, id, day, month, year, unit_price, quantity,
                  currency_type, exchange_rate):
         self._currency_type = currency_type
