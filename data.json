@@ -8,7 +8,7 @@
       "unit_price": 82000000.0,
       "quantity": 2,
       "type": "gold",
-      "gold_type": "SJC 1L"
+      "gold_type": 0
     },
     {
       "id": "GLD002",
@@ -18,7 +18,7 @@
       "unit_price": 73100000.0,
       "quantity": 1,
       "type": "gold",
-      "gold_type": "SJC Ring"
+      "gold_type": 1
     },
     {
       "id": "GLD003",
@@ -28,7 +28,7 @@
       "unit_price": 72900000.0,
       "quantity": 3,
       "type": "gold",
-      "gold_type": "Jewelry 99%"
+      "gold_type": 2
     },
     {
       "id": "CUR001",

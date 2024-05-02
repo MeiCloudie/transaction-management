@@ -12,6 +12,12 @@ class CurrencyType(Enum):
     EUR = 2
 
 
+class GoldType(Enum):
+    SJC = 0
+    PNJ = 1
+    DOJI = 2
+
+
 class AbstractTransaction(ABC):
     def __init__(self, id, day, month, year, unit_price, quantity):
         self._id = id
@@ -172,7 +178,7 @@ class TransactionApp(customtkinter.CTk):
                             transaction_data["year"],
                             transaction_data["unit_price"],
                             transaction_data["quantity"],
-                            transaction_data["gold_type"]
+                            GoldType(transaction_data["gold_type"])
                         )
                     elif transaction_data["type"] == "currency":
                         exchange_rate_data = transaction_data["exchange_rate"]
@@ -232,7 +238,7 @@ class TransactionApp(customtkinter.CTk):
                     transaction._year,
                     transaction._unit_price,
                     transaction._quantity,
-                    transaction._gold_type,
+                    transaction._gold_type.name,
                     transaction.calculate_total_amount(),
                     "Gold"
                 )
