@@ -6,7 +6,7 @@
       "month": 4,
       "year": 2024,
       "unit_price": 82000000.0,
-      "quantity": 2,
+      "quantity": 2.0,
       "type": "gold",
       "gold_type": 0
     },
@@ -16,7 +16,7 @@
       "month": 3,
       "year": 2024,
       "unit_price": 73100000.0,
-      "quantity": 1,
+      "quantity": 1.0,
       "type": "gold",
       "gold_type": 1
     },
@@ -26,7 +26,7 @@
       "month": 4,
       "year": 2024,
       "unit_price": 72900000.0,
-      "quantity": 3,
+      "quantity": 3.0,
       "type": "gold",
       "gold_type": 2
     },
@@ -35,8 +35,7 @@
       "day": 2,
       "month": 5,
       "year": 2024,
-      "unit_price": 50.0,
-      "quantity": 2,
+      "quantity": 50.0,
       "type": "currency",
       "currency_type": 1,
       "exchange_rate": {
@@ -53,8 +52,7 @@
       "day": 28,
       "month": 4,
       "year": 2024,
-      "unit_price": 500.0,
-      "quantity": 1,
+      "quantity": 500.0,
       "type": "currency",
       "currency_type": 2,
       "exchange_rate": {
@@ -71,8 +69,7 @@
       "day": 12,
       "month": 4,
       "year": 2024,
-      "unit_price": 500000.0,
-      "quantity": 2,
+      "quantity": 500000.0,
       "type": "currency",
       "currency_type": 0,
       "exchange_rate": {

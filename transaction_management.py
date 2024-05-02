@@ -19,13 +19,20 @@ class GoldType(Enum):
 
 
 class AbstractTransaction(ABC):
-    def __init__(self, id, day, month, year, unit_price, quantity):
+    def __init__(self, id, day, month, year, *args):
         self._id = id
         self._day = day
         self._month = month
         self._year = year
-        self._unit_price = unit_price
-        self._quantity = quantity
+        if len(args) == 1:  # Nếu chỉ có một tham số được truyền vào
+            self._quantity = args[0]
+            self._unit_price = None
+        elif len(args) == 2:  # Nếu có cả hai tham số được truyền vào
+            self._unit_price = args[0]
+            self._quantity = args[1]
+        else:
+            raise ValueError("Invalid number of arguments")
+
         self._total_amount = self.calculate_total_amount()
 
     @abstractmethod
@@ -59,19 +66,18 @@ class ExchangeRate:
 
 
 class CurrencyTransaction(Transaction):
-    def __init__(self, id, day, month, year, unit_price, quantity,
+    def __init__(self, id, day, month, year, quantity,
                  currency_type, exchange_rate):
         self._currency_type = currency_type
         self._exchange_rate = exchange_rate
-        super().__init__(id, day, month, year, unit_price, quantity)
+        super().__init__(id, day, month, year, quantity)
 
     def calculate_total_amount(self):
         if self._currency_type == CurrencyType.VND:
-            return self._unit_price * self._quantity
+            return self._quantity
         elif self._currency_type == CurrencyType.USD \
                 or self._currency_type == CurrencyType.EUR:
-            return self._unit_price * self._quantity \
-                * self._exchange_rate._rate
+            return self._quantity * self._exchange_rate._rate
         else:
             return 0
 
@@ -134,15 +140,13 @@ class TransactionApp(customtkinter.CTk):
 
         # Tạo bảng TreeView cho giao dịch tiền tệ
         self.currency_transaction_treeview = ttk.Treeview(self, columns=(
-            "ID", "Day", "Month", "Year", "Unit Price", "Quantity",
+            "ID", "Day", "Month", "Year", "Quantity",
             "Currency Type", "Exchange Rate", "Total Amount"), show="headings")
         self.currency_transaction_treeview.heading("#0", text="STT")
         self.currency_transaction_treeview.heading("ID", text="ID")
         self.currency_transaction_treeview.heading("Day", text="Day")
         self.currency_transaction_treeview.heading("Month", text="Month")
         self.currency_transaction_treeview.heading("Year", text="Year")
-        self.currency_transaction_treeview.heading(
-            "Unit Price", text="Unit Price")
         self.currency_transaction_treeview.heading("Quantity", text="Quantity")
         self.currency_transaction_treeview.heading(
             "Currency Type", text="Currency Type")
@@ -195,7 +199,6 @@ class TransactionApp(customtkinter.CTk):
                             transaction_data["day"],
                             transaction_data["month"],
                             transaction_data["year"],
-                            transaction_data["unit_price"],
                             transaction_data["quantity"],
                             CurrencyType(transaction_data["currency_type"]),
                             exchange_rate
@@ -250,7 +253,6 @@ class TransactionApp(customtkinter.CTk):
                     transaction._day,
                     transaction._month,
                     transaction._year,
-                    transaction._unit_price,
                     transaction._quantity,
                     transaction._currency_type.name,
                     transaction._exchange_rate._rate,
