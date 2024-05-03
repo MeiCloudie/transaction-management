@@ -110,7 +110,6 @@ class TransactionList:
 class TransactionApp(customtkinter.CTk):
     def __init__(self):
         super().__init__()
-        self.geometry("1280x720")
         self.title("Transaction Management")
         self._set_appearance_mode("light")
         icon_path = os.path.abspath("./logo.ico")
@@ -122,7 +121,10 @@ class TransactionApp(customtkinter.CTk):
 
     def create_widgets(self):
         self.header_frame = HeaderFrame(master=self)
-        self.header_frame.pack(padx=10, pady=10, anchor="n")
+        self.header_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
+
+        self.tab_filter = TabFilter(master=self)
+        self.tab_filter.grid(row=1, column=0, padx=10, pady=0, sticky="ew")
 
         self.gold_transaction_treeview = ttk.Treeview(
             self, columns=(
@@ -133,29 +135,34 @@ class TransactionApp(customtkinter.CTk):
         self.gold_transaction_treeview.heading("Day", text="Day")
         self.gold_transaction_treeview.heading("Month", text="Month")
         self.gold_transaction_treeview.heading("Year", text="Year")
-        self.gold_transaction_treeview.heading("Unit Price", text="Unit Price")
+        self.gold_transaction_treeview.heading("Unit Price",
+                                               text="Unit Price")
         self.gold_transaction_treeview.heading("Quantity", text="Quantity")
         self.gold_transaction_treeview.heading("Gold Type", text="Gold Type")
         self.gold_transaction_treeview.heading(
             "Total Amount", text="Total Amount")
-        self.gold_transaction_treeview.pack(padx=10, pady=10)
+        self.gold_transaction_treeview.grid(row=2, column=0, padx=10, pady=10,
+                                            sticky="ew")
 
         self.currency_transaction_treeview = ttk.Treeview(self, columns=(
             "ID", "Day", "Month", "Year", "Quantity",
-            "Currency Type", "Exchange Rate", "Total Amount"), show="headings")
+            "Currency Type", "Exchange Rate", "Total Amount"),
+            show="headings")
         self.currency_transaction_treeview.heading("#0", text="STT")
         self.currency_transaction_treeview.heading("ID", text="ID")
         self.currency_transaction_treeview.heading("Day", text="Day")
         self.currency_transaction_treeview.heading("Month", text="Month")
         self.currency_transaction_treeview.heading("Year", text="Year")
-        self.currency_transaction_treeview.heading("Quantity", text="Quantity")
+        self.currency_transaction_treeview.heading("Quantity",
+                                                   text="Quantity")
         self.currency_transaction_treeview.heading(
             "Currency Type", text="Currency Type")
         self.currency_transaction_treeview.heading(
             "Exchange Rate", text="Exchange Rate")
         self.currency_transaction_treeview.heading(
             "Total Amount", text="Total Amount")
-        self.currency_transaction_treeview.pack(padx=10, pady=10)
+        self.currency_transaction_treeview.grid(
+            row=3, column=0, padx=10, pady=10, sticky="ew")
 
         self.total_label = ttk.Label(
             self,
@@ -164,7 +171,9 @@ class TransactionApp(customtkinter.CTk):
             "Total Gold Amount: 0.0 | "
             "Total Currency Amount: 0.0"
         )
-        self.total_label.pack(pady=5)
+        self.total_label.grid(row=4, column=0, pady=5, sticky="ew")
+
+        self.grid_columnconfigure(0, weight=1)
 
     def load_data_from_json(self):
         try:
@@ -283,7 +292,6 @@ class HeaderFrame(customtkinter.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
         self.configure(fg_color="#dbdbdb", bg_color="#ebebeb")
-        self.pack(side="top", fill="x", expand=True)
 
         self.label_transaction = customtkinter.CTkLabel(
             self, text="Transaction", text_color="black",
@@ -308,6 +316,30 @@ class HeaderFrame(customtkinter.CTkFrame):
 
         self.columnconfigure(0, weight=0)
         self.columnconfigure(1, weight=1)
+
+
+class TabFilter(customtkinter.CTkTabview):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
+        self.configure(fg_color="#ffffff", bg_color="#ebebeb",
+                       border_width=1, border_color="#989DA1")
+
+        self.tab_last_month = self.add("LAST MONTH")
+        self.tab_this_month = self.add("THIS MONTH")
+        self.tab_future = self.add("FUTURE")
+        self.tab_view_all = self.add("VIEW ALL")
+
+        for tab_name in ["LAST MONTH", "THIS MONTH", "FUTURE", "VIEW ALL"]:
+            self.tab(tab_name)
+
+        self.set("THIS MONTH")
+
+        self.configure(corner_radius=5)
+
+        self.label_last_month = customtkinter.CTkLabel(
+            master=self.tab("LAST MONTH"), text_color="black",
+            text="Content for LAST MONTH")
+        self.label_last_month.pack(padx=20, pady=20)
 
 
 if __name__ == "__main__":
