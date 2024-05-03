@@ -24,10 +24,10 @@ class AbstractTransaction(ABC):
         self._day = day
         self._month = month
         self._year = year
-        if len(args) == 1:  # Nếu chỉ có một tham số được truyền vào
+        if len(args) == 1:
             self._quantity = args[0]
             self._unit_price = None
-        elif len(args) == 2:  # Nếu có cả hai tham số được truyền vào
+        elif len(args) == 2:
             self._unit_price = args[0]
             self._quantity = args[1]
         else:
@@ -121,7 +121,9 @@ class TransactionApp(customtkinter.CTk):
         self.load_data_from_json()
 
     def create_widgets(self):
-        # Tạo bảng TreeView cho giao dịch vàng
+        self.header_frame = HeaderFrame(master=self)
+        self.header_frame.pack(padx=10, pady=10)
+
         self.gold_transaction_treeview = ttk.Treeview(
             self, columns=(
                 "ID", "Day", "Month", "Year",
@@ -138,7 +140,6 @@ class TransactionApp(customtkinter.CTk):
             "Total Amount", text="Total Amount")
         self.gold_transaction_treeview.pack(padx=10, pady=10)
 
-        # Tạo bảng TreeView cho giao dịch tiền tệ
         self.currency_transaction_treeview = ttk.Treeview(self, columns=(
             "ID", "Day", "Month", "Year", "Quantity",
             "Currency Type", "Exchange Rate", "Total Amount"), show="headings")
@@ -156,7 +157,6 @@ class TransactionApp(customtkinter.CTk):
             "Total Amount", text="Total Amount")
         self.currency_transaction_treeview.pack(padx=10, pady=10)
 
-        # Tạo label cho tổng số giao dịch và tổng số tiền
         self.total_label = ttk.Label(
             self,
             text="Total Gold Transactions: 0 | "
@@ -277,6 +277,37 @@ class TransactionApp(customtkinter.CTk):
                 self.transaction_list._total_currency_amount}"
         )
         self.total_label.config(text=total_label_content)
+
+
+class HeaderFrame(customtkinter.CTkFrame):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
+        self.configure(fg_color="#dbdbdb", bg_color="#ebebeb")
+        self.pack(side="top", fill="x", expand=True)
+
+        self.label_transaction = customtkinter.CTkLabel(
+            self, text="Transaction", text_color="black",
+            font=("TkDefaultFont", 24, "bold"))
+        self.label_transaction.grid(
+            row=0, column=0, sticky="w", padx=12, pady=5)
+
+        self.buttons_frame = customtkinter.CTkFrame(self)
+        self.buttons_frame.grid(row=0, column=1, sticky="e", padx=12, pady=5)
+        self.buttons_frame.configure(fg_color="transparent")
+
+        self.btn_add_transaction = customtkinter.CTkButton(
+            self.buttons_frame, text="ADD TRANSACTION")
+        self.btn_add_transaction.pack(side="right", padx=5, pady=5)
+
+        self.btn_report = customtkinter.CTkButton(
+            self.buttons_frame, text="REPORT", text_color="#1f6aa5",
+            border_width=1,
+            border_color="#1f6aa5", fg_color="white",
+            hover_color="light blue")
+        self.btn_report.pack(side="right", padx=5, pady=5)
+
+        self.columnconfigure(0, weight=0)
+        self.columnconfigure(1, weight=1)
 
 
 if __name__ == "__main__":
