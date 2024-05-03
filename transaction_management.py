@@ -118,16 +118,19 @@ class TransactionApp(customtkinter.CTk):
         self.iconbitmap(icon_path)
 
         self.transaction_list = TransactionList()
-        self.create_widgets()
+        self.create_widget()
+
+    def create_widget(self):
+        self.create_data_widgets()
         self.load_data_from_json()
 
-    def create_widgets(self):
         self.header_frame = HeaderFrame(master=self)
         self.header_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
         self.tab_filter = TabFilter(master=self)
         self.tab_filter.grid(row=1, column=0, padx=10, pady=0, sticky="ew")
 
+    def create_data_widgets(self):
         self.create_content_treeview()
 
         self.total_label = ttk.Label(
@@ -393,8 +396,8 @@ class TabFilter(customtkinter.CTkTabview):
         for transaction in transactions:
             label = customtkinter.CTkLabel(
                 master=tab, text_color="black",
-                text=f"Transaction ID: {transaction.id}, Amount: {transaction.
-                                                                  amount}")
+                text=f"Transaction ID: {transaction._id}, \
+                Amount: {transaction._total_amount}")
             label.pack(padx=20, pady=5)
 
     def create_content_this_month(self, tab):
@@ -448,7 +451,7 @@ class TabFilter(customtkinter.CTkTabview):
     def get_transactions_by_month_year(self, month, year):
         transactions_month_year = []
         for transaction in self.master.transaction_list.get_transactions():
-            if transaction.month == month and transaction.year == year:
+            if transaction._month == month and transaction._year == year:
                 transactions_month_year.append(transaction)
         return transactions_month_year
 
