@@ -4,6 +4,7 @@ import customtkinter
 import os
 from enum import Enum
 from abc import ABC, abstractmethod
+from PIL import Image
 
 
 class CurrencyType(Enum):
@@ -292,6 +293,12 @@ class HeaderFrame(customtkinter.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
         self.configure(fg_color="#dbdbdb", bg_color="#ebebeb")
+        self.refresh_icon = customtkinter.CTkImage(
+            Image.open('./refresh.ico'))
+        self.filter_icon = customtkinter.CTkImage(
+            Image.open('./filter.ico'))
+        self.search_icon = customtkinter.CTkImage(
+            Image.open('./search.ico'))
 
         self.label_transaction = customtkinter.CTkLabel(
             self, text="Transaction", text_color="black",
@@ -302,6 +309,29 @@ class HeaderFrame(customtkinter.CTkFrame):
         self.buttons_frame = customtkinter.CTkFrame(self)
         self.buttons_frame.grid(row=0, column=1, sticky="e", padx=12, pady=5)
         self.buttons_frame.configure(fg_color="transparent")
+
+        self.btn_search = customtkinter.CTkButton(
+            self.buttons_frame,
+            text=None,
+            image=self.search_icon,
+            width=30, height=30)
+        self.btn_search.pack(side="right", padx=5, pady=5)
+
+        self.btn_filter = customtkinter.CTkButton(
+            self.buttons_frame,
+            text=None,
+            image=self.filter_icon,
+            width=30, height=30)
+        self.btn_filter.pack(side="right", padx=5, pady=5)
+
+        self.btn_refresh = customtkinter.CTkButton(
+            self.buttons_frame,
+            text=None,
+            image=self.refresh_icon,
+            fg_color="green",
+            hover_color="dark green",
+            width=30, height=30)
+        self.btn_refresh.pack(side="right", padx=5, pady=5)
 
         self.btn_add_transaction = customtkinter.CTkButton(
             self.buttons_frame, text="ADD TRANSACTION")
