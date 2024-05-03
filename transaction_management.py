@@ -5,6 +5,7 @@ import os
 from enum import Enum
 from abc import ABC, abstractmethod
 from PIL import Image
+import datetime
 
 
 class CurrencyType(Enum):
@@ -375,16 +376,26 @@ class TabFilter(customtkinter.CTkTabview):
         self.create_tab_filter_widgets()
 
     def create_tab_filter_widgets(self):
-        self.create_content_last_month(self.tab_last_month)
+        # Lấy dữ liệu giao dịch và truyền vào hàm tạo nội dung
+        last_month_transactions = self.get_transactions_last_month()
+        # this_month_transactions = self.get_transactions_this_month()
+        # future_transactions = self.get_transactions_future()
+        # all_transactions = self.get_transactions_all()
+
+        self.create_content_last_month(
+            self.tab_last_month, last_month_transactions)
         self.create_content_this_month(self.tab_this_month)
         self.create_content_future(self.tab_future)
         self.create_content_view_all(self.tab_view_all)
 
-    def create_content_last_month(self, tab):
-        label = customtkinter.CTkLabel(
-            master=tab, text_color="black",
-            text="Content for LAST MONTH")
-        label.pack(padx=20, pady=20)
+    def create_content_last_month(self, tab, transactions):
+        # Hiển thị dữ liệu giao dịch cho LAST MONTH
+        for transaction in transactions:
+            label = customtkinter.CTkLabel(
+                master=tab, text_color="black",
+                text=f"Transaction ID: {transaction.id}, Amount: {transaction.
+                                                                  amount}")
+            label.pack(padx=20, pady=5)
 
     def create_content_this_month(self, tab):
         label = customtkinter.CTkLabel(
@@ -403,6 +414,43 @@ class TabFilter(customtkinter.CTkTabview):
             master=tab, text_color="black",
             text="Content for VIEW ALL")
         label.pack(padx=20, pady=20)
+
+    def get_transactions_last_month(self):
+        today = datetime.datetime.now()
+        last_month = today.month - 1 if today.month > 1 else 12
+        last_month_year = today.year if today.month > 1 else today.year - 1
+        return self.get_transactions_by_month_year(last_month, last_month_year)
+
+    def get_transactions_this_month(self):
+        today = datetime.datetime.now()
+        return self.get_transactions_by_month_year(today.month, today.year)
+
+    def get_transactions_future(self):
+        today = datetime.datetime.now()
+        future_transactions = []
+        for transaction in self.master.transaction_list.get_transactions():
+            if (
+                transaction.year > today.year
+                or (transaction.year == today.year and
+                    transaction.month > today.month)
+                or (
+                    transaction.year == today.year
+                    and transaction.month == today.month
+                    and transaction.day > today.day
+                )
+            ):
+                future_transactions.append(transaction)
+        return future_transactions
+
+    def get_transactions_all(self):
+        return self.master.transaction_list.get_transactions()
+
+    def get_transactions_by_month_year(self, month, year):
+        transactions_month_year = []
+        for transaction in self.master.transaction_list.get_transactions():
+            if transaction.month == month and transaction.year == year:
+                transactions_month_year.append(transaction)
+        return transactions_month_year
 
 
 if __name__ == "__main__":
