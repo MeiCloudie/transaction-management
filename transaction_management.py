@@ -122,7 +122,7 @@ class TransactionApp(customtkinter.CTk):
 
     def create_widgets(self):
         self.header_frame = HeaderFrame(master=self)
-        self.header_frame.pack(padx=10, pady=10)
+        self.header_frame.pack(padx=10, pady=10, anchor="n")
 
         self.gold_transaction_treeview = ttk.Treeview(
             self, columns=(
