@@ -359,17 +359,40 @@ class TabFilter(customtkinter.CTkTabview):
         self.tab_future = self.add("FUTURE")
         self.tab_view_all = self.add("VIEW ALL")
 
-        for tab_name in ["LAST MONTH", "THIS MONTH", "FUTURE", "VIEW ALL"]:
-            self.tab(tab_name)
-
         self.set("THIS MONTH")
-
         self.configure(corner_radius=5)
 
-        self.label_last_month = customtkinter.CTkLabel(
-            master=self.tab("LAST MONTH"), text_color="black",
+        self.create_tab_filter_widgets()
+
+    def create_tab_filter_widgets(self):
+        self.create_content_last_month(self.tab_last_month)
+        self.create_content_this_month(self.tab_this_month)
+        self.create_content_future(self.tab_future)
+        self.create_content_view_all(self.tab_view_all)
+
+    def create_content_last_month(self, tab):
+        label = customtkinter.CTkLabel(
+            master=tab, text_color="black",
             text="Content for LAST MONTH")
-        self.label_last_month.pack(padx=20, pady=20)
+        label.pack(padx=20, pady=20)
+
+    def create_content_this_month(self, tab):
+        label = customtkinter.CTkLabel(
+            master=tab, text_color="black",
+            text="Content for THIS MONTH")
+        label.pack(padx=20, pady=20)
+
+    def create_content_future(self, tab):
+        label = customtkinter.CTkLabel(
+            master=tab, text_color="black",
+            text="Content for FUTURE")
+        label.pack(padx=20, pady=20)
+
+    def create_content_view_all(self, tab):
+        label = customtkinter.CTkLabel(
+            master=tab, text_color="black",
+            text="Content for VIEW ALL")
+        label.pack(padx=20, pady=20)
 
 
 if __name__ == "__main__":
