@@ -127,43 +127,7 @@ class TransactionApp(customtkinter.CTk):
         self.tab_filter = TabFilter(master=self)
         self.tab_filter.grid(row=1, column=0, padx=10, pady=0, sticky="ew")
 
-        self.gold_transaction_treeview = ttk.Treeview(
-            self, columns=(
-                "ID", "Day", "Month", "Year",
-                "Unit Price", "Quantity", "Gold Type", "Total Amount"
-            ), show="headings")
-        self.gold_transaction_treeview.heading("ID", text="ID")
-        self.gold_transaction_treeview.heading("Day", text="Day")
-        self.gold_transaction_treeview.heading("Month", text="Month")
-        self.gold_transaction_treeview.heading("Year", text="Year")
-        self.gold_transaction_treeview.heading("Unit Price",
-                                               text="Unit Price")
-        self.gold_transaction_treeview.heading("Quantity", text="Quantity")
-        self.gold_transaction_treeview.heading("Gold Type", text="Gold Type")
-        self.gold_transaction_treeview.heading(
-            "Total Amount", text="Total Amount")
-        self.gold_transaction_treeview.grid(row=2, column=0, padx=10, pady=10,
-                                            sticky="ew")
-
-        self.currency_transaction_treeview = ttk.Treeview(self, columns=(
-            "ID", "Day", "Month", "Year", "Quantity",
-            "Currency Type", "Exchange Rate", "Total Amount"),
-            show="headings")
-        self.currency_transaction_treeview.heading("#0", text="STT")
-        self.currency_transaction_treeview.heading("ID", text="ID")
-        self.currency_transaction_treeview.heading("Day", text="Day")
-        self.currency_transaction_treeview.heading("Month", text="Month")
-        self.currency_transaction_treeview.heading("Year", text="Year")
-        self.currency_transaction_treeview.heading("Quantity",
-                                                   text="Quantity")
-        self.currency_transaction_treeview.heading(
-            "Currency Type", text="Currency Type")
-        self.currency_transaction_treeview.heading(
-            "Exchange Rate", text="Exchange Rate")
-        self.currency_transaction_treeview.heading(
-            "Total Amount", text="Total Amount")
-        self.currency_transaction_treeview.grid(
-            row=3, column=0, padx=10, pady=10, sticky="ew")
+        self.create_content_treeview()
 
         self.total_label = ttk.Label(
             self,
@@ -175,6 +139,52 @@ class TransactionApp(customtkinter.CTk):
         self.total_label.grid(row=4, column=0, pady=5, sticky="ew")
 
         self.grid_columnconfigure(0, weight=1)
+
+    def create_content_treeview(self):
+        self.gold_transaction_treeview = \
+            self.create_gold_transaction_treeview()
+        self.gold_transaction_treeview.grid(
+            row=2, column=0, padx=10, pady=10, sticky="ew")
+
+        self.currency_transaction_treeview = \
+            self.create_currency_transaction_treeview()
+        self.currency_transaction_treeview.grid(
+            row=3, column=0, padx=10, pady=10, sticky="ew")
+
+    def create_gold_transaction_treeview(self):
+        treeview = ttk.Treeview(
+            self, columns=(
+                "ID", "Day", "Month", "Year",
+                "Unit Price", "Quantity", "Gold Type", "Total Amount"
+            ), show="headings")
+        treeview.heading("ID", text="ID")
+        treeview.heading("Day", text="Day")
+        treeview.heading("Month", text="Month")
+        treeview.heading("Year", text="Year")
+        treeview.heading("Unit Price", text="Unit Price")
+        treeview.heading("Quantity", text="Quantity")
+        treeview.heading("Gold Type", text="Gold Type")
+        treeview.heading("Total Amount", text="Total Amount")
+        return treeview
+
+    def create_currency_transaction_treeview(self):
+        treeview = ttk.Treeview(self, columns=(
+            "ID", "Day", "Month", "Year", "Quantity",
+            "Currency Type", "Exchange Rate", "Total Amount"),
+            show="headings")
+        treeview.heading("#0", text="STT")
+        treeview.heading("ID", text="ID")
+        treeview.heading("Day", text="Day")
+        treeview.heading("Month", text="Month")
+        treeview.heading("Year", text="Year")
+        treeview.heading("Quantity", text="Quantity")
+        treeview.heading(
+            "Currency Type", text="Currency Type")
+        treeview.heading(
+            "Exchange Rate", text="Exchange Rate")
+        treeview.heading(
+            "Total Amount", text="Total Amount")
+        return treeview
 
     def load_data_from_json(self):
         try:
