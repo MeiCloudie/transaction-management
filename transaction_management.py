@@ -382,14 +382,14 @@ class TabFilter(customtkinter.CTkTabview):
         last_month_transactions = self.get_transactions_last_month()
         this_month_transactions = self.get_transactions_this_month()
         future_transactions = self.get_transactions_future()
-        # all_transactions = self.get_transactions_all()
+        all_transactions = self.get_transactions_all()
 
         self.create_content_last_month(
             self.tab_last_month, last_month_transactions)
         self.create_content_this_month(
             self.tab_this_month, this_month_transactions)
         self.create_content_future(self.tab_future, future_transactions)
-        self.create_content_view_all(self.tab_view_all)
+        self.create_content_view_all(self.tab_view_all, all_transactions)
 
     def create_content_last_month(self, tab, transactions):
         for transaction in transactions:
@@ -415,11 +415,13 @@ class TabFilter(customtkinter.CTkTabview):
                 Amount: {transaction._total_amount}")
             label.pack(padx=20, pady=5)
 
-    def create_content_view_all(self, tab):
-        label = customtkinter.CTkLabel(
-            master=tab, text_color="black",
-            text="Content for VIEW ALL")
-        label.pack(padx=20, pady=20)
+    def create_content_view_all(self, tab, transactions):
+        for transaction in transactions:
+            label = customtkinter.CTkLabel(
+                master=tab, text_color="black",
+                text=f"Transaction ID: {transaction._id}, \
+                Amount: {transaction._total_amount}")
+            label.pack(padx=20, pady=5)
 
     def get_transactions_last_month(self):
         today = datetime.datetime.now()
