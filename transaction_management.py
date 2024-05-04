@@ -379,20 +379,19 @@ class TabFilter(customtkinter.CTkTabview):
         self.create_tab_filter_widgets()
 
     def create_tab_filter_widgets(self):
-        # Lấy dữ liệu giao dịch và truyền vào hàm tạo nội dung
         last_month_transactions = self.get_transactions_last_month()
-        # this_month_transactions = self.get_transactions_this_month()
+        this_month_transactions = self.get_transactions_this_month()
         # future_transactions = self.get_transactions_future()
         # all_transactions = self.get_transactions_all()
 
         self.create_content_last_month(
             self.tab_last_month, last_month_transactions)
-        self.create_content_this_month(self.tab_this_month)
+        self.create_content_this_month(
+            self.tab_this_month, this_month_transactions)
         self.create_content_future(self.tab_future)
         self.create_content_view_all(self.tab_view_all)
 
     def create_content_last_month(self, tab, transactions):
-        # Hiển thị dữ liệu giao dịch cho LAST MONTH
         for transaction in transactions:
             label = customtkinter.CTkLabel(
                 master=tab, text_color="black",
@@ -400,11 +399,13 @@ class TabFilter(customtkinter.CTkTabview):
                 Amount: {transaction._total_amount}")
             label.pack(padx=20, pady=5)
 
-    def create_content_this_month(self, tab):
-        label = customtkinter.CTkLabel(
-            master=tab, text_color="black",
-            text="Content for THIS MONTH")
-        label.pack(padx=20, pady=20)
+    def create_content_this_month(self, tab, transactions):
+        for transaction in transactions:
+            label = customtkinter.CTkLabel(
+                master=tab, text_color="black",
+                text=f"Transaction ID: {transaction._id}, \
+                Amount: {transaction._total_amount}")
+            label.pack(padx=20, pady=5)
 
     def create_content_future(self, tab):
         label = customtkinter.CTkLabel(
@@ -430,6 +431,7 @@ class TabFilter(customtkinter.CTkTabview):
 
     def get_transactions_this_month(self):
         today = datetime.datetime.now()
+        print(today.year)
         return self.get_transactions_by_month_year(today.month, today.year)
 
     def get_transactions_future(self):
