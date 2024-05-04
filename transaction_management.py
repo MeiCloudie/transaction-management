@@ -420,8 +420,12 @@ class TabFilter(customtkinter.CTkTabview):
 
     def get_transactions_last_month(self):
         today = datetime.datetime.now()
-        last_month = today.month - 1 if today.month > 1 else 12
-        last_month_year = today.year if today.month > 1 else today.year - 1
+        if today.month == 1:
+            last_month = 12
+            last_month_year = today.year - 1
+        else:
+            last_month = today.month - 1
+            last_month_year = today.year
         return self.get_transactions_by_month_year(last_month, last_month_year)
 
     def get_transactions_this_month(self):
