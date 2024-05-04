@@ -1,7 +1,6 @@
 import json
 from tkinter import ttk, messagebox
 import customtkinter
-import os
 from enum import Enum
 from abc import ABC, abstractmethod
 from PIL import Image
@@ -114,80 +113,23 @@ class TransactionApp(customtkinter.CTk):
         super().__init__()
         self.title("Transaction Management")
         self._set_appearance_mode("light")
-        icon_path = os.path.abspath("./logo.ico")
+        icon_path = "./logo.ico"
         self.iconbitmap(icon_path)
 
         self.transaction_list = TransactionList()
         self.create_widget()
 
     def create_widget(self):
-        self.create_data_widgets()
         self.load_data_from_json()
 
         self.header_frame = HeaderFrame(master=self)
         self.header_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
         self.tab_filter = TabFilter(master=self)
-        self.tab_filter.grid(row=1, column=0, padx=10, pady=0, sticky="ew")
-
-    def create_data_widgets(self):
-        self.create_content_treeview()
-
-        self.total_label = ttk.Label(
-            self,
-            text="Total Gold Transactions: 0 | "
-            "Total Currency Transactions: 0 | "
-            "Total Gold Amount: 0.0 | "
-            "Total Currency Amount: 0.0"
-        )
-        self.total_label.grid(row=4, column=0, pady=5, sticky="ew")
+        self.tab_filter.grid(row=1, column=0, padx=10,
+                             pady=(0, 10), sticky="ew")
 
         self.grid_columnconfigure(0, weight=1)
-
-    def create_content_treeview(self):
-        self.gold_transaction_treeview = \
-            self.create_gold_transaction_treeview()
-        self.gold_transaction_treeview.grid(
-            row=2, column=0, padx=10, pady=10, sticky="ew")
-
-        self.currency_transaction_treeview = \
-            self.create_currency_transaction_treeview()
-        self.currency_transaction_treeview.grid(
-            row=3, column=0, padx=10, pady=10, sticky="ew")
-
-    def create_gold_transaction_treeview(self):
-        treeview = ttk.Treeview(
-            self, columns=(
-                "ID", "Day", "Month", "Year",
-                "Unit Price", "Quantity", "Gold Type", "Total Amount"
-            ), show="headings")
-        treeview.heading("ID", text="ID")
-        treeview.heading("Day", text="Day")
-        treeview.heading("Month", text="Month")
-        treeview.heading("Year", text="Year")
-        treeview.heading("Unit Price", text="Unit Price")
-        treeview.heading("Quantity", text="Quantity")
-        treeview.heading("Gold Type", text="Gold Type")
-        treeview.heading("Total Amount", text="Total Amount")
-        return treeview
-
-    def create_currency_transaction_treeview(self):
-        treeview = ttk.Treeview(self, columns=(
-            "ID", "Day", "Month", "Year", "Quantity",
-            "Currency Type", "Exchange Rate", "Total Amount"),
-            show="headings")
-        treeview.heading("ID", text="ID")
-        treeview.heading("Day", text="Day")
-        treeview.heading("Month", text="Month")
-        treeview.heading("Year", text="Year")
-        treeview.heading("Quantity", text="Quantity")
-        treeview.heading(
-            "Currency Type", text="Currency Type")
-        treeview.heading(
-            "Exchange Rate", text="Exchange Rate")
-        treeview.heading(
-            "Total Amount", text="Total Amount")
-        return treeview
 
     def load_data_from_json(self):
         try:
@@ -245,61 +187,6 @@ class TransactionApp(customtkinter.CTk):
             messagebox.showerror("Error", "Data file not found.")
         except json.JSONDecodeError:
             messagebox.showerror("Error", "Invalid JSON format in data file.")
-
-        self.refresh_transaction_list()
-
-    def refresh_transaction_list(self):
-        for row in self.gold_transaction_treeview.get_children():
-            self.gold_transaction_treeview.delete(row)
-
-        for row in self.currency_transaction_treeview.get_children():
-            self.currency_transaction_treeview.delete(row)
-
-        for transaction in self.transaction_list.get_transactions():
-            if isinstance(transaction, GoldTransaction):
-                transaction_data = (
-                    transaction._id,
-                    transaction._day,
-                    transaction._month,
-                    transaction._year,
-                    transaction._unit_price,
-                    transaction._quantity,
-                    transaction._gold_type.name,
-                    transaction.calculate_total_amount(),
-                    "Gold"
-                )
-                self.gold_transaction_treeview.insert(
-                    "", "end", values=transaction_data)
-            elif isinstance(transaction, CurrencyTransaction):
-                transaction_data = (
-                    transaction._id,
-                    transaction._day,
-                    transaction._month,
-                    transaction._year,
-                    transaction._quantity,
-                    transaction._currency_type.name,
-                    transaction._exchange_rate._rate,
-                    transaction.calculate_total_amount(),
-                    "Currency"
-                )
-                self.currency_transaction_treeview.insert(
-                    "", "end", values=transaction_data)
-            else:
-                continue
-
-        self.update_total_label()
-
-    def update_total_label(self):
-        total_label_content = (
-            f"Total Gold Transactions: {
-                self.transaction_list._total_gold_transactions} | "
-            f"Total Currency Transactions: {
-                self.transaction_list._total_currency_transactions} | "
-            f"Total Gold Amount: {self.transaction_list._total_gold_amount} | "
-            f"Total Currency Amount: {
-                self.transaction_list._total_currency_amount}"
-        )
-        self.total_label.config(text=total_label_content)
 
 
 class HeaderFrame(customtkinter.CTkFrame):
@@ -533,13 +420,13 @@ class TabFilter(customtkinter.CTkTabview):
         treeview_gold_transaction = self.create_gold_transaction_treeview(tab)
         self.populate_treeview_with_gold_transactions(
             treeview_gold_transaction, transactions)
-        treeview_gold_transaction.pack(padx=10, pady=10)
+        treeview_gold_transaction.pack(padx=10, pady=10, fill="x")
 
         treeview_currency_transaction \
             = self.create_currency_transaction_treeview(tab)
         self.populate_treeview_with_currency_transactions(
             treeview_currency_transaction, transactions)
-        treeview_currency_transaction.pack(padx=10, pady=10)
+        treeview_currency_transaction.pack(padx=10, pady=10, fill="x")
 
     def get_transactions_last_month(self):
         today = datetime.datetime.now()
