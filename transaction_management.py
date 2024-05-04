@@ -279,6 +279,22 @@ class TabFilter(customtkinter.CTkTabview):
         self.create_tab_with_total_frames(
             self.tab_view_all, all_transactions)
 
+        self.tab_group_by_sort_by_last_month = TabGroupBySortBy(
+            master=self.tab_last_month)
+        self.tab_group_by_sort_by_last_month.pack(
+            padx=10, pady=(0, 10), fill="x")
+        self.tab_group_by_sort_by_this_month = TabGroupBySortBy(
+            master=self.tab_this_month)
+        self.tab_group_by_sort_by_this_month.pack(
+            padx=10, pady=(0, 10), fill="x")
+        self.tab_group_by_sort_by_future = TabGroupBySortBy(
+            master=self.tab_future)
+        self.tab_group_by_sort_by_future.pack(padx=10, pady=(0, 10), fill="x")
+        self.tab_group_by_sort_by_view_all = TabGroupBySortBy(
+            master=self.tab_view_all)
+        self.tab_group_by_sort_by_view_all.pack(
+            padx=10, pady=(0, 10), fill="x")
+
         self.create_content_treeview(
             self.tab_last_month, last_month_transactions)
         self.create_content_treeview(
@@ -527,6 +543,31 @@ class TabFilter(customtkinter.CTkTabview):
                     transaction._exchange_rate._rate,
                     transaction._total_amount
                 ))
+
+
+class TabGroupBySortBy(customtkinter.CTkTabview):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
+        self.configure(fg_color="#dbdbdb", bg_color="#ffffff")
+
+        self.tab_group_by = self.add("GROUP BY")
+        self.tab_sort_by = self.add("SORT BY")
+
+        self.set("GROUP BY")
+        self.configure(corner_radius=5)
+
+        self.create_tab_group_by_sort_by_widgets()
+
+    def create_tab_group_by_sort_by_widgets(self):
+        self.label = customtkinter.CTkLabel(master=self.tab_group_by,
+                                            text="Group By",
+                                            text_color="black")
+        self.label.grid(row=0, column=0, padx=20, pady=10)
+
+        self.label = customtkinter.CTkLabel(master=self.tab_sort_by,
+                                            text="Sort By",
+                                            text_color="black")
+        self.label.grid(row=0, column=0, padx=20, pady=10)
 
 
 if __name__ == "__main__":
