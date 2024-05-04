@@ -1,9 +1,10 @@
 import json
 from tkinter import ttk, messagebox
 import customtkinter
-import os
 from enum import Enum
 from abc import ABC, abstractmethod
+from PIL import Image
+import datetime
 
 
 class CurrencyType(Enum):
@@ -24,10 +25,10 @@ class AbstractTransaction(ABC):
         self._day = day
         self._month = month
         self._year = year
-        if len(args) == 1:  # Nếu chỉ có một tham số được truyền vào
+        if len(args) == 1:
             self._quantity = args[0]
             self._unit_price = None
-        elif len(args) == 2:  # Nếu có cả hai tham số được truyền vào
+        elif len(args) == 2:
             self._unit_price = args[0]
             self._quantity = args[1]
         else:
@@ -110,61 +111,25 @@ class TransactionList:
 class TransactionApp(customtkinter.CTk):
     def __init__(self):
         super().__init__()
-        self.geometry("1280x720")
         self.title("Transaction Management")
         self._set_appearance_mode("light")
-        icon_path = os.path.abspath("./logo.ico")
+        icon_path = "./logo.ico"
         self.iconbitmap(icon_path)
 
         self.transaction_list = TransactionList()
-        self.create_widgets()
+        self.create_widget()
+
+    def create_widget(self):
         self.load_data_from_json()
 
-    def create_widgets(self):
-        # Tạo bảng TreeView cho giao dịch vàng
-        self.gold_transaction_treeview = ttk.Treeview(
-            self, columns=(
-                "ID", "Day", "Month", "Year",
-                "Unit Price", "Quantity", "Gold Type", "Total Amount"
-            ), show="headings")
-        self.gold_transaction_treeview.heading("ID", text="ID")
-        self.gold_transaction_treeview.heading("Day", text="Day")
-        self.gold_transaction_treeview.heading("Month", text="Month")
-        self.gold_transaction_treeview.heading("Year", text="Year")
-        self.gold_transaction_treeview.heading("Unit Price", text="Unit Price")
-        self.gold_transaction_treeview.heading("Quantity", text="Quantity")
-        self.gold_transaction_treeview.heading("Gold Type", text="Gold Type")
-        self.gold_transaction_treeview.heading(
-            "Total Amount", text="Total Amount")
-        self.gold_transaction_treeview.pack(padx=10, pady=10)
+        self.header_frame = HeaderFrame(master=self)
+        self.header_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
-        # Tạo bảng TreeView cho giao dịch tiền tệ
-        self.currency_transaction_treeview = ttk.Treeview(self, columns=(
-            "ID", "Day", "Month", "Year", "Quantity",
-            "Currency Type", "Exchange Rate", "Total Amount"), show="headings")
-        self.currency_transaction_treeview.heading("#0", text="STT")
-        self.currency_transaction_treeview.heading("ID", text="ID")
-        self.currency_transaction_treeview.heading("Day", text="Day")
-        self.currency_transaction_treeview.heading("Month", text="Month")
-        self.currency_transaction_treeview.heading("Year", text="Year")
-        self.currency_transaction_treeview.heading("Quantity", text="Quantity")
-        self.currency_transaction_treeview.heading(
-            "Currency Type", text="Currency Type")
-        self.currency_transaction_treeview.heading(
-            "Exchange Rate", text="Exchange Rate")
-        self.currency_transaction_treeview.heading(
-            "Total Amount", text="Total Amount")
-        self.currency_transaction_treeview.pack(padx=10, pady=10)
+        self.tab_filter = TabFilter(master=self)
+        self.tab_filter.grid(row=1, column=0, padx=10,
+                             pady=(0, 10), sticky="ew")
 
-        # Tạo label cho tổng số giao dịch và tổng số tiền
-        self.total_label = ttk.Label(
-            self,
-            text="Total Gold Transactions: 0 | "
-            "Total Currency Transactions: 0 | "
-            "Total Gold Amount: 0.0 | "
-            "Total Currency Amount: 0.0"
-        )
-        self.total_label.pack(pady=5)
+        self.grid_columnconfigure(0, weight=1)
 
     def load_data_from_json(self):
         try:
@@ -223,18 +188,321 @@ class TransactionApp(customtkinter.CTk):
         except json.JSONDecodeError:
             messagebox.showerror("Error", "Invalid JSON format in data file.")
 
-        self.refresh_transaction_list()
 
-    def refresh_transaction_list(self):
-        for row in self.gold_transaction_treeview.get_children():
-            self.gold_transaction_treeview.delete(row)
+class HeaderFrame(customtkinter.CTkFrame):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
+        self.configure(fg_color="#dbdbdb", bg_color="#ebebeb")
+        self.refresh_icon = customtkinter.CTkImage(
+            Image.open('./refresh.ico'))
+        self.filter_icon = customtkinter.CTkImage(
+            Image.open('./filter.ico'))
+        self.search_icon = customtkinter.CTkImage(
+            Image.open('./search.ico'))
 
-        for row in self.currency_transaction_treeview.get_children():
-            self.currency_transaction_treeview.delete(row)
+        self.label_transaction = customtkinter.CTkLabel(
+            self, text="Transaction", text_color="black",
+            font=("TkDefaultFont", 24, "bold"))
+        self.label_transaction.grid(
+            row=0, column=0, sticky="w", padx=12, pady=5)
 
-        for transaction in self.transaction_list.get_transactions():
+        self.buttons_frame = customtkinter.CTkFrame(self)
+        self.buttons_frame.grid(row=0, column=1, sticky="e", padx=12, pady=5)
+        self.buttons_frame.configure(fg_color="transparent")
+
+        self.btn_search = customtkinter.CTkButton(
+            self.buttons_frame,
+            text=None,
+            image=self.search_icon,
+            width=30, height=30)
+        self.btn_search.pack(side="right", padx=5, pady=5)
+
+        self.btn_filter = customtkinter.CTkButton(
+            self.buttons_frame,
+            text=None,
+            image=self.filter_icon,
+            width=30, height=30)
+        self.btn_filter.pack(side="right", padx=5, pady=5)
+
+        self.btn_refresh = customtkinter.CTkButton(
+            self.buttons_frame,
+            text=None,
+            image=self.refresh_icon,
+            fg_color="green",
+            hover_color="dark green",
+            width=30, height=30)
+        self.btn_refresh.pack(side="right", padx=5, pady=5)
+
+        self.btn_add_transaction = customtkinter.CTkButton(
+            self.buttons_frame, text="ADD TRANSACTION")
+        self.btn_add_transaction.pack(side="right", padx=5, pady=5)
+
+        self.btn_report = customtkinter.CTkButton(
+            self.buttons_frame, text="REPORT", text_color="#1f6aa5",
+            border_width=1,
+            border_color="#1f6aa5", fg_color="white",
+            hover_color="light blue")
+        self.btn_report.pack(side="right", padx=5, pady=5)
+
+        self.columnconfigure(0, weight=0)
+        self.columnconfigure(1, weight=1)
+
+
+class TabFilter(customtkinter.CTkTabview):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
+        self.configure(fg_color="#ffffff", bg_color="#ebebeb",
+                       border_width=1, border_color="#989DA1")
+
+        self.tab_last_month = self.add("LAST MONTH")
+        self.tab_this_month = self.add("THIS MONTH")
+        self.tab_future = self.add("FUTURE")
+        self.tab_view_all = self.add("VIEW ALL")
+
+        self.set("THIS MONTH")
+        self.configure(corner_radius=5)
+
+        self.create_tab_filter_widgets()
+
+    def create_tab_filter_widgets(self):
+        last_month_transactions = self.get_transactions_last_month()
+        this_month_transactions = self.get_transactions_this_month()
+        future_transactions = self.get_transactions_future()
+        all_transactions = self.get_transactions_all()
+
+        self.create_tab_with_total_frames(
+            self.tab_last_month, last_month_transactions)
+        self.create_tab_with_total_frames(
+            self.tab_this_month, this_month_transactions)
+        self.create_tab_with_total_frames(
+            self.tab_future, future_transactions)
+        self.create_tab_with_total_frames(
+            self.tab_view_all, all_transactions)
+
+        self.create_content_treeview(
+            self.tab_last_month, last_month_transactions)
+        self.create_content_treeview(
+            self.tab_this_month, this_month_transactions)
+        self.create_content_treeview(self.tab_future, future_transactions)
+        self.create_content_treeview(self.tab_view_all, all_transactions)
+
+    def create_tab_with_total_frames(self, tab, transactions):
+        total_frame = customtkinter.CTkFrame(
+            master=tab, fg_color="transparent")
+        total_frame.pack(side="top", fill="x")
+
+        self.create_total_transaction_frame(total_frame, transactions)
+        self.create_total_amount_frame(total_frame, transactions)
+
+    def create_total_amount_frame(self, tab, transactions):
+        total_total_amount_frame = customtkinter.CTkFrame(
+            master=tab,
+            fg_color="#eaeaea",
+            corner_radius=5,
+            border_width=1,
+            border_color="#989DA1"
+        )
+        total_total_amount_frame.grid(row=0, column=0, padx=10, pady=10)
+
+        total_total_amount_title = customtkinter.CTkLabel(
+            master=total_total_amount_frame,
+            text="Total Amount (VND)",
+            font=("Arial", 16, "bold"),
+            text_color="black",
+            anchor="w"
+        )
+        total_total_amount_title.pack(padx=20, pady=(10, 5), anchor="w")
+
+        gold_total_amount = sum(
+            transaction._total_amount for transaction
+            in transactions if isinstance(transaction, GoldTransaction)
+        )
+        currency_total_amount = sum(
+            transaction._total_amount for transaction
+            in transactions if isinstance(transaction, CurrencyTransaction)
+        )
+
+        gold_label = customtkinter.CTkLabel(
+            master=total_total_amount_frame,
+            text=f"Gold: {gold_total_amount:>61}",
+            font=("Arial", 14),
+            text_color="black",
+            anchor="w"
+        )
+        gold_label.pack(padx=40, pady=2, anchor="w")
+
+        currency_label = customtkinter.CTkLabel(
+            master=total_total_amount_frame,
+            text=f"Currency: {currency_total_amount:>54}",
+            font=("Arial", 14),
+            text_color="black",
+            anchor="w"
+        )
+        currency_label.pack(padx=40, pady=2, anchor="w")
+
+        separator = ttk.Separator(
+            total_total_amount_frame, orient="horizontal")
+        separator.pack(fill="x", padx=10, pady=5)
+
+        grand_total = gold_total_amount + currency_total_amount
+        grand_total_label = customtkinter.CTkLabel(
+            master=total_total_amount_frame,
+            text=f"Grand Total: {grand_total:>50}",
+            font=("Arial", 14),
+            text_color="black",
+            anchor="w"
+        )
+        grand_total_label.pack(padx=40, pady=(5, 10), anchor="w")
+
+    def create_total_transaction_frame(self, tab, transactions):
+        total_transaction_frame = customtkinter.CTkFrame(
+            master=tab,
+            fg_color="#eaeaea",
+            corner_radius=5,
+            border_width=1,
+            border_color="#989DA1"
+        )
+        total_transaction_frame.grid(row=0, column=1, padx=10, pady=10)
+
+        total_transaction_title = customtkinter.CTkLabel(
+            master=total_transaction_frame,
+            text="Total Transaction",
+            font=("Arial", 16, "bold"),
+            text_color="black",
+            anchor="w"
+        )
+        total_transaction_title.pack(padx=20, pady=(10, 5), anchor="w")
+
+        gold_transaction = sum(
+            1 for transaction in transactions if isinstance(transaction,
+                                                            GoldTransaction)
+        )
+
+        currency_transaction = sum(
+            1 for transaction in transactions
+            if isinstance(transaction,
+                          CurrencyTransaction)
+        )
+
+        gold_label = customtkinter.CTkLabel(
+            master=total_transaction_frame,
+            text=f"Gold: {gold_transaction:>61}",
+            font=("Arial", 14),
+            text_color="black",
+            anchor="w"
+        )
+        gold_label.pack(padx=40, pady=2, anchor="w")
+
+        currency_label = customtkinter.CTkLabel(
+            master=total_transaction_frame,
+            text=f"Currency: {currency_transaction:>54}",
+            font=("Arial", 14),
+            text_color="black",
+            anchor="w"
+        )
+        currency_label.pack(padx=40, pady=2, anchor="w")
+
+        separator = ttk.Separator(
+            total_transaction_frame, orient="horizontal")
+        separator.pack(fill="x", padx=10, pady=5)
+
+        grand_total = gold_transaction + currency_transaction
+        grand_total_label = customtkinter.CTkLabel(
+            master=total_transaction_frame,
+            text=f"Grand Total: {grand_total:>50}",
+            font=("Arial", 14),
+            text_color="black",
+            anchor="w"
+        )
+        grand_total_label.pack(padx=40, pady=(5, 10), anchor="w")
+
+    def create_content_treeview(self, tab, transactions):
+        treeview_gold_transaction = self.create_gold_transaction_treeview(tab)
+        self.populate_treeview_with_gold_transactions(
+            treeview_gold_transaction, transactions)
+        treeview_gold_transaction.pack(padx=10, pady=10, fill="x")
+
+        treeview_currency_transaction \
+            = self.create_currency_transaction_treeview(tab)
+        self.populate_treeview_with_currency_transactions(
+            treeview_currency_transaction, transactions)
+        treeview_currency_transaction.pack(padx=10, pady=10, fill="x")
+
+    def get_transactions_last_month(self):
+        today = datetime.datetime.now()
+        if today.month == 1:
+            last_month = 12
+            last_month_year = today.year - 1
+        else:
+            last_month = today.month - 1
+            last_month_year = today.year
+        return self.get_transactions_by_month_year(last_month, last_month_year)
+
+    def get_transactions_this_month(self):
+        today = datetime.datetime.now()
+        return self.get_transactions_by_month_year(today.month, today.year)
+
+    def get_transactions_future(self):
+        today = datetime.datetime.now()
+        future_transactions = []
+        for transaction in self.master.transaction_list.get_transactions():
+            if (
+                transaction._year > today.year
+                or (transaction._year == today.year and
+                    transaction._month > today.month)
+                or (
+                    transaction._year == today.year
+                    and transaction._month == today.month
+                    and transaction._day > today.day
+                )
+            ):
+                future_transactions.append(transaction)
+        return future_transactions
+
+    def get_transactions_all(self):
+        return self.master.transaction_list.get_transactions()
+
+    def get_transactions_by_month_year(self, month, year):
+        transactions_month_year = []
+        for transaction in self.master.transaction_list.get_transactions():
+            if transaction._month == month and transaction._year == year:
+                transactions_month_year.append(transaction)
+        return transactions_month_year
+
+    def create_gold_transaction_treeview(self, tab):
+        treeview = ttk.Treeview(tab, columns=(
+            "ID", "Day", "Month", "Year", "Unit Price", "Quantity",
+            "Gold Type", "Total Amount"
+        ), show="headings")
+        treeview.heading("ID", text="ID")
+        treeview.heading("Day", text="Day")
+        treeview.heading("Month", text="Month")
+        treeview.heading("Year", text="Year")
+        treeview.heading("Unit Price", text="Unit Price")
+        treeview.heading("Quantity", text="Quantity")
+        treeview.heading("Gold Type", text="Gold Type")
+        treeview.heading("Total Amount", text="Total Amount")
+        return treeview
+
+    def create_currency_transaction_treeview(self, tab):
+        treeview = ttk.Treeview(tab, columns=(
+            "ID", "Day", "Month", "Year", "Quantity", "Currency Type",
+            "Exchange Rate", "Total Amount"
+        ), show="headings")
+        treeview.heading("ID", text="ID")
+        treeview.heading("Day", text="Day")
+        treeview.heading("Month", text="Month")
+        treeview.heading("Year", text="Year")
+        treeview.heading("Quantity", text="Quantity")
+        treeview.heading("Currency Type", text="Currency Type")
+        treeview.heading("Exchange Rate", text="Exchange Rate")
+        treeview.heading("Total Amount", text="Total Amount")
+        return treeview
+
+    def populate_treeview_with_gold_transactions(self, treeview, transactions):
+        for transaction in transactions:
             if isinstance(transaction, GoldTransaction):
-                transaction_data = (
+                treeview.insert("", "end", values=(
                     transaction._id,
                     transaction._day,
                     transaction._month,
@@ -242,13 +510,14 @@ class TransactionApp(customtkinter.CTk):
                     transaction._unit_price,
                     transaction._quantity,
                     transaction._gold_type.name,
-                    transaction.calculate_total_amount(),
-                    "Gold"
-                )
-                self.gold_transaction_treeview.insert(
-                    "", "end", values=transaction_data)
-            elif isinstance(transaction, CurrencyTransaction):
-                transaction_data = (
+                    transaction._total_amount
+                ))
+
+    def populate_treeview_with_currency_transactions(self, treeview,
+                                                     transactions):
+        for transaction in transactions:
+            if isinstance(transaction, CurrencyTransaction):
+                treeview.insert("", "end", values=(
                     transaction._id,
                     transaction._day,
                     transaction._month,
@@ -256,27 +525,8 @@ class TransactionApp(customtkinter.CTk):
                     transaction._quantity,
                     transaction._currency_type.name,
                     transaction._exchange_rate._rate,
-                    transaction.calculate_total_amount(),
-                    "Currency"
-                )
-                self.currency_transaction_treeview.insert(
-                    "", "end", values=transaction_data)
-            else:
-                continue
-
-        self.update_total_label()
-
-    def update_total_label(self):
-        total_label_content = (
-            f"Total Gold Transactions: {
-                self.transaction_list._total_gold_transactions} | "
-            f"Total Currency Transactions: {
-                self.transaction_list._total_currency_transactions} | "
-            f"Total Gold Amount: {self.transaction_list._total_gold_amount} | "
-            f"Total Currency Amount: {
-                self.transaction_list._total_currency_amount}"
-        )
-        self.total_label.config(text=total_label_content)
+                    transaction._total_amount
+                ))
 
 
 if __name__ == "__main__":
