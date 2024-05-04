@@ -381,14 +381,14 @@ class TabFilter(customtkinter.CTkTabview):
     def create_tab_filter_widgets(self):
         last_month_transactions = self.get_transactions_last_month()
         this_month_transactions = self.get_transactions_this_month()
-        # future_transactions = self.get_transactions_future()
+        future_transactions = self.get_transactions_future()
         # all_transactions = self.get_transactions_all()
 
         self.create_content_last_month(
             self.tab_last_month, last_month_transactions)
         self.create_content_this_month(
             self.tab_this_month, this_month_transactions)
-        self.create_content_future(self.tab_future)
+        self.create_content_future(self.tab_future, future_transactions)
         self.create_content_view_all(self.tab_view_all)
 
     def create_content_last_month(self, tab, transactions):
@@ -407,11 +407,13 @@ class TabFilter(customtkinter.CTkTabview):
                 Amount: {transaction._total_amount}")
             label.pack(padx=20, pady=5)
 
-    def create_content_future(self, tab):
-        label = customtkinter.CTkLabel(
-            master=tab, text_color="black",
-            text="Content for FUTURE")
-        label.pack(padx=20, pady=20)
+    def create_content_future(self, tab, transactions):
+        for transaction in transactions:
+            label = customtkinter.CTkLabel(
+                master=tab, text_color="black",
+                text=f"Transaction ID: {transaction._id}, \
+                Amount: {transaction._total_amount}")
+            label.pack(padx=20, pady=5)
 
     def create_content_view_all(self, tab):
         label = customtkinter.CTkLabel(
@@ -439,13 +441,13 @@ class TabFilter(customtkinter.CTkTabview):
         future_transactions = []
         for transaction in self.master.transaction_list.get_transactions():
             if (
-                transaction.year > today.year
-                or (transaction.year == today.year and
-                    transaction.month > today.month)
+                transaction._year > today.year
+                or (transaction._year == today.year and
+                    transaction._month > today.month)
                 or (
-                    transaction.year == today.year
-                    and transaction.month == today.month
-                    and transaction.day > today.day
+                    transaction._year == today.year
+                    and transaction._month == today.month
+                    and transaction._day > today.day
                 )
             ):
                 future_transactions.append(transaction)
