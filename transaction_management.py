@@ -384,22 +384,13 @@ class TabFilter(customtkinter.CTkTabview):
         future_transactions = self.get_transactions_future()
         all_transactions = self.get_transactions_all()
 
-        self.create_total_amount_frame(
+        self.create_tab_with_total_frames(
             self.tab_last_month, last_month_transactions)
-        self.create_total_amount_frame(
+        self.create_tab_with_total_frames(
             self.tab_this_month, this_month_transactions)
-        self.create_total_amount_frame(
+        self.create_tab_with_total_frames(
             self.tab_future, future_transactions)
-        self.create_total_amount_frame(
-            self.tab_view_all, all_transactions)
-
-        self.create_total_transaction_frame(
-            self.tab_last_month, last_month_transactions)
-        self.create_total_transaction_frame(
-            self.tab_this_month, this_month_transactions)
-        self.create_total_transaction_frame(
-            self.tab_future, future_transactions)
-        self.create_total_transaction_frame(
+        self.create_tab_with_total_frames(
             self.tab_view_all, all_transactions)
 
         self.create_content_last_month(
@@ -409,6 +400,14 @@ class TabFilter(customtkinter.CTkTabview):
         self.create_content_future(self.tab_future, future_transactions)
         self.create_content_view_all(self.tab_view_all, all_transactions)
 
+    def create_tab_with_total_frames(self, tab, transactions):
+        total_frame = customtkinter.CTkFrame(
+            master=tab, fg_color="transparent")
+        total_frame.pack(side="top", fill="x")
+
+        self.create_total_transaction_frame(total_frame, transactions)
+        self.create_total_amount_frame(total_frame, transactions)
+
     def create_total_amount_frame(self, tab, transactions):
         total_total_amount_frame = customtkinter.CTkFrame(
             master=tab,
@@ -417,7 +416,7 @@ class TabFilter(customtkinter.CTkTabview):
             border_width=1,
             border_color="#989DA1"
         )
-        total_total_amount_frame.pack(padx=10, pady=10)
+        total_total_amount_frame.grid(row=0, column=0, padx=10, pady=10)
 
         total_total_amount_title = customtkinter.CTkLabel(
             master=total_total_amount_frame,
@@ -477,7 +476,7 @@ class TabFilter(customtkinter.CTkTabview):
             border_width=1,
             border_color="#989DA1"
         )
-        total_transaction_frame.pack(padx=10, pady=10)
+        total_transaction_frame.grid(row=0, column=1, padx=10, pady=10)
 
         total_transaction_title = customtkinter.CTkLabel(
             master=total_transaction_frame,
