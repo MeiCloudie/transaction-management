@@ -559,15 +559,23 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         self.create_tab_group_by_sort_by_widgets()
 
     def create_tab_group_by_sort_by_widgets(self):
-        self.label = customtkinter.CTkLabel(master=self.tab_group_by,
-                                            text="Group By",
-                                            text_color="black")
-        self.label.grid(row=0, column=0, padx=20, pady=10)
+        # Group By
+        self.create_option_menu_group_by()
 
-        self.label = customtkinter.CTkLabel(master=self.tab_sort_by,
-                                            text="Sort By",
-                                            text_color="black")
-        self.label.grid(row=0, column=0, padx=20, pady=10)
+        # Sort By
+
+        self.grid_columnconfigure(0, weight=1)
+
+    def create_option_menu_group_by(self):
+        self.optionmenu = customtkinter. \
+            CTkOptionMenu(self.tab_group_by,
+                          values=["Date", "Category"],
+                          command=self.option_menu_group_by_callback)
+        self.optionmenu.set("Date")
+        self.optionmenu.grid(row=0, column=0, padx=20, pady=10, sticky="ew")
+
+    def option_menu_group_by_callback(self, choice):
+        print("optionmenu dropdown clicked:", choice)
 
 
 if __name__ == "__main__":
