@@ -384,6 +384,15 @@ class TabFilter(customtkinter.CTkTabview):
         future_transactions = self.get_transactions_future()
         all_transactions = self.get_transactions_all()
 
+        self.create_total_amount_frame(
+            self.tab_last_month, last_month_transactions)
+        self.create_total_amount_frame(
+            self.tab_this_month, this_month_transactions)
+        self.create_total_amount_frame(
+            self.tab_future, future_transactions)
+        self.create_total_amount_frame(
+            self.tab_view_all, all_transactions)
+
         self.create_total_transaction_frame(
             self.tab_last_month, last_month_transactions)
         self.create_total_transaction_frame(
@@ -399,6 +408,66 @@ class TabFilter(customtkinter.CTkTabview):
             self.tab_this_month, this_month_transactions)
         self.create_content_future(self.tab_future, future_transactions)
         self.create_content_view_all(self.tab_view_all, all_transactions)
+
+    def create_total_amount_frame(self, tab, transactions):
+        total_total_amount_frame = customtkinter.CTkFrame(
+            master=tab,
+            fg_color="#eaeaea",
+            corner_radius=5,
+            border_width=1,
+            border_color="#989DA1"
+        )
+        total_total_amount_frame.pack(padx=10, pady=10)
+
+        total_total_amount_title = customtkinter.CTkLabel(
+            master=total_total_amount_frame,
+            text="Total Amount (VND)",
+            font=("Arial", 16, "bold"),
+            text_color="black",
+            anchor="w"
+        )
+        total_total_amount_title.pack(padx=20, pady=(10, 5), anchor="w")
+
+        gold_total_amount = sum(
+            transaction._total_amount for transaction
+            in transactions if isinstance(transaction, GoldTransaction)
+        )
+        currency_total_amount = sum(
+            transaction._total_amount for transaction
+            in transactions if isinstance(transaction, CurrencyTransaction)
+        )
+
+        gold_label = customtkinter.CTkLabel(
+            master=total_total_amount_frame,
+            text=f"Gold: {gold_total_amount:>61}",
+            font=("Arial", 14),
+            text_color="black",
+            anchor="w"
+        )
+        gold_label.pack(padx=40, pady=2, anchor="w")
+
+        currency_label = customtkinter.CTkLabel(
+            master=total_total_amount_frame,
+            text=f"Currency: {currency_total_amount:>54}",
+            font=("Arial", 14),
+            text_color="black",
+            anchor="w"
+        )
+        currency_label.pack(padx=40, pady=2, anchor="w")
+
+        separator = ttk.Separator(
+            total_total_amount_frame, orient="horizontal")
+        separator.pack(fill="x", padx=10, pady=5)
+
+        grand_total = gold_total_amount + currency_total_amount
+        grand_total_label = customtkinter.CTkLabel(
+            master=total_total_amount_frame,
+            text=f"Grand Total: {grand_total:>50}",
+            font=("Arial", 14),
+            text_color="black",
+            anchor="w"
+        )
+        grand_total_label.pack(padx=40, pady=(5, 10), anchor="w")
 
     def create_total_transaction_frame(self, tab, transactions):
         total_transaction_frame = customtkinter.CTkFrame(
