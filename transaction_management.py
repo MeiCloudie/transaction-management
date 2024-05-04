@@ -401,38 +401,38 @@ class TabFilter(customtkinter.CTkTabview):
         self.create_content_view_all(self.tab_view_all, all_transactions)
 
     def create_total_transaction_frame(self, tab, transactions):
-        total_quantity_frame = customtkinter.CTkFrame(
+        total_transaction_frame = customtkinter.CTkFrame(
             master=tab,
             fg_color="#eaeaea",
             corner_radius=5,
             border_width=1,
             border_color="#989DA1"
         )
-        total_quantity_frame.pack(padx=10, pady=10)
+        total_transaction_frame.pack(padx=10, pady=10)
 
-        total_quantity_title = customtkinter.CTkLabel(
-            master=total_quantity_frame,
+        total_transaction_title = customtkinter.CTkLabel(
+            master=total_transaction_frame,
             text="Total Transaction",
             font=("Arial", 16, "bold"),
             text_color="black",
             anchor="w"
         )
-        total_quantity_title.pack(padx=20, pady=(10, 5), anchor="w")
+        total_transaction_title.pack(padx=20, pady=(10, 5), anchor="w")
 
-        gold_quantity = sum(
+        gold_transaction = sum(
             1 for transaction in transactions if isinstance(transaction,
                                                             GoldTransaction)
         )
 
-        currency_quantity = sum(
+        currency_transaction = sum(
             1 for transaction in transactions
             if isinstance(transaction,
                           CurrencyTransaction)
         )
 
         gold_label = customtkinter.CTkLabel(
-            master=total_quantity_frame,
-            text=f"Gold: {gold_quantity:>61}",
+            master=total_transaction_frame,
+            text=f"Gold: {gold_transaction:>61}",
             font=("Arial", 14),
             text_color="black",
             anchor="w"
@@ -440,8 +440,8 @@ class TabFilter(customtkinter.CTkTabview):
         gold_label.pack(padx=40, pady=2, anchor="w")
 
         currency_label = customtkinter.CTkLabel(
-            master=total_quantity_frame,
-            text=f"Currency: {currency_quantity:>54}",
+            master=total_transaction_frame,
+            text=f"Currency: {currency_transaction:>54}",
             font=("Arial", 14),
             text_color="black",
             anchor="w"
@@ -449,12 +449,12 @@ class TabFilter(customtkinter.CTkTabview):
         currency_label.pack(padx=40, pady=2, anchor="w")
 
         separator = ttk.Separator(
-            total_quantity_frame, orient="horizontal")
+            total_transaction_frame, orient="horizontal")
         separator.pack(fill="x", padx=10, pady=5)
 
-        grand_total = gold_quantity + currency_quantity
+        grand_total = gold_transaction + currency_transaction
         grand_total_label = customtkinter.CTkLabel(
-            master=total_quantity_frame,
+            master=total_transaction_frame,
             text=f"Grand Total: {grand_total:>50}",
             font=("Arial", 14),
             text_color="black",
