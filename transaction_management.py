@@ -176,7 +176,6 @@ class TransactionApp(customtkinter.CTk):
             "ID", "Day", "Month", "Year", "Quantity",
             "Currency Type", "Exchange Rate", "Total Amount"),
             show="headings")
-        treeview.heading("#0", text="STT")
         treeview.heading("ID", text="ID")
         treeview.heading("Day", text="Day")
         treeview.heading("Month", text="Month")
@@ -393,12 +392,12 @@ class TabFilter(customtkinter.CTkTabview):
         self.create_tab_with_total_frames(
             self.tab_view_all, all_transactions)
 
-        self.create_content_last_month(
+        self.create_content_treeview(
             self.tab_last_month, last_month_transactions)
-        self.create_content_this_month(
+        self.create_content_treeview(
             self.tab_this_month, this_month_transactions)
-        self.create_content_future(self.tab_future, future_transactions)
-        self.create_content_view_all(self.tab_view_all, all_transactions)
+        self.create_content_treeview(self.tab_future, future_transactions)
+        self.create_content_treeview(self.tab_view_all, all_transactions)
 
     def create_tab_with_total_frames(self, tab, transactions):
         total_frame = customtkinter.CTkFrame(
@@ -530,37 +529,17 @@ class TabFilter(customtkinter.CTkTabview):
         )
         grand_total_label.pack(padx=40, pady=(5, 10), anchor="w")
 
-    def create_content_last_month(self, tab, transactions):
-        for transaction in transactions:
-            label = customtkinter.CTkLabel(
-                master=tab, text_color="black",
-                text=f"Transaction ID: {transaction._id}, \
-                Amount: {transaction._total_amount}")
-            label.pack(padx=20, pady=5)
+    def create_content_treeview(self, tab, transactions):
+        treeview_gold_transaction = self.create_gold_transaction_treeview(tab)
+        self.populate_treeview_with_gold_transactions(
+            treeview_gold_transaction, transactions)
+        treeview_gold_transaction.pack(padx=10, pady=10)
 
-    def create_content_this_month(self, tab, transactions):
-        for transaction in transactions:
-            label = customtkinter.CTkLabel(
-                master=tab, text_color="black",
-                text=f"Transaction ID: {transaction._id}, \
-                Amount: {transaction._total_amount}")
-            label.pack(padx=20, pady=5)
-
-    def create_content_future(self, tab, transactions):
-        for transaction in transactions:
-            label = customtkinter.CTkLabel(
-                master=tab, text_color="black",
-                text=f"Transaction ID: {transaction._id}, \
-                Amount: {transaction._total_amount}")
-            label.pack(padx=20, pady=5)
-
-    def create_content_view_all(self, tab, transactions):
-        for transaction in transactions:
-            label = customtkinter.CTkLabel(
-                master=tab, text_color="black",
-                text=f"Transaction ID: {transaction._id}, \
-                Amount: {transaction._total_amount}")
-            label.pack(padx=20, pady=5)
+        treeview_currency_transaction \
+            = self.create_currency_transaction_treeview(tab)
+        self.populate_treeview_with_currency_transactions(
+            treeview_currency_transaction, transactions)
+        treeview_currency_transaction.pack(padx=10, pady=10)
 
     def get_transactions_last_month(self):
         today = datetime.datetime.now()
@@ -602,6 +581,65 @@ class TabFilter(customtkinter.CTkTabview):
             if transaction._month == month and transaction._year == year:
                 transactions_month_year.append(transaction)
         return transactions_month_year
+
+    def create_gold_transaction_treeview(self, tab):
+        treeview = ttk.Treeview(tab, columns=(
+            "ID", "Day", "Month", "Year", "Unit Price", "Quantity",
+            "Gold Type", "Total Amount"
+        ), show="headings")
+        treeview.heading("ID", text="ID")
+        treeview.heading("Day", text="Day")
+        treeview.heading("Month", text="Month")
+        treeview.heading("Year", text="Year")
+        treeview.heading("Unit Price", text="Unit Price")
+        treeview.heading("Quantity", text="Quantity")
+        treeview.heading("Gold Type", text="Gold Type")
+        treeview.heading("Total Amount", text="Total Amount")
+        return treeview
+
+    def create_currency_transaction_treeview(self, tab):
+        treeview = ttk.Treeview(tab, columns=(
+            "ID", "Day", "Month", "Year", "Quantity", "Currency Type",
+            "Exchange Rate", "Total Amount"
+        ), show="headings")
+        treeview.heading("ID", text="ID")
+        treeview.heading("Day", text="Day")
+        treeview.heading("Month", text="Month")
+        treeview.heading("Year", text="Year")
+        treeview.heading("Quantity", text="Quantity")
+        treeview.heading("Currency Type", text="Currency Type")
+        treeview.heading("Exchange Rate", text="Exchange Rate")
+        treeview.heading("Total Amount", text="Total Amount")
+        return treeview
+
+    def populate_treeview_with_gold_transactions(self, treeview, transactions):
+        for transaction in transactions:
+            if isinstance(transaction, GoldTransaction):
+                treeview.insert("", "end", values=(
+                    transaction._id,
+                    transaction._day,
+                    transaction._month,
+                    transaction._year,
+                    transaction._unit_price,
+                    transaction._quantity,
+                    transaction._gold_type.name,
+                    transaction._total_amount
+                ))
+
+    def populate_treeview_with_currency_transactions(self, treeview,
+                                                     transactions):
+        for transaction in transactions:
+            if isinstance(transaction, CurrencyTransaction):
+                treeview.insert("", "end", values=(
+                    transaction._id,
+                    transaction._day,
+                    transaction._month,
+                    transaction._year,
+                    transaction._quantity,
+                    transaction._currency_type.name,
+                    transaction._exchange_rate._rate,
+                    transaction._total_amount
+                ))
 
 
 if __name__ == "__main__":
