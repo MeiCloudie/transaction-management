@@ -19,6 +19,24 @@ class GoldType(Enum):
     DOJI = 2
 
 
+class MonthLabel(Enum):
+    JANUARY = 1
+    FEBRUARY = 2
+    MARCH = 3
+    APRIL = 4
+    MAY = 5
+    JUNE = 6
+    JULY = 7
+    AUGUST = 8
+    SEPTEMBER = 9
+    OCTOBER = 10
+    NOVEMBER = 11
+    DECEMBER = 12
+
+    def __str__(self):
+        return self.name.capitalize()
+
+
 class AbstractTransaction(ABC):
     def __init__(self, id, day, month, year, *args):
         self._id = id
@@ -533,7 +551,7 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             frame, text="Date Frame", text_color="black")
         frame_label.pack(padx=10, pady=5, side="top", fill="x")
 
-        self.get_date_in_transaction(frame, transactions)
+        self.get_date_in_transactions(frame, transactions)
 
         self.create_content_treeview(
             frame, transactions)
@@ -554,27 +572,79 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
         return frame
 
-    def get_date_in_transaction(self, frame, transactions):
+    def get_date_in_transactions(self, parent, transactions):
         unique_dates = set()
 
         for transaction in transactions:
             day = transaction._day
-            month = transaction._month
+            month = MonthLabel(transaction._month)
             year = transaction._year
 
-            date_object = datetime.date(year, month, day)
-
-            unique_dates.add(date_object)
+            unique_dates.add((day, month, year))
 
         sorted_dates = sorted(unique_dates, reverse=True)
 
-        date_text = "Dates in transactions (newest to oldest):\n"
-        for date_object in sorted_dates:
-            date_text += f"{date_object.strftime('%d/%m/%Y')}\n"
+        for day, month, year in sorted_dates:
+            group_by_date_items_frame = self.create_group_by_date_items_frame(
+                parent, day, month, year)
+            group_by_date_items_frame.pack(padx=10, pady=5, fill="x")
 
-        label = customtkinter.CTkLabel(
-            frame, text=date_text, text_color="black")
-        label.pack(padx=10, pady=5, fill="x")
+    def create_group_by_date_items_frame(self, parent, day, month, year):
+        frame = customtkinter.CTkFrame(
+            parent, fg_color="transparent", border_width=1)
+
+        frame_date = customtkinter.CTkFrame(
+            frame, fg_color="transparent")
+        frame_date.grid(row=0, column=0, sticky="w", padx=(10, 0), pady=5)
+
+        day_label = customtkinter.CTkLabel(
+            frame_date, text=str(day), text_color="black",
+            font=("Arial", 52, "bold"))
+        day_label.pack(padx=5, pady=5, side="left")
+
+        frame_month_year = customtkinter.CTkFrame(
+            frame, fg_color="transparent")
+        frame_month_year.grid(row=0, column=1, sticky="e", padx=0, pady=0)
+
+        month_label = customtkinter.CTkLabel(
+            frame_month_year, text=str(month), text_color="black",
+            font=("Arial", 14))
+        month_label.grid(row=0, column=0, padx=5, pady=0, sticky="w")
+
+        year_label = customtkinter.CTkLabel(
+            frame_month_year, text=str(year), text_color="black",
+            font=("Arial", 14))
+        year_label.grid(row=1, column=0, padx=5, pady=0, sticky="w")
+
+        separator_style = ttk.Style()
+        separator_style.configure(
+            "Separator.TSeparator", background="#989DA1", borderwidth=1)
+
+        separator = ttk.Separator(
+            frame, orient="horizontal", style="Separator.TSeparator")
+        separator.grid(row=1, column=0, columnspan=3,
+                       sticky="ew", padx=10, pady=5)
+
+        frame_total_amount = customtkinter.CTkFrame(
+            frame, fg_color="transparent")
+        frame_total_amount.grid(row=0, column=2, sticky="e", padx=10, pady=5)
+
+        total_amount_label = customtkinter.CTkLabel(
+            frame_total_amount, text="Total Amount (VND)", text_color="black",
+            font=("Arial", 14))
+        total_amount_label.grid(row=0, column=0, padx=5, pady=0, sticky="e")
+
+        total_amount_number_label = customtkinter.CTkLabel(
+            frame_total_amount, text="100,000", text_color="black",
+            font=("Arial", 20, "bold"))
+        total_amount_number_label.grid(
+            row=1, column=0, padx=5, pady=0, sticky="e")
+
+        frame.columnconfigure(0, weight=0)
+        frame.columnconfigure(1, weight=0)
+        frame.columnconfigure(2, weight=1)
+
+        return frame
 
     def create_content_treeview(self, frame, transactions):
         treeview_gold_transaction = \
