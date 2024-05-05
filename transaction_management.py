@@ -280,27 +280,20 @@ class TabFilter(customtkinter.CTkTabview):
             self.tab_view_all, all_transactions)
 
         self.tab_group_by_sort_by_last_month = TabGroupBySortBy(
-            master=self.tab_last_month)
+            master=self.tab_last_month, transactions=last_month_transactions)
         self.tab_group_by_sort_by_last_month.pack(
             padx=10, pady=(0, 10), fill="x")
         self.tab_group_by_sort_by_this_month = TabGroupBySortBy(
-            master=self.tab_this_month)
+            master=self.tab_this_month, transactions=this_month_transactions)
         self.tab_group_by_sort_by_this_month.pack(
             padx=10, pady=(0, 10), fill="x")
         self.tab_group_by_sort_by_future = TabGroupBySortBy(
-            master=self.tab_future)
+            master=self.tab_future, transactions=future_transactions)
         self.tab_group_by_sort_by_future.pack(padx=10, pady=(0, 10), fill="x")
         self.tab_group_by_sort_by_view_all = TabGroupBySortBy(
-            master=self.tab_view_all)
+            master=self.tab_view_all, transactions=all_transactions)
         self.tab_group_by_sort_by_view_all.pack(
             padx=10, pady=(0, 10), fill="x")
-
-        self.create_content_treeview(
-            self.tab_last_month, last_month_transactions)
-        self.create_content_treeview(
-            self.tab_this_month, this_month_transactions)
-        self.create_content_treeview(self.tab_future, future_transactions)
-        self.create_content_treeview(self.tab_view_all, all_transactions)
 
     def create_tab_with_total_frames(self, tab, transactions):
         total_frame = customtkinter.CTkFrame(
@@ -432,18 +425,6 @@ class TabFilter(customtkinter.CTkTabview):
         )
         grand_total_label.pack(padx=40, pady=(5, 10), anchor="w")
 
-    def create_content_treeview(self, tab, transactions):
-        treeview_gold_transaction = self.create_gold_transaction_treeview(tab)
-        self.populate_treeview_with_gold_transactions(
-            treeview_gold_transaction, transactions)
-        treeview_gold_transaction.pack(padx=10, pady=10, fill="x")
-
-        treeview_currency_transaction \
-            = self.create_currency_transaction_treeview(tab)
-        self.populate_treeview_with_currency_transactions(
-            treeview_currency_transaction, transactions)
-        treeview_currency_transaction.pack(padx=10, pady=10, fill="x")
-
     def get_transactions_last_month(self):
         today = datetime.datetime.now()
         if today.month == 1:
@@ -485,8 +466,104 @@ class TabFilter(customtkinter.CTkTabview):
                 transactions_month_year.append(transaction)
         return transactions_month_year
 
-    def create_gold_transaction_treeview(self, tab):
-        treeview = ttk.Treeview(tab, columns=(
+
+class TabGroupBySortBy(customtkinter.CTkTabview):
+    def __init__(self, master, transactions, **kwargs):
+        super().__init__(master, **kwargs)
+        self.transactions = transactions
+        self.configure(fg_color="#dbdbdb", bg_color="#ffffff")
+
+        self.tab_group_by = self.add("GROUP BY")
+        self.tab_sort_by = self.add("SORT BY")
+
+        self.set("GROUP BY")
+        self.configure(corner_radius=5)
+
+        self.create_tab_group_by_sort_by_widgets()
+
+    def create_tab_group_by_sort_by_widgets(self):
+        # Group By
+        self.create_option_menu_group_by()
+
+        self.date_frame = self.create_date_frame(
+            self.tab_group_by, self.transactions)
+        self.category_frame = self.create_category_frame(
+            self.tab_group_by, self.transactions)
+
+        self.category_frame.pack_forget()
+
+        self.show_default_frame()
+
+        # Sort By
+
+    def show_default_frame(self):
+        self.show_frame(self.date_frame)
+        self.hide_frame(self.category_frame)
+
+    def create_option_menu_group_by(self):
+        self.buttons_frame = customtkinter.CTkFrame(self.tab_group_by)
+        self.buttons_frame.pack(padx=10, pady=5, fill="x")
+        self.buttons_frame.configure(fg_color="transparent")
+
+        self.optionmenu = customtkinter. \
+            CTkOptionMenu(self.buttons_frame,
+                          values=[
+                              "Date", "Category"],
+                          command=self.option_menu_group_by_callback)
+        self.optionmenu.set("Date")
+        self.optionmenu.pack(padx=0, pady=5, side="left")
+
+        self.grid_columnconfigure(0, weight=1)
+
+    def option_menu_group_by_callback(self, choice):
+        if choice == "Date":
+            self.show_frame(self.date_frame)
+            self.hide_frame(self.category_frame)
+        elif choice == "Category":
+            self.show_frame(self.category_frame)
+            self.hide_frame(self.date_frame)
+
+    def create_date_frame(self, parent, transactions):
+        frame = customtkinter.CTkFrame(
+            parent, fg_color="#ffffff", border_width=1, border_color="#989DA1")
+
+        frame_label = customtkinter.CTkLabel(
+            frame, text="Date Frame", text_color="black")
+        frame_label.pack(padx=10, pady=5, side="top", fill="x")
+
+        self.create_content_treeview(
+            frame, transactions)
+
+        return frame
+
+    def create_category_frame(self, parent, transactions):
+        frame = customtkinter.CTkFrame(
+            parent, fg_color="#ffffff", border_width=1, border_color="#989DA1")
+
+        frame_label = customtkinter.CTkLabel(
+            frame, text="Category Frame", text_color="black")
+        frame_label.pack(padx=10, pady=5, side="top", fill="x")
+
+        self.create_content_treeview(
+            frame, transactions)
+
+        return frame
+
+    def create_content_treeview(self, frame, transactions):
+        treeview_gold_transaction = \
+            self.create_gold_transaction_treeview(frame)
+        self.populate_treeview_with_gold_transactions(
+            treeview_gold_transaction, transactions)
+        treeview_gold_transaction.pack(padx=10, pady=10, fill="x")
+
+        treeview_currency_transaction \
+            = self.create_currency_transaction_treeview(frame)
+        self.populate_treeview_with_currency_transactions(
+            treeview_currency_transaction, transactions)
+        treeview_currency_transaction.pack(padx=10, pady=10, fill="x")
+
+    def create_gold_transaction_treeview(self, frame):
+        treeview = ttk.Treeview(frame, columns=(
             "ID", "Day", "Month", "Year", "Unit Price", "Quantity",
             "Gold Type", "Total Amount"
         ), show="headings")
@@ -500,8 +577,8 @@ class TabFilter(customtkinter.CTkTabview):
         treeview.heading("Total Amount", text="Total Amount")
         return treeview
 
-    def create_currency_transaction_treeview(self, tab):
-        treeview = ttk.Treeview(tab, columns=(
+    def create_currency_transaction_treeview(self, frame):
+        treeview = ttk.Treeview(frame, columns=(
             "ID", "Day", "Month", "Year", "Quantity", "Currency Type",
             "Exchange Rate", "Total Amount"
         ), show="headings")
@@ -543,69 +620,6 @@ class TabFilter(customtkinter.CTkTabview):
                     transaction._exchange_rate._rate,
                     transaction._total_amount
                 ))
-
-
-class TabGroupBySortBy(customtkinter.CTkTabview):
-    def __init__(self, master, **kwargs):
-        super().__init__(master, **kwargs)
-        self.configure(fg_color="#dbdbdb", bg_color="#ffffff")
-
-        self.tab_group_by = self.add("GROUP BY")
-        self.tab_sort_by = self.add("SORT BY")
-
-        self.set("GROUP BY")
-        self.configure(corner_radius=5)
-
-        self.create_tab_group_by_sort_by_widgets()
-
-    def create_tab_group_by_sort_by_widgets(self):
-        # Group By
-        self.create_option_menu_group_by()
-
-        self.date_frame = self.create_frame(self.tab_group_by, "Date Frame")
-        self.category_frame = self.create_frame(
-            self.tab_group_by, "Category Frame")
-
-        self.category_frame.pack_forget()
-
-        self.show_default_frame()
-
-        # Sort By
-
-    def show_default_frame(self):
-        self.show_frame(self.date_frame)
-        self.hide_frame(self.category_frame)
-
-    def create_option_menu_group_by(self):
-        self.buttons_frame = customtkinter.CTkFrame(self.tab_group_by)
-        self.buttons_frame.pack(padx=10, pady=5, fill="x")
-        self.buttons_frame.configure(fg_color="transparent")
-
-        self.optionmenu = customtkinter. \
-            CTkOptionMenu(self.buttons_frame,
-                          values=[
-                              "Date", "Category"],
-                          command=self.option_menu_group_by_callback)
-        self.optionmenu.set("Date")
-        self.optionmenu.pack(padx=0, pady=5, side="left")
-
-        self.grid_columnconfigure(0, weight=1)
-
-    def option_menu_group_by_callback(self, choice):
-        if choice == "Date":
-            self.show_frame(self.date_frame)
-            self.hide_frame(self.category_frame)
-        elif choice == "Category":
-            self.show_frame(self.category_frame)
-            self.hide_frame(self.date_frame)
-
-    def create_frame(self, parent, label_text):
-        frame = customtkinter.CTkFrame(
-            parent, fg_color="#ffffff", border_width=1, border_color="#989DA1")
-        frame_label = customtkinter.CTkLabel(
-            frame, text=label_text, text_color="black")
-        frame_label.pack(padx=10, pady=5, side="left", fill="x")
-        return frame
 
     def show_frame(self, frame):
         frame.pack(padx=10, pady=5, fill="x")
