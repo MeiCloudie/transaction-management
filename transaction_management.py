@@ -525,8 +525,9 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             self.hide_frame(self.date_frame)
 
     def create_date_frame(self, parent, transactions):
-        frame = customtkinter.CTkFrame(
-            parent, fg_color="#ffffff", border_width=1, border_color="#989DA1")
+        frame = customtkinter.CTkScrollableFrame(
+            parent, fg_color="#ffffff", border_width=1, border_color="#989DA1",
+            height=450)
 
         frame_label = customtkinter.CTkLabel(
             frame, text="Date Frame", text_color="black")
@@ -538,8 +539,9 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         return frame
 
     def create_category_frame(self, parent, transactions):
-        frame = customtkinter.CTkFrame(
-            parent, fg_color="#ffffff", border_width=1, border_color="#989DA1")
+        frame = customtkinter.CTkScrollableFrame(
+            parent, fg_color="#ffffff", border_width=1, border_color="#989DA1",
+            height=450)
 
         frame_label = customtkinter.CTkLabel(
             frame, text="Category Frame", text_color="black")
