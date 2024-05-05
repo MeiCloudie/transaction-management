@@ -530,7 +530,7 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
                               "Date", "Category"],
                           command=self.option_menu_group_by_callback)
         self.optionmenu.set("Date")
-        self.optionmenu.pack(padx=0, pady=5, side="left")
+        self.optionmenu.pack(padx=10, pady=5, side="left")
 
         self.grid_columnconfigure(0, weight=1)
 
@@ -544,17 +544,10 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
     def create_date_frame(self, parent, transactions):
         frame = customtkinter.CTkScrollableFrame(
-            parent, fg_color="#ffffff", border_width=1, border_color="#989DA1",
+            parent, fg_color="transparent",
             height=450)
 
-        frame_label = customtkinter.CTkLabel(
-            frame, text="Date Frame", text_color="black")
-        frame_label.pack(padx=10, pady=5, side="top", fill="x")
-
         self.get_date_in_transactions(frame, transactions)
-
-        self.create_content_treeview(
-            frame, transactions)
 
         return frame
 
@@ -562,10 +555,6 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         frame = customtkinter.CTkScrollableFrame(
             parent, fg_color="#ffffff", border_width=1, border_color="#989DA1",
             height=450)
-
-        frame_label = customtkinter.CTkLabel(
-            frame, text="Category Frame", text_color="black")
-        frame_label.pack(padx=10, pady=5, side="top", fill="x")
 
         self.create_content_treeview(
             frame, transactions)
@@ -580,18 +569,26 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             month = MonthLabel(transaction._month)
             year = transaction._year
 
-            unique_dates.add((day, month, year))
+            date_object = datetime.date(year, month.value, day)
+
+            unique_dates.add(date_object)
 
         sorted_dates = sorted(unique_dates, reverse=True)
 
-        for day, month, year in sorted_dates:
-            group_by_date_items_frame = self.create_group_by_date_items_frame(
-                parent, day, month, year)
-            group_by_date_items_frame.pack(padx=10, pady=5, fill="x")
+        for date_obj in sorted_dates:
+            day = date_obj.day
+            month = MonthLabel(date_obj.month)
+            year = date_obj.year
 
-    def create_group_by_date_items_frame(self, parent, day, month, year):
+            group_by_date_items_frame = self.create_group_by_date_items_frame(
+                parent, day, month, year, transactions=transactions)
+            group_by_date_items_frame.pack(padx=5, pady=(5, 10), fill="x")
+
+    def create_group_by_date_items_frame(self, parent, day, month, year,
+                                         transactions):
         frame = customtkinter.CTkFrame(
-            parent, fg_color="transparent", border_width=1)
+            parent, fg_color="#ffffff",
+            border_width=2, border_color="#4a4a4a")
 
         frame_date = customtkinter.CTkFrame(
             frame, fg_color="transparent")
@@ -599,8 +596,8 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
         day_label = customtkinter.CTkLabel(
             frame_date, text=str(day), text_color="black",
-            font=("Arial", 52, "bold"))
-        day_label.pack(padx=5, pady=5, side="left")
+            font=("Arial", 55, "bold"))
+        day_label.pack(padx=5, pady=0, side="left")
 
         frame_month_year = customtkinter.CTkFrame(
             frame, fg_color="transparent")
@@ -616,15 +613,6 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             font=("Arial", 14))
         year_label.grid(row=1, column=0, padx=5, pady=0, sticky="w")
 
-        separator_style = ttk.Style()
-        separator_style.configure(
-            "Separator.TSeparator", background="#989DA1", borderwidth=1)
-
-        separator = ttk.Separator(
-            frame, orient="horizontal", style="Separator.TSeparator")
-        separator.grid(row=1, column=0, columnspan=3,
-                       sticky="ew", padx=10, pady=5)
-
         frame_total_amount = customtkinter.CTkFrame(
             frame, fg_color="transparent")
         frame_total_amount.grid(row=0, column=2, sticky="e", padx=10, pady=5)
@@ -639,6 +627,23 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             font=("Arial", 20, "bold"))
         total_amount_number_label.grid(
             row=1, column=0, padx=5, pady=0, sticky="e")
+
+        separator_style = ttk.Style()
+        separator_style.configure(
+            "Separator.TSeparator", background="#989DA1", borderwidth=1)
+
+        separator = ttk.Separator(
+            frame, orient="horizontal", style="Separator.TSeparator")
+        separator.grid(row=1, column=0, columnspan=3,
+                       sticky="ew", padx=10, pady=5)
+
+        frame_treeviews = customtkinter.CTkFrame(
+            frame, fg_color="transparent")
+        frame_treeviews.grid(row=2, column=0, padx=5,
+                             pady=5, sticky="ew", columnspan=3)
+
+        self.create_content_treeview(
+            frame_treeviews, transactions)
 
         frame.columnconfigure(0, weight=0)
         frame.columnconfigure(1, weight=0)
@@ -664,6 +669,7 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             "ID", "Day", "Month", "Year", "Unit Price", "Quantity",
             "Gold Type", "Total Amount"
         ), show="headings", height=5)
+
         treeview.heading("ID", text="ID")
         treeview.heading("Day", text="Day")
         treeview.heading("Month", text="Month")
@@ -680,6 +686,7 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             "ID", "Day", "Month", "Year", "Quantity", "Currency Type",
             "Exchange Rate", "Total Amount"
         ), show="headings", height=5)
+
         treeview.heading("ID", text="ID")
         treeview.heading("Day", text="Day")
         treeview.heading("Month", text="Month")
