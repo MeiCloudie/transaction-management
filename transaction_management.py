@@ -133,7 +133,7 @@ class TransactionApp(customtkinter.CTk):
         self._set_appearance_mode("light")
         icon_path = "./logo.ico"
         self.iconbitmap(icon_path)
-        self.minsize(1720, 890)
+        self.minsize(1720, 940)
 
         self.transaction_list = TransactionList()
         self.create_widget()
@@ -545,7 +545,7 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
     def create_date_frame(self, parent, transactions):
         frame = customtkinter.CTkScrollableFrame(
             parent, fg_color="transparent",
-            height=450)
+            height=500)
 
         self.get_date_in_transactions(frame, transactions)
 
@@ -554,7 +554,7 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
     def create_category_frame(self, parent, transactions):
         frame = customtkinter.CTkScrollableFrame(
             parent, fg_color="#ffffff", border_width=1, border_color="#989DA1",
-            height=450)
+            height=500)
 
         self.create_content_treeview(
             frame, transactions)
