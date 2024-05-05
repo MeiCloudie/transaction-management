@@ -533,6 +533,8 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             frame, text="Date Frame", text_color="black")
         frame_label.pack(padx=10, pady=5, side="top", fill="x")
 
+        self.get_date_in_transaction(frame, transactions)
+
         self.create_content_treeview(
             frame, transactions)
 
@@ -551,6 +553,28 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             frame, transactions)
 
         return frame
+
+    def get_date_in_transaction(self, frame, transactions):
+        unique_dates = set()
+
+        for transaction in transactions:
+            day = transaction._day
+            month = transaction._month
+            year = transaction._year
+
+            date_object = datetime.date(year, month, day)
+
+            unique_dates.add(date_object)
+
+        sorted_dates = sorted(unique_dates, reverse=True)
+
+        date_text = "Dates in transactions (newest to oldest):\n"
+        for date_object in sorted_dates:
+            date_text += f"{date_object.strftime('%d/%m/%Y')}\n"
+
+        label = customtkinter.CTkLabel(
+            frame, text=date_text, text_color="black")
+        label.pack(padx=10, pady=5, fill="x")
 
     def create_content_treeview(self, frame, transactions):
         treeview_gold_transaction = \
