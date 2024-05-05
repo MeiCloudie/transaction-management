@@ -658,6 +658,14 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             treeview_gold_transaction, transactions)
         treeview_gold_transaction.pack(padx=10, pady=10, fill="x")
 
+        separator_style = ttk.Style()
+        separator_style.configure(
+            "Separator.TSeparator", background="#989DA1", borderwidth=1)
+
+        separator = ttk.Separator(
+            frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(padx=10, pady=10, fill="x")
+
         treeview_currency_transaction \
             = self.create_currency_transaction_treeview(frame)
         self.populate_treeview_with_currency_transactions(
@@ -665,6 +673,12 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         treeview_currency_transaction.pack(padx=10, pady=10, fill="x")
 
     def create_gold_transaction_treeview(self, frame):
+        gold_transaction_label = customtkinter.CTkLabel(
+            frame, text="GOLD TRANSACTIONS", text_color="black",
+            font=("Arial", 16, "bold"))
+        gold_transaction_label.pack(
+            padx=10, pady=(5, 0), side="top", anchor="w")
+
         treeview = ttk.Treeview(frame, columns=(
             "ID", "Day", "Month", "Year", "Unit Price", "Quantity",
             "Gold Type", "Total Amount"
@@ -682,6 +696,12 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         return treeview
 
     def create_currency_transaction_treeview(self, frame):
+        currency_transaction_label = customtkinter.CTkLabel(
+            frame, text="CURRENCY TRANSACTIONS", text_color="black",
+            font=("Arial", 16, "bold"))
+        currency_transaction_label.pack(
+            padx=10, pady=(5, 0), side="top", anchor="w")
+
         treeview = ttk.Treeview(frame, columns=(
             "ID", "Day", "Month", "Year", "Quantity", "Currency Type",
             "Exchange Rate", "Total Amount"
