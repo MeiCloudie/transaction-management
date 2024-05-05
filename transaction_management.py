@@ -115,6 +115,7 @@ class TransactionApp(customtkinter.CTk):
         self._set_appearance_mode("light")
         icon_path = "./logo.ico"
         self.iconbitmap(icon_path)
+        self.minsize(1720, 890)
 
         self.transaction_list = TransactionList()
         self.create_widget()
@@ -566,7 +567,7 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         treeview = ttk.Treeview(frame, columns=(
             "ID", "Day", "Month", "Year", "Unit Price", "Quantity",
             "Gold Type", "Total Amount"
-        ), show="headings")
+        ), show="headings", height=5)
         treeview.heading("ID", text="ID")
         treeview.heading("Day", text="Day")
         treeview.heading("Month", text="Month")
@@ -575,13 +576,14 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         treeview.heading("Quantity", text="Quantity")
         treeview.heading("Gold Type", text="Gold Type")
         treeview.heading("Total Amount", text="Total Amount")
+
         return treeview
 
     def create_currency_transaction_treeview(self, frame):
         treeview = ttk.Treeview(frame, columns=(
             "ID", "Day", "Month", "Year", "Quantity", "Currency Type",
             "Exchange Rate", "Total Amount"
-        ), show="headings")
+        ), show="headings", height=5)
         treeview.heading("ID", text="ID")
         treeview.heading("Day", text="Day")
         treeview.heading("Month", text="Month")
