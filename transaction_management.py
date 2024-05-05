@@ -562,20 +562,56 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         # Group By
         self.create_option_menu_group_by()
 
+        self.date_frame = self.create_frame(self.tab_group_by, "Date Frame")
+        self.category_frame = self.create_frame(
+            self.tab_group_by, "Category Frame")
+
+        self.category_frame.pack_forget()
+
+        self.show_default_frame()
+
         # Sort By
+
+    def show_default_frame(self):
+        self.show_frame(self.date_frame)
+        self.hide_frame(self.category_frame)
+
+    def create_option_menu_group_by(self):
+        self.buttons_frame = customtkinter.CTkFrame(self.tab_group_by)
+        self.buttons_frame.pack(padx=10, pady=5, fill="x")
+        self.buttons_frame.configure(fg_color="transparent")
+
+        self.optionmenu = customtkinter. \
+            CTkOptionMenu(self.buttons_frame,
+                          values=[
+                              "Date", "Category"],
+                          command=self.option_menu_group_by_callback)
+        self.optionmenu.set("Date")
+        self.optionmenu.pack(padx=0, pady=5, side="left")
 
         self.grid_columnconfigure(0, weight=1)
 
-    def create_option_menu_group_by(self):
-        self.optionmenu = customtkinter. \
-            CTkOptionMenu(self.tab_group_by,
-                          values=["Date", "Category"],
-                          command=self.option_menu_group_by_callback)
-        self.optionmenu.set("Date")
-        self.optionmenu.grid(row=0, column=0, padx=20, pady=10, sticky="ew")
-
     def option_menu_group_by_callback(self, choice):
-        print("optionmenu dropdown clicked:", choice)
+        if choice == "Date":
+            self.show_frame(self.date_frame)
+            self.hide_frame(self.category_frame)
+        elif choice == "Category":
+            self.show_frame(self.category_frame)
+            self.hide_frame(self.date_frame)
+
+    def create_frame(self, parent, label_text):
+        frame = customtkinter.CTkFrame(
+            parent, fg_color="#ffffff", border_width=1, border_color="#989DA1")
+        frame_label = customtkinter.CTkLabel(
+            frame, text=label_text, text_color="black")
+        frame_label.pack(padx=10, pady=5, side="left", fill="x")
+        return frame
+
+    def show_frame(self, frame):
+        frame.pack(padx=10, pady=5, fill="x")
+
+    def hide_frame(self, frame):
+        frame.pack_forget()
 
 
 if __name__ == "__main__":
