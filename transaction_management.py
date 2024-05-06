@@ -556,8 +556,8 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             parent, fg_color="#ffffff", border_width=1, border_color="#989DA1",
             height=500)
 
-        self.create_content_treeview(
-            frame, transactions)
+        # self.create_content_treeview(
+        #     frame, transactions)
 
         return frame
 
@@ -642,8 +642,8 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         frame_treeviews.grid(row=2, column=0, padx=5,
                              pady=5, sticky="ew", columnspan=3)
 
-        self.create_content_treeview(
-            frame_treeviews, transactions)
+        self.create_content_treeview_by_date(
+            frame_treeviews, transactions, day, month, year)
 
         frame.columnconfigure(0, weight=0)
         frame.columnconfigure(1, weight=0)
@@ -651,11 +651,12 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
         return frame
 
-    def create_content_treeview(self, frame, transactions):
+    def create_content_treeview_by_date(self, frame, transactions,
+                                        day, month, year):
         treeview_gold_transaction = \
             self.create_gold_transaction_treeview(frame)
         self.populate_treeview_with_gold_transactions(
-            treeview_gold_transaction, transactions)
+            treeview_gold_transaction, transactions, day, month, year)
         treeview_gold_transaction.pack(padx=10, pady=10, fill="x")
 
         separator_style = ttk.Style()
@@ -669,7 +670,7 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         treeview_currency_transaction \
             = self.create_currency_transaction_treeview(frame)
         self.populate_treeview_with_currency_transactions(
-            treeview_currency_transaction, transactions)
+            treeview_currency_transaction, transactions, day, month, year)
         treeview_currency_transaction.pack(padx=10, pady=10, fill="x")
 
     def create_gold_transaction_treeview(self, frame):
@@ -717,34 +718,40 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         treeview.heading("Total Amount", text="Total Amount")
         return treeview
 
-    def populate_treeview_with_gold_transactions(self, treeview, transactions):
+    def populate_treeview_with_gold_transactions(self, treeview, transactions,
+                                                 day, month, year):
         for transaction in transactions:
             if isinstance(transaction, GoldTransaction):
-                treeview.insert("", "end", values=(
-                    transaction._id,
-                    transaction._day,
-                    transaction._month,
-                    transaction._year,
-                    transaction._unit_price,
-                    transaction._quantity,
-                    transaction._gold_type.name,
-                    transaction._total_amount
-                ))
+                if (transaction._day, MonthLabel(transaction._month),
+                        transaction._year) == (day, month, year):
+                    treeview.insert("", "end", values=(
+                        transaction._id,
+                        transaction._day,
+                        transaction._month,
+                        transaction._year,
+                        transaction._unit_price,
+                        transaction._quantity,
+                        transaction._gold_type.name,
+                        transaction._total_amount
+                    ))
 
     def populate_treeview_with_currency_transactions(self, treeview,
-                                                     transactions):
+                                                     transactions,
+                                                     day, month, year):
         for transaction in transactions:
             if isinstance(transaction, CurrencyTransaction):
-                treeview.insert("", "end", values=(
-                    transaction._id,
-                    transaction._day,
-                    transaction._month,
-                    transaction._year,
-                    transaction._quantity,
-                    transaction._currency_type.name,
-                    transaction._exchange_rate._rate,
-                    transaction._total_amount
-                ))
+                if (transaction._day, MonthLabel(transaction._month),
+                        transaction._year) == (day, month, year):
+                    treeview.insert("", "end", values=(
+                        transaction._id,
+                        transaction._day,
+                        transaction._month,
+                        transaction._year,
+                        transaction._quantity,
+                        transaction._currency_type.name,
+                        transaction._exchange_rate._rate,
+                        transaction._total_amount
+                    ))
 
     def show_frame(self, frame):
         frame.pack(padx=10, pady=5, fill="x")
