@@ -692,19 +692,26 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         gold_transaction_label.pack(
             padx=10, pady=(5, 0), side="top", anchor="w")
 
+        treeview_style = ttk.Style()
+        treeview_style.configure(
+            "Treeview.Heading", font=("Arial", 10, "bold"))
+        treeview_style.configure("Treeview", rowheight=25)
+
         treeview = ttk.Treeview(frame, columns=(
-            "ID", "Day", "Month", "Year", "Unit Price", "Quantity",
-            "Gold Type", "Total Amount"
+            "Transaction Code", "Transaction Date", "Unit Price (VND/tael)",
+            "Quantity (tael)", "Gold Type", "Total Amount (VND)"
         ), show="headings", height=5)
 
-        treeview.heading("ID", text="ID")
-        treeview.heading("Day", text="Day")
-        treeview.heading("Month", text="Month")
-        treeview.heading("Year", text="Year")
-        treeview.heading("Unit Price", text="Unit Price")
-        treeview.heading("Quantity", text="Quantity")
-        treeview.heading("Gold Type", text="Gold Type")
-        treeview.heading("Total Amount", text="Total Amount")
+        treeview.heading("Transaction Code",
+                         text="Transaction Code", anchor="w")
+        treeview.heading("Transaction Date",
+                         text="Transaction Date", anchor="w")
+        treeview.heading("Unit Price (VND/tael)",
+                         text="Unit Price (VND/tael)", anchor="w")
+        treeview.heading("Quantity (tael)", text="Quantity (tael)", anchor="w")
+        treeview.heading("Gold Type", text="Gold Type", anchor="w")
+        treeview.heading("Total Amount (VND)",
+                         text="Total Amount (VND)", anchor="w")
 
         return treeview
 
@@ -715,19 +722,26 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         currency_transaction_label.pack(
             padx=10, pady=(5, 0), side="top", anchor="w")
 
+        treeview_style = ttk.Style()
+        treeview_style.configure(
+            "Treeview.Heading", font=("Arial", 10, "bold"))
+        treeview_style.configure("Treeview", rowheight=25)
+
         treeview = ttk.Treeview(frame, columns=(
-            "ID", "Day", "Month", "Year", "Quantity", "Currency Type",
-            "Exchange Rate", "Total Amount"
+            "Transaction Code", "Transaction Date", "Quantity",
+            "Currency Type", "Exchange Rate (VND)", "Total Amount (VND)"
         ), show="headings", height=5)
 
-        treeview.heading("ID", text="ID")
-        treeview.heading("Day", text="Day")
-        treeview.heading("Month", text="Month")
-        treeview.heading("Year", text="Year")
-        treeview.heading("Quantity", text="Quantity")
-        treeview.heading("Currency Type", text="Currency Type")
-        treeview.heading("Exchange Rate", text="Exchange Rate")
-        treeview.heading("Total Amount", text="Total Amount")
+        treeview.heading("Transaction Code",
+                         text="Transaction Code", anchor="w")
+        treeview.heading("Transaction Date",
+                         text="Transaction Date", anchor="w")
+        treeview.heading("Quantity", text="Quantity", anchor="w")
+        treeview.heading("Currency Type", text="Currency Type", anchor="w")
+        treeview.heading("Exchange Rate (VND)",
+                         text="Exchange Rate (VND)", anchor="w")
+        treeview.heading("Total Amount (VND)",
+                         text="Total Amount (VND)", anchor="w")
         return treeview
 
     def populate_treeview_with_gold_transactions(self, treeview, transactions,
@@ -736,11 +750,12 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             if isinstance(transaction, GoldTransaction):
                 if (transaction._day, MonthLabel(transaction._month),
                         transaction._year) == (day, month, year):
+                    transaction_date = "{} {} {}".format(
+                        transaction._day, MonthLabel(transaction._month),
+                        transaction._year)
                     treeview.insert("", "end", values=(
                         transaction._id,
-                        transaction._day,
-                        transaction._month,
-                        transaction._year,
+                        transaction_date,
                         transaction._unit_price,
                         transaction._quantity,
                         transaction._gold_type.name,
@@ -754,11 +769,12 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             if isinstance(transaction, CurrencyTransaction):
                 if (transaction._day, MonthLabel(transaction._month),
                         transaction._year) == (day, month, year):
+                    transaction_date = "{} {} {}".format(
+                        transaction._day, MonthLabel(transaction._month),
+                        transaction._year)
                     treeview.insert("", "end", values=(
                         transaction._id,
-                        transaction._day,
-                        transaction._month,
-                        transaction._year,
+                        transaction_date,
                         transaction._quantity,
                         transaction._currency_type.name,
                         transaction._exchange_rate._rate,
