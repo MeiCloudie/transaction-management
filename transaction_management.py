@@ -700,14 +700,16 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         treeview_style.configure("Treeview", rowheight=25)
 
         treeview = ttk.Treeview(frame, columns=(
-            "Transaction Code", "Transaction Date", "Unit Price (VND/tael)",
+            "Transaction Code",
+            # "Transaction Date",
+            "Unit Price (VND/tael)",
             "Quantity (tael)", "Gold Type", "Total Amount (VND)"
         ), show="headings", height=5)
 
         treeview.heading("Transaction Code",
                          text="Transaction Code", anchor="w")
-        treeview.heading("Transaction Date",
-                         text="Transaction Date", anchor="w")
+        # treeview.heading("Transaction Date",
+        #                  text="Transaction Date", anchor="w")
         treeview.heading("Unit Price (VND/tael)",
                          text="Unit Price (VND/tael)", anchor="w")
         treeview.heading("Quantity (tael)", text="Quantity (tael)", anchor="w")
@@ -730,14 +732,16 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         treeview_style.configure("Treeview", rowheight=25)
 
         treeview = ttk.Treeview(frame, columns=(
-            "Transaction Code", "Transaction Date", "Quantity",
+            "Transaction Code",
+            # "Transaction Date",
+            "Quantity",
             "Currency Type", "Exchange Rate (VND)", "Total Amount (VND)"
         ), show="headings", height=5)
 
         treeview.heading("Transaction Code",
                          text="Transaction Code", anchor="w")
-        treeview.heading("Transaction Date",
-                         text="Transaction Date", anchor="w")
+        # treeview.heading("Transaction Date",
+        #                  text="Transaction Date", anchor="w")
         treeview.heading("Quantity", text="Quantity", anchor="w")
         treeview.heading("Currency Type", text="Currency Type", anchor="w")
         treeview.heading("Exchange Rate (VND)",
@@ -753,16 +757,16 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             if isinstance(transaction, GoldTransaction):
                 if (transaction._day, MonthLabel(transaction._month),
                         transaction._year) == (day, month, year):
-                    transaction_date = "{} {} {}".format(
-                        transaction._day, MonthLabel(transaction._month),
-                        transaction._year)
+                    # transaction_date = "{} {} {}".format(
+                    #     transaction._day, MonthLabel(transaction._month),
+                    #     transaction._year)
                     formatted_unit_price = self.format_price_number(
                         transaction._unit_price)
                     formatted_total_amount = self.format_price_number(
                         transaction._total_amount)
                     treeview.insert("", "end", values=(
                         transaction._id,
-                        transaction_date,
+                        # transaction_date,
                         formatted_unit_price,
                         transaction._quantity,
                         transaction._gold_type.name,
@@ -776,9 +780,9 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             if isinstance(transaction, CurrencyTransaction):
                 if (transaction._day, MonthLabel(transaction._month),
                         transaction._year) == (day, month, year):
-                    transaction_date = "{} {} {}".format(
-                        transaction._day, MonthLabel(transaction._month),
-                        transaction._year)
+                    # transaction_date = "{} {} {}".format(
+                    #     transaction._day, MonthLabel(transaction._month),
+                    #     transaction._year)
                     formatted_quantity = self.format_price_number(
                         transaction._quantity)
                     formatted_exchange_rate = self.format_price_number(
@@ -787,7 +791,7 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
                         transaction._total_amount)
                     treeview.insert("", "end", values=(
                         transaction._id,
-                        transaction_date,
+                        # transaction_date,
                         formatted_quantity,
                         transaction._currency_type.name,
                         formatted_exchange_rate,
