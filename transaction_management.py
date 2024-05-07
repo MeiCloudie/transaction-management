@@ -630,7 +630,9 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
         total_amount = self.calculate_total_amount_by_date(
             transactions, day, month, year)
-        total_amount_number_label.configure(text=str(total_amount))
+        formatted_total_amount = self.format_price_number(
+            total_amount)
+        total_amount_number_label.configure(text=str(formatted_total_amount))
 
         separator_style = ttk.Style()
         separator_style.configure(
@@ -753,13 +755,17 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
                     transaction_date = "{} {} {}".format(
                         transaction._day, MonthLabel(transaction._month),
                         transaction._year)
+                    formatted_unit_price = self.format_price_number(
+                        transaction._unit_price)
+                    formatted_total_amount = self.format_price_number(
+                        transaction._total_amount)
                     treeview.insert("", "end", values=(
                         transaction._id,
                         transaction_date,
-                        transaction._unit_price,
+                        formatted_unit_price,
                         transaction._quantity,
                         transaction._gold_type.name,
-                        transaction._total_amount
+                        formatted_total_amount
                     ))
 
     def populate_treeview_with_currency_transactions(self, treeview,
@@ -772,14 +778,27 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
                     transaction_date = "{} {} {}".format(
                         transaction._day, MonthLabel(transaction._month),
                         transaction._year)
+                    formatted_quantity = self.format_price_number(
+                        transaction._quantity)
+                    formatted_exchange_rate = self.format_price_number(
+                        transaction._exchange_rate._rate)
+                    formatted_total_amount = self.format_price_number(
+                        transaction._total_amount)
                     treeview.insert("", "end", values=(
                         transaction._id,
                         transaction_date,
-                        transaction._quantity,
+                        formatted_quantity,
                         transaction._currency_type.name,
-                        transaction._exchange_rate._rate,
-                        transaction._total_amount
+                        formatted_exchange_rate,
+                        formatted_total_amount
                     ))
+
+    def format_price_number(self, total_amount):
+        integer_part, decimal_part = str(total_amount).split(".")
+        formatted_integer_part = "{:,.0f}".format(float(integer_part))
+        formatted_total_amount = "{}.{}".format(
+            formatted_integer_part, decimal_part)
+        return formatted_total_amount
 
     def show_frame(self, frame):
         frame.pack(padx=10, pady=5, fill="x")
