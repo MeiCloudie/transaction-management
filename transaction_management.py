@@ -801,8 +801,13 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
     # Group By Category
     def create_content_treeview_by_category(self, frame, transactions):
+        frame_gold = customtkinter.CTkFrame(
+            frame, fg_color="#ffffff",
+            border_width=2, border_color="#4a4a4a")
+        frame_gold.pack(padx=5, pady=5, fill="x")
+
         treeview_gold_transaction = \
-            self.create_gold_transaction_treeview_by_category(frame)
+            self.create_gold_transaction_treeview_by_category(frame_gold)
         self.populate_treeview_with_gold_transactions_by_category(
             treeview_gold_transaction, transactions)
         treeview_gold_transaction.pack(padx=10, pady=10, fill="x")
@@ -815,18 +820,27 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(padx=10, pady=10, fill="x")
 
+        frame_currency = customtkinter.CTkFrame(
+            frame, fg_color="#ffffff",
+            border_width=2, border_color="#4a4a4a")
+        frame_currency.pack(padx=5, pady=5, fill="x")
+
         treeview_currency_transaction \
-            = self.create_currency_transaction_treeview_by_category(frame)
+            = self.create_currency_transaction_treeview_by_category(
+                frame_currency)
         self.populate_treeview_with_currency_transactions_by_category(
             treeview_currency_transaction, transactions)
         treeview_currency_transaction.pack(padx=10, pady=10, fill="x")
 
-    def create_gold_transaction_treeview_by_category(self, frame):
+    def create_header_gold_transaction_treeview(self, frame):
         gold_transaction_label = customtkinter.CTkLabel(
             frame, text="GOLD TRANSACTIONS", text_color="black",
             font=("Arial", 16, "bold"))
         gold_transaction_label.pack(
             padx=10, pady=(5, 0), side="top", anchor="w")
+
+    def create_gold_transaction_treeview_by_category(self, frame):
+        self.create_header_gold_transaction_treeview(frame)
 
         treeview_style = ttk.Style()
         treeview_style.configure(
