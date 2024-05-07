@@ -839,6 +839,13 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         gold_transaction_label.pack(
             padx=10, pady=(5, 0), side="top", anchor="w")
 
+    def create_header_currency_transaction_treeview(self, frame):
+        currency_transaction_label = customtkinter.CTkLabel(
+            frame, text="CURRENCY TRANSACTIONS", text_color="black",
+            font=("Arial", 16, "bold"))
+        currency_transaction_label.pack(
+            padx=10, pady=(5, 0), side="top", anchor="w")
+
     def create_gold_transaction_treeview_by_category(self, frame):
         self.create_header_gold_transaction_treeview(frame)
 
@@ -868,11 +875,7 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         return treeview
 
     def create_currency_transaction_treeview_by_category(self, frame):
-        currency_transaction_label = customtkinter.CTkLabel(
-            frame, text="CURRENCY TRANSACTIONS", text_color="black",
-            font=("Arial", 16, "bold"))
-        currency_transaction_label.pack(
-            padx=10, pady=(5, 0), side="top", anchor="w")
+        self.create_header_currency_transaction_treeview(frame)
 
         treeview_style = ttk.Style()
         treeview_style.configure(
