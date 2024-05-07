@@ -628,7 +628,7 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         total_amount_number_label.grid(
             row=1, column=0, padx=5, pady=0, sticky="e")
 
-        total_amount = self.calculate_total_amount(
+        total_amount = self.calculate_total_amount_by_date(
             transactions, day, month, year)
         total_amount_number_label.configure(text=str(total_amount))
 
@@ -655,7 +655,7 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
         return frame
 
-    def calculate_total_amount(self, transactions, day, month, year):
+    def calculate_total_amount_by_date(self, transactions, day, month, year):
         total_amount = 0
         for transaction in transactions:
             if (transaction._day, MonthLabel(transaction._month),
