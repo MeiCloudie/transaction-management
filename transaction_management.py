@@ -1251,7 +1251,8 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             "Transaction Code",
             "Transaction Date",
             "Unit Price (VND/tael)",
-            "Quantity (tael)", "Gold Type", "Total Amount (VND)"
+            "Quantity (tael)", "Gold Type",
+            # "Total Amount (VND)"
         ), show="headings", height=1)
 
         treeview.heading("Transaction Code",
@@ -1262,8 +1263,8 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
                          text="Unit Price (VND/tael)", anchor="w")
         treeview.heading("Quantity (tael)", text="Quantity (tael)", anchor="w")
         treeview.heading("Gold Type", text="Gold Type", anchor="w")
-        treeview.heading("Total Amount (VND)",
-                         text="Total Amount (VND)", anchor="w")
+        # treeview.heading("Total Amount (VND)",
+        #                  text="Total Amount (VND)", anchor="w")
 
         return treeview
 
@@ -1287,7 +1288,8 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             "Transaction Code",
             "Transaction Date",
             "Quantity",
-            "Currency Type", "Exchange Rate (VND)", "Total Amount (VND)"
+            "Currency Type", "Exchange Rate (VND)",
+            # "Total Amount (VND)"
         ), show="headings", height=1)
 
         treeview.heading("Transaction Code",
@@ -1298,8 +1300,8 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         treeview.heading("Currency Type", text="Currency Type", anchor="w")
         treeview.heading("Exchange Rate (VND)",
                          text="Exchange Rate (VND)", anchor="w")
-        treeview.heading("Total Amount (VND)",
-                         text="Total Amount (VND)", anchor="w")
+        # treeview.heading("Total Amount (VND)",
+        #                  text="Total Amount (VND)", anchor="w")
         return treeview
 
     def populate_tv_with_gold_sort_by_total_amount(self,
@@ -1312,15 +1314,15 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
                     transaction._year)
                 formatted_unit_price = self.format_price_number(
                     transaction._unit_price)
-                formatted_total_amount = self.format_price_number(
-                    transaction._total_amount)
+                # formatted_total_amount = self.format_price_number(
+                #     transaction._total_amount)
                 treeview.insert("", "end", values=(
                     transaction._id,
                     transaction_date,
                     formatted_unit_price,
                     transaction._quantity,
                     transaction._gold_type.name,
-                    formatted_total_amount
+                    # formatted_total_amount
                 ))
 
     def populate_tv_with_currency_sort_by_total_amount(self,
@@ -1335,15 +1337,15 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
                     transaction._quantity)
                 formatted_exchange_rate = self.format_price_number(
                     transaction._exchange_rate._rate)
-                formatted_total_amount = self.format_price_number(
-                    transaction._total_amount)
+                # formatted_total_amount = self.format_price_number(
+                #     transaction._total_amount)
                 treeview.insert("", "end", values=(
                     transaction._id,
                     transaction_date,
                     formatted_quantity,
                     transaction._currency_type.name,
                     formatted_exchange_rate,
-                    formatted_total_amount
+                    # formatted_total_amount
                 ))
 
     # General auxiliary functions
