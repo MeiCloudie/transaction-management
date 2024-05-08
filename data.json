@@ -32,31 +32,31 @@
     },
     {
       "id": "GLD004",
-      "day": 24,
+      "day": 15,
       "month": 6,
       "year": 2024,
-      "unit_price": 85200000.0,
-      "quantity": 2.0,
+      "unit_price": 83200000.0,
+      "quantity": 1.0,
       "type": "gold",
       "gold_type": 0
     },
     {
       "id": "GLD005",
-      "day": 21,
-      "month": 3,
+      "day": 19,
+      "month": 2,
       "year": 2024,
-      "unit_price": 75500000.0,
-      "quantity": 3.0,
+      "unit_price": 74500000.0,
+      "quantity": 1.0,
       "type": "gold",
       "gold_type": 1
     },
     {
       "id": "GLD006",
-      "day": 22,
+      "day": 25,
       "month": 4,
       "year": 2024,
       "unit_price": 84800000.0,
-      "quantity": 3.0,
+      "quantity": 2.0,
       "type": "gold",
       "gold_type": 2
     },
@@ -113,10 +113,10 @@
     },
     {
       "id": "CUR004",
-      "day": 2,
-      "month": 5,
+      "day": 25,
+      "month": 4,
       "year": 2024,
-      "quantity": 50.0,
+      "quantity": 70.0,
       "type": "currency",
       "currency_type": 1,
       "exchange_rate": {
@@ -130,10 +130,10 @@
     },
     {
       "id": "CUR005",
-      "day": 28,
+      "day": 11,
       "month": 4,
       "year": 2024,
-      "quantity": 500.0,
+      "quantity": 200.0,
       "type": "currency",
       "currency_type": 2,
       "exchange_rate": {
@@ -147,10 +147,10 @@
     },
     {
       "id": "CUR006",
-      "day": 12,
-      "month": 4,
+      "day": 15,
+      "month": 6,
       "year": 2024,
-      "quantity": 500000.0,
+      "quantity": 90000000.0,
       "type": "currency",
       "currency_type": 0,
       "exchange_rate": {
