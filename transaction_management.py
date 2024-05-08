@@ -594,7 +594,6 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             self.hide_frame(self.date_sort_by_frame)
 
     def segmented_button_callback(self, selected_option):
-        print("Selected option:", selected_option)
         self.option_segmented_button = selected_option == "Descending"
         self.update_date_sort_by_frame()
 
