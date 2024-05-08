@@ -563,6 +563,14 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         self.optionmenu.set("Date")
         self.optionmenu.pack(padx=10, pady=0, side="left")
 
+        self.segmented_button = customtkinter.CTkSegmentedButton(
+            self.buttons_frame,
+            values=["Descending", "Ascending"],
+            command=self.segmented_button_callback
+        )
+        self.segmented_button.set("Descending")
+        self.segmented_button.pack(padx=(5, 10), pady=0, side="left")
+
         self.grid_columnconfigure(0, weight=1)
 
     def option_menu_group_by_callback(self, choice):
@@ -580,6 +588,10 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         elif choice == "Total Amount":
             self.show_frame(self.total_amount_sort_by_frame)
             self.hide_frame(self.date_sort_by_frame)
+
+    def segmented_button_callback(self, selected_option):
+        # Handle the selection of the segmented button
+        print("Selected option:", selected_option)
 
     # Group By Frame
     def create_date_group_by_frame(self, parent, transactions):
@@ -1046,11 +1058,7 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             parent, fg_color="transparent",
             height=530)
 
-        # self.get_date_in_transactions(frame, transactions)
-        label = customtkinter.CTkLabel(
-            frame, text="Date", text_color="black",
-            font=("Arial", 14))
-        label.pack(padx=10, pady=10)
+        self.get_date_in_transactions(frame, transactions)
 
         return frame
 
