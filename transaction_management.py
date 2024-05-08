@@ -345,14 +345,18 @@ class TabFilter(customtkinter.CTkTabview):
             transaction._total_amount for transaction
             in transactions if isinstance(transaction, GoldTransaction)
         )
+        formatted_gold_total_amount = self.format_price_number(
+            gold_total_amount)
         currency_total_amount = sum(
             transaction._total_amount for transaction
             in transactions if isinstance(transaction, CurrencyTransaction)
         )
+        formatted_currency_total_amount = self.format_price_number(
+            currency_total_amount)
 
         gold_label = customtkinter.CTkLabel(
             master=total_total_amount_frame,
-            text=f"Gold: {gold_total_amount:>61}",
+            text=f"Gold: {formatted_gold_total_amount:>61}",
             font=("Arial", 14),
             text_color="black",
             anchor="w"
@@ -361,7 +365,7 @@ class TabFilter(customtkinter.CTkTabview):
 
         currency_label = customtkinter.CTkLabel(
             master=total_total_amount_frame,
-            text=f"Currency: {currency_total_amount:>54}",
+            text=f"Currency: {formatted_currency_total_amount:>54}",
             font=("Arial", 14),
             text_color="black",
             anchor="w"
@@ -373,9 +377,11 @@ class TabFilter(customtkinter.CTkTabview):
         separator.pack(fill="x", padx=10, pady=5)
 
         grand_total = gold_total_amount + currency_total_amount
+        formatted_grand_total = self.format_price_number(
+            grand_total)
         grand_total_label = customtkinter.CTkLabel(
             master=total_total_amount_frame,
-            text=f"Grand Total: {grand_total:>50}",
+            text=f"Grand Total: {formatted_grand_total:>50}",
             font=("Arial", 14),
             text_color="black",
             anchor="w"
@@ -485,6 +491,16 @@ class TabFilter(customtkinter.CTkTabview):
                 transactions_month_year.append(transaction)
         return transactions_month_year
 
+    def format_price_number(self, total_amount):
+        if '.' in str(total_amount):
+            integer_part, decimal_part = str(total_amount).split(".")
+        else:
+            integer_part, decimal_part = str(total_amount), '00'
+        formatted_integer_part = "{:,.0f}".format(float(integer_part))
+        formatted_total_amount = "{}.{}".format(
+            formatted_integer_part, decimal_part)
+        return formatted_total_amount
+
 
 class TabGroupBySortBy(customtkinter.CTkTabview):
     def __init__(self, master, transactions, **kwargs):
@@ -498,26 +514,54 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         self.set("GROUP BY")
         self.configure(corner_radius=5)
 
+        self.option_segmented_button_date = True
+        self.option_segmented_button_total_amount = True
+
         self.create_tab_group_by_sort_by_widgets()
 
     def create_tab_group_by_sort_by_widgets(self):
         # Group By
         self.create_option_menu_group_by()
 
-        self.date_frame = self.create_date_frame(
+        self.date_frame = self.create_date_group_by_frame(
             self.tab_group_by, self.transactions)
-        self.category_frame = self.create_category_frame(
+        self.category_frame = self.create_category_group_by_frame(
             self.tab_group_by, self.transactions)
 
         self.category_frame.pack_forget()
 
-        self.show_default_frame()
+        self.show_default_frame_group_by()
 
         # Sort By
+        self.buttons_frame = customtkinter.CTkFrame(self.tab_sort_by)
+        self.buttons_frame.pack(padx=10, pady=5, fill="x")
+        self.buttons_frame.configure(fg_color="transparent")
+        self.create_option_menu_sort_by(self.buttons_frame)
+        self.create_segmented_button_sort_by(
+            self.buttons_frame)
+        self.grid_columnconfigure(0, weight=1)
 
-    def show_default_frame(self):
+        self.date_sort_by_frame = \
+            self.create_date_sort_by_frame(
+                self.tab_sort_by, self.transactions,
+                option=self.option_segmented_button_date)
+        self.total_amount_sort_by_frame = \
+            self.create_total_amount_sort_by_frame(
+                self.tab_sort_by, self.transactions,
+                option=self.option_segmented_button_total_amount)
+
+        self.total_amount_sort_by_frame.pack_forget()
+
+        self.show_default_frame_sort_by()
+
+    # Set up Tab View
+    def show_default_frame_group_by(self):
         self.show_frame(self.date_frame)
         self.hide_frame(self.category_frame)
+
+    def show_default_frame_sort_by(self):
+        self.show_frame(self.date_sort_by_frame)
+        self.hide_frame(self.total_amount_sort_by_frame)
 
     def create_option_menu_group_by(self):
         self.buttons_frame = customtkinter.CTkFrame(self.tab_group_by)
@@ -534,6 +578,24 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
         self.grid_columnconfigure(0, weight=1)
 
+    def create_option_menu_sort_by(self, frame):
+        self.optionmenu = customtkinter. \
+            CTkOptionMenu(frame,
+                          values=[
+                              "Date", "Total Amount"],
+                          command=self.option_menu_sort_by_callback)
+        self.optionmenu.set("Date")
+        self.optionmenu.pack(padx=10, pady=0, side="left")
+
+    def create_segmented_button_sort_by(self, frame):
+        self.segmented_button = customtkinter.CTkSegmentedButton(
+            frame,
+            values=["Descending", "Ascending"],
+            command=self.segmented_button_callback
+        )
+        self.segmented_button.set("Descending")
+        self.segmented_button.pack(padx=(5, 10), pady=0, side="left")
+
     def option_menu_group_by_callback(self, choice):
         if choice == "Date":
             self.show_frame(self.date_frame)
@@ -542,7 +604,56 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             self.show_frame(self.category_frame)
             self.hide_frame(self.date_frame)
 
-    def create_date_frame(self, parent, transactions):
+    def option_menu_sort_by_callback(self, choice):
+        if choice == "Date":
+            self.show_frame(self.date_sort_by_frame)
+            self.hide_frame(self.total_amount_sort_by_frame)
+            if self.option_segmented_button_date:
+                self.segmented_button.set("Descending")
+            else:
+                self.segmented_button.set("Ascending")
+        elif choice == "Total Amount":
+            self.show_frame(self.total_amount_sort_by_frame)
+            self.hide_frame(self.date_sort_by_frame)
+            if self.option_segmented_button_total_amount:
+                self.segmented_button.set("Descending")
+            else:
+                self.segmented_button.set("Ascending")
+
+    def segmented_button_callback(self, selected_option):
+        option = self.optionmenu.get()
+        if option == "Date":
+            self.option_segmented_button_date = selected_option == "Descending"
+            self.update_date_sort_by_frame()
+        elif option == "Total Amount":
+            self.option_segmented_button_total_amount = \
+                selected_option == "Descending"
+            self.update_total_amount_sort_by_frame()
+
+    def update_date_sort_by_frame(self):
+        self.date_sort_by_frame.pack_forget()
+        self.date_sort_by_frame.destroy()
+
+        self.date_sort_by_frame = self.create_date_sort_by_frame(
+            self.tab_sort_by, self.transactions,
+            option=self.option_segmented_button_date)
+
+        self.show_default_frame_sort_by()
+
+    def update_total_amount_sort_by_frame(self):
+        self.total_amount_sort_by_frame.pack_forget()
+        self.total_amount_sort_by_frame.destroy()
+
+        self.total_amount_sort_by_frame = \
+            self.create_total_amount_sort_by_frame(
+                self.tab_sort_by, self.transactions,
+                option=self.option_segmented_button_total_amount)
+
+        self.show_frame(self.total_amount_sort_by_frame)
+        self.hide_frame(self.date_sort_by_frame)
+
+    # Group By Frame
+    def create_date_group_by_frame(self, parent, transactions):
         frame = customtkinter.CTkScrollableFrame(
             parent, fg_color="transparent",
             height=530)
@@ -551,7 +662,7 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
         return frame
 
-    def create_category_frame(self, parent, transactions):
+    def create_category_group_by_frame(self, parent, transactions):
         frame = customtkinter.CTkScrollableFrame(
             parent, fg_color="transparent",
             height=530)
@@ -1000,7 +1111,260 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
                     formatted_total_amount
                 ))
 
-    # --------------------
+    # Sort By Frame
+    def create_date_sort_by_frame(self, parent, transactions, option):
+        frame = customtkinter.CTkScrollableFrame(
+            parent, fg_color="transparent",
+            height=530)
+
+        self.get_date_in_transactions_with_option_sort(
+            frame, transactions, option)
+
+        return frame
+
+    def create_total_amount_sort_by_frame(self, parent, transactions, option):
+        frame = customtkinter.CTkScrollableFrame(
+            parent, fg_color="transparent",
+            height=530)
+
+        self.create_content_treeview_sort_by_total_amount(
+            frame, transactions, option)
+
+        return frame
+
+    # Sort By Date
+    def get_date_in_transactions_with_option_sort(self, parent, transactions,
+                                                  option):
+        unique_dates = set()
+
+        for transaction in transactions:
+            day = transaction._day
+            month = MonthLabel(transaction._month)
+            year = transaction._year
+
+            date_object = datetime.date(year, month.value, day)
+
+            unique_dates.add(date_object)
+
+        sorted_dates = sorted(unique_dates, reverse=option)
+
+        for date_obj in sorted_dates:
+            day = date_obj.day
+            month = MonthLabel(date_obj.month)
+            year = date_obj.year
+
+            group_by_date_items_frame = self.create_group_by_date_items_frame(
+                parent, day, month, year, transactions=transactions)
+            group_by_date_items_frame.pack(padx=5, pady=(5, 10), fill="x")
+
+    # Sort By Total Amount
+    def create_content_treeview_sort_by_total_amount(self, frame,
+                                                     transactions, option):
+        sorted_transactions = sorted(
+            transactions, key=lambda x: x._total_amount, reverse=option)
+
+        for transaction in sorted_transactions:
+            transaction_list = [transaction]
+            self.create_frame_for_content_treeview(
+                frame, transaction_list)
+
+    def create_frame_for_content_treeview(self, frame, transactions):
+        frame_items = customtkinter.CTkFrame(
+            frame, fg_color="#ffffff",
+            border_width=2, border_color="#4a4a4a")
+        frame_items.pack(padx=5, pady=5, fill="x")
+
+        if transactions:
+            if isinstance(transactions[0], GoldTransaction):
+                treeview_transaction = \
+                    self.create_gold_tv_sort_by_total_amount(
+                        frame_items, transactions)
+                self.populate_tv_with_gold_sort_by_total_amount(
+                    treeview_transaction, transactions)
+            elif isinstance(transactions[0], CurrencyTransaction):
+                treeview_transaction \
+                    = self.create_currency_tv_sort_by_total_amount(
+                        frame_items, transactions)
+                self.populate_tv_with_currency_sort_by_total_amount(
+                    treeview_transaction, transactions)
+
+            treeview_transaction.pack(
+                padx=20, pady=(10, 20), fill="x")
+
+        separator_style = ttk.Style()
+        separator_style.configure(
+            "Separator.TSeparator", background="#989DA1", borderwidth=1)
+
+        separator = ttk.Separator(
+            frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(padx=10, pady=10, fill="x")
+
+    def create_header_transaction_treeview_sort_by(self, frame,
+                                                   total_amount, label):
+        frame_header = customtkinter.CTkFrame(
+            frame, fg_color="transparent")
+        frame_header.pack(padx=5, pady=5, fill="x")
+
+        frame_label = customtkinter.CTkFrame(
+            frame_header, fg_color="transparent")
+        frame_label.grid(row=0, column=0, sticky="w", padx=(5, 0), pady=5)
+
+        gold_transaction_label = customtkinter.CTkLabel(
+            frame_label, text=label, text_color="black",
+            font=("Arial", 30, "bold"))
+        gold_transaction_label.pack(
+            padx=10, pady=(5, 0), side="top", anchor="w")
+
+        frame_total_amount = customtkinter.CTkFrame(
+            frame_header, fg_color="transparent")
+        frame_total_amount.grid(row=0, column=1, sticky="e", padx=10, pady=5)
+
+        total_amount_label = customtkinter.CTkLabel(
+            frame_total_amount, text="Total Amount (VND)", text_color="black",
+            font=("Arial", 14))
+        total_amount_label.grid(row=0, column=0, padx=5, pady=0, sticky="e")
+
+        total_amount_number_label = customtkinter.CTkLabel(
+            frame_total_amount, text="{}".format(total_amount),
+            text_color="black",
+            font=("Arial", 20, "bold"))
+        total_amount_number_label.grid(
+            row=1, column=0, padx=5, pady=0, sticky="e")
+
+        separator_style = ttk.Style()
+        separator_style.configure(
+            "Separator.TSeparator", background="#989DA1", borderwidth=1)
+
+        separator = ttk.Separator(
+            frame_header, orient="horizontal", style="Separator.TSeparator")
+        separator.grid(row=1, column=0, columnspan=3,
+                       sticky="ew", padx=10, pady=5)
+
+        frame_header.columnconfigure(0, weight=1)
+        frame_header.columnconfigure(1, weight=1)
+
+    def calculate_total_amount_sort_by_total_amount(self, transactions):
+        total_amount = 0
+        for transaction in transactions:
+            total_amount += transaction._total_amount
+        return total_amount
+
+    def create_gold_tv_sort_by_total_amount(self, frame,
+                                            gold_transactions):
+        total_amount_gold = self.calculate_total_amount_sort_by_total_amount(
+            gold_transactions)
+        formatted_total_amount_gold = self.format_price_number(
+            total_amount_gold)
+        self.create_header_transaction_treeview_sort_by(
+            frame, formatted_total_amount_gold, "GOLD TRANSACTIONS")
+
+        treeview_style = ttk.Style()
+        treeview_style.configure(
+            "Treeview.Heading", font=("Arial", 10, "bold"))
+        treeview_style.configure("Treeview", rowheight=25)
+
+        treeview = ttk.Treeview(frame, columns=(
+            "Transaction Code",
+            "Transaction Date",
+            "Unit Price (VND/tael)",
+            "Quantity (tael)", "Gold Type",
+            # "Total Amount (VND)"
+        ), show="headings", height=1)
+
+        treeview.heading("Transaction Code",
+                         text="Transaction Code", anchor="w")
+        treeview.heading("Transaction Date",
+                         text="Transaction Date", anchor="w")
+        treeview.heading("Unit Price (VND/tael)",
+                         text="Unit Price (VND/tael)", anchor="w")
+        treeview.heading("Quantity (tael)", text="Quantity (tael)", anchor="w")
+        treeview.heading("Gold Type", text="Gold Type", anchor="w")
+        # treeview.heading("Total Amount (VND)",
+        #                  text="Total Amount (VND)", anchor="w")
+
+        return treeview
+
+    def create_currency_tv_sort_by_total_amount(self, frame,
+                                                currency_transactions
+                                                ):
+        total_amount_currency = \
+            self.calculate_total_amount_sort_by_total_amount(
+                currency_transactions)
+        formatted_total_amount_currency = self.format_price_number(
+            total_amount_currency)
+        self.create_header_transaction_treeview_sort_by(
+            frame, formatted_total_amount_currency, "CURRENCY TRANSACTIONS")
+
+        treeview_style = ttk.Style()
+        treeview_style.configure(
+            "Treeview.Heading", font=("Arial", 10, "bold"))
+        treeview_style.configure("Treeview", rowheight=25)
+
+        treeview = ttk.Treeview(frame, columns=(
+            "Transaction Code",
+            "Transaction Date",
+            "Quantity",
+            "Currency Type", "Exchange Rate (VND)",
+            # "Total Amount (VND)"
+        ), show="headings", height=1)
+
+        treeview.heading("Transaction Code",
+                         text="Transaction Code", anchor="w")
+        treeview.heading("Transaction Date",
+                         text="Transaction Date", anchor="w")
+        treeview.heading("Quantity", text="Quantity", anchor="w")
+        treeview.heading("Currency Type", text="Currency Type", anchor="w")
+        treeview.heading("Exchange Rate (VND)",
+                         text="Exchange Rate (VND)", anchor="w")
+        # treeview.heading("Total Amount (VND)",
+        #                  text="Total Amount (VND)", anchor="w")
+        return treeview
+
+    def populate_tv_with_gold_sort_by_total_amount(self,
+                                                   treeview,
+                                                   transactions):
+        for transaction in transactions:
+            if isinstance(transaction, GoldTransaction):
+                transaction_date = "{} {} {}".format(
+                    transaction._day, MonthLabel(transaction._month),
+                    transaction._year)
+                formatted_unit_price = self.format_price_number(
+                    transaction._unit_price)
+                # formatted_total_amount = self.format_price_number(
+                #     transaction._total_amount)
+                treeview.insert("", "end", values=(
+                    transaction._id,
+                    transaction_date,
+                    formatted_unit_price,
+                    transaction._quantity,
+                    transaction._gold_type.name,
+                    # formatted_total_amount
+                ))
+
+    def populate_tv_with_currency_sort_by_total_amount(self,
+                                                       treeview,
+                                                       transactions):
+        for transaction in transactions:
+            if isinstance(transaction, CurrencyTransaction):
+                transaction_date = "{} {} {}".format(
+                    transaction._day, MonthLabel(transaction._month),
+                    transaction._year)
+                formatted_quantity = self.format_price_number(
+                    transaction._quantity)
+                formatted_exchange_rate = self.format_price_number(
+                    transaction._exchange_rate._rate)
+                # formatted_total_amount = self.format_price_number(
+                #     transaction._total_amount)
+                treeview.insert("", "end", values=(
+                    transaction._id,
+                    transaction_date,
+                    formatted_quantity,
+                    transaction._currency_type.name,
+                    formatted_exchange_rate,
+                    # formatted_total_amount
+                ))
+
+    # General auxiliary functions
     def format_price_number(self, total_amount):
         if '.' in str(total_amount):
             integer_part, decimal_part = str(total_amount).split(".")
