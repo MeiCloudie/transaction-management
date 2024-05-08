@@ -498,6 +498,8 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         self.set("GROUP BY")
         self.configure(corner_radius=5)
 
+        self.option_segmented_button = True
+
         self.create_tab_group_by_sort_by_widgets()
 
     def create_tab_group_by_sort_by_widgets(self):
@@ -514,10 +516,17 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         self.show_default_frame_group_by()
 
         # Sort By
-        self.create_option_menu_sort_by()
+        self.buttons_frame = customtkinter.CTkFrame(self.tab_sort_by)
+        self.buttons_frame.pack(padx=10, pady=5, fill="x")
+        self.buttons_frame.configure(fg_color="transparent")
+        self.create_option_menu_sort_by(self.buttons_frame)
+        self.create_segmented_button_sort_by(
+            self.buttons_frame)
+        self.grid_columnconfigure(0, weight=1)
 
         self.date_sort_by_frame = self.create_date_sort_by_frame(
-            self.tab_sort_by, self.transactions)
+            self.tab_sort_by, self.transactions,
+            option=self.option_segmented_button)
         self.total_amount_sort_by_frame = \
             self.create_total_amount_sort_by_frame(
                 self.tab_sort_by, self.transactions)
@@ -550,28 +559,23 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
         self.grid_columnconfigure(0, weight=1)
 
-    def create_option_menu_sort_by(self):
-        self.buttons_frame = customtkinter.CTkFrame(self.tab_sort_by)
-        self.buttons_frame.pack(padx=10, pady=5, fill="x")
-        self.buttons_frame.configure(fg_color="transparent")
-
+    def create_option_menu_sort_by(self, frame):
         self.optionmenu = customtkinter. \
-            CTkOptionMenu(self.buttons_frame,
+            CTkOptionMenu(frame,
                           values=[
                               "Date", "Total Amount"],
                           command=self.option_menu_sort_by_callback)
         self.optionmenu.set("Date")
         self.optionmenu.pack(padx=10, pady=0, side="left")
 
+    def create_segmented_button_sort_by(self, frame):
         self.segmented_button = customtkinter.CTkSegmentedButton(
-            self.buttons_frame,
+            frame,
             values=["Descending", "Ascending"],
             command=self.segmented_button_callback
         )
         self.segmented_button.set("Descending")
         self.segmented_button.pack(padx=(5, 10), pady=0, side="left")
-
-        self.grid_columnconfigure(0, weight=1)
 
     def option_menu_group_by_callback(self, choice):
         if choice == "Date":
@@ -590,8 +594,19 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             self.hide_frame(self.date_sort_by_frame)
 
     def segmented_button_callback(self, selected_option):
-        # Handle the selection of the segmented button
         print("Selected option:", selected_option)
+        self.option_segmented_button = selected_option == "Descending"
+        self.update_date_sort_by_frame()
+
+    def update_date_sort_by_frame(self):
+        self.date_sort_by_frame.pack_forget()
+        self.date_sort_by_frame.destroy()
+
+        self.date_sort_by_frame = self.create_date_sort_by_frame(
+            self.tab_sort_by, self.transactions,
+            option=self.option_segmented_button)
+
+        self.show_default_frame_sort_by()
 
     # Group By Frame
     def create_date_group_by_frame(self, parent, transactions):
@@ -1053,12 +1068,13 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
                 ))
 
     # Sort By Frame
-    def create_date_sort_by_frame(self, parent, transactions):
+    def create_date_sort_by_frame(self, parent, transactions, option):
         frame = customtkinter.CTkScrollableFrame(
             parent, fg_color="transparent",
             height=530)
 
-        self.get_date_in_transactions(frame, transactions)
+        self.get_date_in_transactions_with_option_sort(
+            frame, transactions, option)
 
         return frame
 
@@ -1075,6 +1091,31 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         label.pack(padx=10, pady=10)
 
         return frame
+
+    # Sort By Date
+    def get_date_in_transactions_with_option_sort(self, parent, transactions,
+                                                  option):
+        unique_dates = set()
+
+        for transaction in transactions:
+            day = transaction._day
+            month = MonthLabel(transaction._month)
+            year = transaction._year
+
+            date_object = datetime.date(year, month.value, day)
+
+            unique_dates.add(date_object)
+
+        sorted_dates = sorted(unique_dates, reverse=option)
+
+        for date_obj in sorted_dates:
+            day = date_obj.day
+            month = MonthLabel(date_obj.month)
+            year = date_obj.year
+
+            group_by_date_items_frame = self.create_group_by_date_items_frame(
+                parent, day, month, year, transactions=transactions)
+            group_by_date_items_frame.pack(padx=5, pady=(5, 10), fill="x")
 
     # General auxiliary functions
     def format_price_number(self, total_amount):
