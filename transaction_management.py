@@ -1082,12 +1082,8 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             parent, fg_color="transparent",
             height=530)
 
-        # self.create_content_treeview_by_category(
-        #     frame, transactions)
-        label = customtkinter.CTkLabel(
-            frame, text="Total Amount", text_color="black",
-            font=("Arial", 14))
-        label.pack(padx=10, pady=10)
+        self.create_content_treeview_sort_by_total_amount(
+            frame, transactions)
 
         return frame
 
@@ -1115,6 +1111,220 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             group_by_date_items_frame = self.create_group_by_date_items_frame(
                 parent, day, month, year, transactions=transactions)
             group_by_date_items_frame.pack(padx=5, pady=(5, 10), fill="x")
+
+    # Sort By Total Amount
+    def create_content_treeview_sort_by_total_amount(self, frame,
+                                                     transactions):
+        for transaction in transactions:
+            transaction_list = [transaction]
+            self.create_frame_for_content_treeview(
+                frame, transaction_list)
+
+        # frame_currency = customtkinter.CTkFrame(
+        #     frame, fg_color="#ffffff",
+        #     border_width=2, border_color="#4a4a4a")
+        # frame_currency.pack(padx=5, pady=5, fill="x")
+
+        # treeview_currency_transaction \
+        #     = self.create_currency_tv_sort_by_total_amount(
+        #         frame_currency, currency_transactions)
+        # self.populate_tv_with_currency_sort_by_total_amount(
+        #     treeview_currency_transaction, currency_transactions)
+        # treeview_currency_transaction.pack(padx=20, pady=(10, 20), fill="x")
+
+    def create_frame_for_content_treeview(self, frame, transactions):
+        frame_items = customtkinter.CTkFrame(
+            frame, fg_color="#ffffff",
+            border_width=2, border_color="#4a4a4a")
+        frame_items.pack(padx=5, pady=5, fill="x")
+
+        if transactions:
+            if isinstance(transactions[0], GoldTransaction):
+                treeview_transaction = \
+                    self.create_gold_tv_sort_by_total_amount(
+                        frame_items, transactions)
+                self.populate_tv_with_gold_sort_by_total_amount(
+                    treeview_transaction, transactions)
+            elif isinstance(transactions[0], CurrencyTransaction):
+                treeview_transaction \
+                    = self.create_currency_tv_sort_by_total_amount(
+                        frame_items, transactions)
+                self.populate_tv_with_currency_sort_by_total_amount(
+                    treeview_transaction, transactions)
+
+            treeview_transaction.pack(
+                padx=20, pady=(10, 20), fill="x")
+
+        separator_style = ttk.Style()
+        separator_style.configure(
+            "Separator.TSeparator", background="#989DA1", borderwidth=1)
+
+        separator = ttk.Separator(
+            frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(padx=10, pady=10, fill="x")
+
+    def create_header_transaction_treeview_sort_by(self, frame,
+                                                   total_amount, label):
+        frame_header = customtkinter.CTkFrame(
+            frame, fg_color="transparent")
+        frame_header.pack(padx=5, pady=5, fill="x")
+
+        frame_label = customtkinter.CTkFrame(
+            frame_header, fg_color="transparent")
+        frame_label.grid(row=0, column=0, sticky="w", padx=(5, 0), pady=5)
+
+        gold_transaction_label = customtkinter.CTkLabel(
+            frame_label, text=label, text_color="black",
+            font=("Arial", 30, "bold"))
+        gold_transaction_label.pack(
+            padx=10, pady=(5, 0), side="top", anchor="w")
+
+        frame_total_amount = customtkinter.CTkFrame(
+            frame_header, fg_color="transparent")
+        frame_total_amount.grid(row=0, column=1, sticky="e", padx=10, pady=5)
+
+        total_amount_label = customtkinter.CTkLabel(
+            frame_total_amount, text="Total Amount (VND)", text_color="black",
+            font=("Arial", 14))
+        total_amount_label.grid(row=0, column=0, padx=5, pady=0, sticky="e")
+
+        total_amount_number_label = customtkinter.CTkLabel(
+            frame_total_amount, text="{}".format(total_amount),
+            text_color="black",
+            font=("Arial", 20, "bold"))
+        total_amount_number_label.grid(
+            row=1, column=0, padx=5, pady=0, sticky="e")
+
+        separator_style = ttk.Style()
+        separator_style.configure(
+            "Separator.TSeparator", background="#989DA1", borderwidth=1)
+
+        separator = ttk.Separator(
+            frame_header, orient="horizontal", style="Separator.TSeparator")
+        separator.grid(row=1, column=0, columnspan=3,
+                       sticky="ew", padx=10, pady=5)
+
+        frame_header.columnconfigure(0, weight=1)
+        frame_header.columnconfigure(1, weight=1)
+
+    def calculate_total_amount_sort_by_total_amount(self, transactions):
+        total_amount = 0
+        for transaction in transactions:
+            total_amount += transaction._total_amount
+        return total_amount
+
+    def create_gold_tv_sort_by_total_amount(self, frame,
+                                            gold_transactions):
+        total_amount_gold = self.calculate_total_amount_sort_by_total_amount(
+            gold_transactions)
+        formatted_total_amount_gold = self.format_price_number(
+            total_amount_gold)
+        self.create_header_transaction_treeview_sort_by(
+            frame, formatted_total_amount_gold, "GOLD TRANSACTIONS")
+
+        treeview_style = ttk.Style()
+        treeview_style.configure(
+            "Treeview.Heading", font=("Arial", 10, "bold"))
+        treeview_style.configure("Treeview", rowheight=25)
+
+        treeview = ttk.Treeview(frame, columns=(
+            "Transaction Code",
+            "Transaction Date",
+            "Unit Price (VND/tael)",
+            "Quantity (tael)", "Gold Type", "Total Amount (VND)"
+        ), show="headings", height=1)
+
+        treeview.heading("Transaction Code",
+                         text="Transaction Code", anchor="w")
+        treeview.heading("Transaction Date",
+                         text="Transaction Date", anchor="w")
+        treeview.heading("Unit Price (VND/tael)",
+                         text="Unit Price (VND/tael)", anchor="w")
+        treeview.heading("Quantity (tael)", text="Quantity (tael)", anchor="w")
+        treeview.heading("Gold Type", text="Gold Type", anchor="w")
+        treeview.heading("Total Amount (VND)",
+                         text="Total Amount (VND)", anchor="w")
+
+        return treeview
+
+    def create_currency_tv_sort_by_total_amount(self, frame,
+                                                currency_transactions
+                                                ):
+        total_amount_currency = \
+            self.calculate_total_amount_sort_by_total_amount(
+                currency_transactions)
+        formatted_total_amount_currency = self.format_price_number(
+            total_amount_currency)
+        self.create_header_transaction_treeview_sort_by(
+            frame, formatted_total_amount_currency, "CURRENCY TRANSACTIONS")
+
+        treeview_style = ttk.Style()
+        treeview_style.configure(
+            "Treeview.Heading", font=("Arial", 10, "bold"))
+        treeview_style.configure("Treeview", rowheight=25)
+
+        treeview = ttk.Treeview(frame, columns=(
+            "Transaction Code",
+            "Transaction Date",
+            "Quantity",
+            "Currency Type", "Exchange Rate (VND)", "Total Amount (VND)"
+        ), show="headings", height=1)
+
+        treeview.heading("Transaction Code",
+                         text="Transaction Code", anchor="w")
+        treeview.heading("Transaction Date",
+                         text="Transaction Date", anchor="w")
+        treeview.heading("Quantity", text="Quantity", anchor="w")
+        treeview.heading("Currency Type", text="Currency Type", anchor="w")
+        treeview.heading("Exchange Rate (VND)",
+                         text="Exchange Rate (VND)", anchor="w")
+        treeview.heading("Total Amount (VND)",
+                         text="Total Amount (VND)", anchor="w")
+        return treeview
+
+    def populate_tv_with_gold_sort_by_total_amount(self,
+                                                   treeview,
+                                                   transactions):
+        for transaction in transactions:
+            if isinstance(transaction, GoldTransaction):
+                transaction_date = "{} {} {}".format(
+                    transaction._day, MonthLabel(transaction._month),
+                    transaction._year)
+                formatted_unit_price = self.format_price_number(
+                    transaction._unit_price)
+                formatted_total_amount = self.format_price_number(
+                    transaction._total_amount)
+                treeview.insert("", "end", values=(
+                    transaction._id,
+                    transaction_date,
+                    formatted_unit_price,
+                    transaction._quantity,
+                    transaction._gold_type.name,
+                    formatted_total_amount
+                ))
+
+    def populate_tv_with_currency_sort_by_total_amount(self,
+                                                       treeview,
+                                                       transactions):
+        for transaction in transactions:
+            if isinstance(transaction, CurrencyTransaction):
+                transaction_date = "{} {} {}".format(
+                    transaction._day, MonthLabel(transaction._month),
+                    transaction._year)
+                formatted_quantity = self.format_price_number(
+                    transaction._quantity)
+                formatted_exchange_rate = self.format_price_number(
+                    transaction._exchange_rate._rate)
+                formatted_total_amount = self.format_price_number(
+                    transaction._total_amount)
+                treeview.insert("", "end", values=(
+                    transaction._id,
+                    transaction_date,
+                    formatted_quantity,
+                    transaction._currency_type.name,
+                    formatted_exchange_rate,
+                    formatted_total_amount
+                ))
 
     # General auxiliary functions
     def format_price_number(self, total_amount):
