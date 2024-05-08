@@ -504,20 +504,36 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         # Group By
         self.create_option_menu_group_by()
 
-        self.date_frame = self.create_date_frame(
+        self.date_frame = self.create_date_group_by_frame(
             self.tab_group_by, self.transactions)
-        self.category_frame = self.create_category_frame(
+        self.category_frame = self.create_category_group_by_frame(
             self.tab_group_by, self.transactions)
 
         self.category_frame.pack_forget()
 
-        self.show_default_frame()
+        self.show_default_frame_group_by()
 
         # Sort By
+        self.create_option_menu_sort_by()
 
-    def show_default_frame(self):
+        self.date_sort_by_frame = self.create_date_sort_by_frame(
+            self.tab_sort_by, self.transactions)
+        self.total_amount_sort_by_frame = \
+            self.create_total_amount_sort_by_frame(
+                self.tab_sort_by, self.transactions)
+
+        self.total_amount_sort_by_frame.pack_forget()
+
+        self.show_default_frame_sort_by()
+
+    # Set up Tab View
+    def show_default_frame_group_by(self):
         self.show_frame(self.date_frame)
         self.hide_frame(self.category_frame)
+
+    def show_default_frame_sort_by(self):
+        self.show_frame(self.date_sort_by_frame)
+        self.hide_frame(self.total_amount_sort_by_frame)
 
     def create_option_menu_group_by(self):
         self.buttons_frame = customtkinter.CTkFrame(self.tab_group_by)
@@ -534,6 +550,21 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
         self.grid_columnconfigure(0, weight=1)
 
+    def create_option_menu_sort_by(self):
+        self.buttons_frame = customtkinter.CTkFrame(self.tab_sort_by)
+        self.buttons_frame.pack(padx=10, pady=5, fill="x")
+        self.buttons_frame.configure(fg_color="transparent")
+
+        self.optionmenu = customtkinter. \
+            CTkOptionMenu(self.buttons_frame,
+                          values=[
+                              "Date", "Total Amount"],
+                          command=self.option_menu_sort_by_callback)
+        self.optionmenu.set("Date")
+        self.optionmenu.pack(padx=10, pady=0, side="left")
+
+        self.grid_columnconfigure(0, weight=1)
+
     def option_menu_group_by_callback(self, choice):
         if choice == "Date":
             self.show_frame(self.date_frame)
@@ -542,7 +573,16 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             self.show_frame(self.category_frame)
             self.hide_frame(self.date_frame)
 
-    def create_date_frame(self, parent, transactions):
+    def option_menu_sort_by_callback(self, choice):
+        if choice == "Date":
+            self.show_frame(self.date_sort_by_frame)
+            self.hide_frame(self.total_amount_sort_by_frame)
+        elif choice == "Total Amount":
+            self.show_frame(self.total_amount_sort_by_frame)
+            self.hide_frame(self.date_sort_by_frame)
+
+    # Group By Frame
+    def create_date_group_by_frame(self, parent, transactions):
         frame = customtkinter.CTkScrollableFrame(
             parent, fg_color="transparent",
             height=530)
@@ -551,7 +591,7 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
         return frame
 
-    def create_category_frame(self, parent, transactions):
+    def create_category_group_by_frame(self, parent, transactions):
         frame = customtkinter.CTkScrollableFrame(
             parent, fg_color="transparent",
             height=530)
@@ -1000,7 +1040,35 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
                     formatted_total_amount
                 ))
 
-    # --------------------
+    # Sort By Frame
+    def create_date_sort_by_frame(self, parent, transactions):
+        frame = customtkinter.CTkScrollableFrame(
+            parent, fg_color="transparent",
+            height=530)
+
+        # self.get_date_in_transactions(frame, transactions)
+        label = customtkinter.CTkLabel(
+            frame, text="Date", text_color="black",
+            font=("Arial", 14))
+        label.pack(padx=10, pady=10)
+
+        return frame
+
+    def create_total_amount_sort_by_frame(self, parent, transactions):
+        frame = customtkinter.CTkScrollableFrame(
+            parent, fg_color="transparent",
+            height=530)
+
+        # self.create_content_treeview_by_category(
+        #     frame, transactions)
+        label = customtkinter.CTkLabel(
+            frame, text="Total Amount", text_color="black",
+            font=("Arial", 14))
+        label.pack(padx=10, pady=10)
+
+        return frame
+
+    # General auxiliary functions
     def format_price_number(self, total_amount):
         if '.' in str(total_amount):
             integer_part, decimal_part = str(total_amount).split(".")
