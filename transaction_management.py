@@ -498,7 +498,8 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         self.set("GROUP BY")
         self.configure(corner_radius=5)
 
-        self.option_segmented_button = True
+        self.option_segmented_button_date = True
+        self.option_segmented_button_total_amount = True
 
         self.create_tab_group_by_sort_by_widgets()
 
@@ -524,12 +525,14 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             self.buttons_frame)
         self.grid_columnconfigure(0, weight=1)
 
-        self.date_sort_by_frame = self.create_date_sort_by_frame(
-            self.tab_sort_by, self.transactions,
-            option=self.option_segmented_button)
+        self.date_sort_by_frame = \
+            self.create_date_sort_by_frame(
+                self.tab_sort_by, self.transactions,
+                option=self.option_segmented_button_date)
         self.total_amount_sort_by_frame = \
             self.create_total_amount_sort_by_frame(
-                self.tab_sort_by, self.transactions)
+                self.tab_sort_by, self.transactions,
+                option=self.option_segmented_button_total_amount)
 
         self.total_amount_sort_by_frame.pack_forget()
 
@@ -594,8 +597,14 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             self.hide_frame(self.date_sort_by_frame)
 
     def segmented_button_callback(self, selected_option):
-        self.option_segmented_button = selected_option == "Descending"
-        self.update_date_sort_by_frame()
+        option = self.optionmenu.get()
+        if option == "Date":
+            self.option_segmented_button_date = selected_option == "Descending"
+            self.update_date_sort_by_frame()
+        elif option == "Total Amount":
+            self.option_segmented_button_total_amount = \
+                selected_option == "Descending"
+            self.update_total_amount_sort_by_frame()
 
     def update_date_sort_by_frame(self):
         self.date_sort_by_frame.pack_forget()
@@ -603,9 +612,21 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
         self.date_sort_by_frame = self.create_date_sort_by_frame(
             self.tab_sort_by, self.transactions,
-            option=self.option_segmented_button)
+            option=self.option_segmented_button_date)
 
         self.show_default_frame_sort_by()
+
+    def update_total_amount_sort_by_frame(self):
+        self.total_amount_sort_by_frame.pack_forget()
+        self.total_amount_sort_by_frame.destroy()
+
+        self.total_amount_sort_by_frame = \
+            self.create_total_amount_sort_by_frame(
+                self.tab_sort_by, self.transactions,
+                option=self.option_segmented_button_total_amount)
+
+        self.show_frame(self.total_amount_sort_by_frame)
+        self.hide_frame(self.date_sort_by_frame)
 
     # Group By Frame
     def create_date_group_by_frame(self, parent, transactions):
@@ -1077,13 +1098,13 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
         return frame
 
-    def create_total_amount_sort_by_frame(self, parent, transactions):
+    def create_total_amount_sort_by_frame(self, parent, transactions, option):
         frame = customtkinter.CTkScrollableFrame(
             parent, fg_color="transparent",
             height=530)
 
         self.create_content_treeview_sort_by_total_amount(
-            frame, transactions)
+            frame, transactions, option)
 
         return frame
 
@@ -1114,23 +1135,14 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
     # Sort By Total Amount
     def create_content_treeview_sort_by_total_amount(self, frame,
-                                                     transactions):
-        for transaction in transactions:
+                                                     transactions, option):
+        sorted_transactions = sorted(
+            transactions, key=lambda x: x._total_amount, reverse=option)
+
+        for transaction in sorted_transactions:
             transaction_list = [transaction]
             self.create_frame_for_content_treeview(
                 frame, transaction_list)
-
-        # frame_currency = customtkinter.CTkFrame(
-        #     frame, fg_color="#ffffff",
-        #     border_width=2, border_color="#4a4a4a")
-        # frame_currency.pack(padx=5, pady=5, fill="x")
-
-        # treeview_currency_transaction \
-        #     = self.create_currency_tv_sort_by_total_amount(
-        #         frame_currency, currency_transactions)
-        # self.populate_tv_with_currency_sort_by_total_amount(
-        #     treeview_currency_transaction, currency_transactions)
-        # treeview_currency_transaction.pack(padx=20, pady=(10, 20), fill="x")
 
     def create_frame_for_content_treeview(self, frame, transactions):
         frame_items = customtkinter.CTkFrame(
