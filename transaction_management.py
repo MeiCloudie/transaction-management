@@ -592,9 +592,17 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         if choice == "Date":
             self.show_frame(self.date_sort_by_frame)
             self.hide_frame(self.total_amount_sort_by_frame)
+            if self.option_segmented_button_date:
+                self.segmented_button.set("Descending")
+            else:
+                self.segmented_button.set("Ascending")
         elif choice == "Total Amount":
             self.show_frame(self.total_amount_sort_by_frame)
             self.hide_frame(self.date_sort_by_frame)
+            if self.option_segmented_button_total_amount:
+                self.segmented_button.set("Descending")
+            else:
+                self.segmented_button.set("Ascending")
 
     def segmented_button_callback(self, selected_option):
         option = self.optionmenu.get()
