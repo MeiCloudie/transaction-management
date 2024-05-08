@@ -345,14 +345,18 @@ class TabFilter(customtkinter.CTkTabview):
             transaction._total_amount for transaction
             in transactions if isinstance(transaction, GoldTransaction)
         )
+        formatted_gold_total_amount = self.format_price_number(
+            gold_total_amount)
         currency_total_amount = sum(
             transaction._total_amount for transaction
             in transactions if isinstance(transaction, CurrencyTransaction)
         )
+        formatted_currency_total_amount = self.format_price_number(
+            currency_total_amount)
 
         gold_label = customtkinter.CTkLabel(
             master=total_total_amount_frame,
-            text=f"Gold: {gold_total_amount:>61}",
+            text=f"Gold: {formatted_gold_total_amount:>61}",
             font=("Arial", 14),
             text_color="black",
             anchor="w"
@@ -361,7 +365,7 @@ class TabFilter(customtkinter.CTkTabview):
 
         currency_label = customtkinter.CTkLabel(
             master=total_total_amount_frame,
-            text=f"Currency: {currency_total_amount:>54}",
+            text=f"Currency: {formatted_currency_total_amount:>54}",
             font=("Arial", 14),
             text_color="black",
             anchor="w"
@@ -373,9 +377,11 @@ class TabFilter(customtkinter.CTkTabview):
         separator.pack(fill="x", padx=10, pady=5)
 
         grand_total = gold_total_amount + currency_total_amount
+        formatted_grand_total = self.format_price_number(
+            grand_total)
         grand_total_label = customtkinter.CTkLabel(
             master=total_total_amount_frame,
-            text=f"Grand Total: {grand_total:>50}",
+            text=f"Grand Total: {formatted_grand_total:>50}",
             font=("Arial", 14),
             text_color="black",
             anchor="w"
@@ -484,6 +490,16 @@ class TabFilter(customtkinter.CTkTabview):
             if transaction._month == month and transaction._year == year:
                 transactions_month_year.append(transaction)
         return transactions_month_year
+
+    def format_price_number(self, total_amount):
+        if '.' in str(total_amount):
+            integer_part, decimal_part = str(total_amount).split(".")
+        else:
+            integer_part, decimal_part = str(total_amount), '00'
+        formatted_integer_part = "{:,.0f}".format(float(integer_part))
+        formatted_total_amount = "{}.{}".format(
+            formatted_integer_part, decimal_part)
+        return formatted_total_amount
 
 
 class TabGroupBySortBy(customtkinter.CTkTabview):
