@@ -5,6 +5,7 @@ from enum import Enum
 from abc import ABC, abstractmethod
 from PIL import Image
 import datetime
+from sys import platform
 
 
 class CurrencyType(Enum):
@@ -1398,7 +1399,7 @@ class FilterWindow(customtkinter.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.title("Transaction Management")
-        self.iconbitmap('./logo.ico')
+        self.iconbitmap(default='./logo.ico')
         self.minsize(1720, 960)
         self.configure(fg_color="white")
 
@@ -1406,6 +1407,9 @@ class FilterWindow(customtkinter.CTkToplevel):
         self.label.pack(padx=20, pady=20)
 
         self.attributes("-topmost", True)
+
+        if platform.startswith("win"):
+            self.after(200, lambda: self.iconbitmap("./logo.ico"))
 
 
 if __name__ == "__main__":
