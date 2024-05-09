@@ -126,11 +126,14 @@ class TransactionList:
         return self._transactions
 
 
+customtkinter.set_appearance_mode("light")
+customtkinter.set_default_color_theme("dark-blue")
+
+
 class TransactionApp(customtkinter.CTk):
     def __init__(self):
         super().__init__()
         self.title("Transaction Management")
-        self._set_appearance_mode("light")
         icon_path = "./logo.ico"
         self.iconbitmap(icon_path)
         self.minsize(1720, 960)
@@ -240,10 +243,10 @@ class HeaderFrame(customtkinter.CTkFrame):
             self.buttons_frame,
             text=None,
             image=self.filter_icon,
-            width=30, height=30, command=self.open_toplevel)
+            width=30, height=30, command=self.open_filter_window)
         self.btn_filter.pack(side="right", padx=5, pady=5)
 
-        self.toplevel_window = None
+        self.filter_window = None
 
         self.btn_refresh = customtkinter.CTkButton(
             self.buttons_frame,
@@ -268,13 +271,12 @@ class HeaderFrame(customtkinter.CTkFrame):
         self.columnconfigure(0, weight=0)
         self.columnconfigure(1, weight=1)
 
-    def open_toplevel(self):
-        if self.toplevel_window is None or not \
-                self.toplevel_window.winfo_exists():
-            # create window if its None or destroyed
-            self.toplevel_window = ToplevelWindow(self)
+    def open_filter_window(self):
+        if self.filter_window is None or not \
+                self.filter_window.winfo_exists():
+            self.filter_window = FilterWindow(self)
         else:
-            self.toplevel_window.focus()
+            self.filter_window.focus()
 
 
 class TabFilter(customtkinter.CTkTabview):
@@ -1392,12 +1394,15 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         frame.pack_forget()
 
 
-class ToplevelWindow(customtkinter.CTkToplevel):
+class FilterWindow(customtkinter.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.geometry("400x300")
+        self.title("Transaction Management")
+        self.iconbitmap('./logo.ico')
+        self.minsize(1720, 960)
+        self.configure(fg_color="white")
 
-        self.label = customtkinter.CTkLabel(self, text="ToplevelWindow")
+        self.label = customtkinter.CTkLabel(self, text="FilterWindow")
         self.label.pack(padx=20, pady=20)
 
         self.attributes("-topmost", True)
