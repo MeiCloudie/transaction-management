@@ -240,8 +240,10 @@ class HeaderFrame(customtkinter.CTkFrame):
             self.buttons_frame,
             text=None,
             image=self.filter_icon,
-            width=30, height=30)
+            width=30, height=30, command=self.open_toplevel)
         self.btn_filter.pack(side="right", padx=5, pady=5)
+
+        self.toplevel_window = None
 
         self.btn_refresh = customtkinter.CTkButton(
             self.buttons_frame,
@@ -265,6 +267,14 @@ class HeaderFrame(customtkinter.CTkFrame):
 
         self.columnconfigure(0, weight=0)
         self.columnconfigure(1, weight=1)
+
+    def open_toplevel(self):
+        if self.toplevel_window is None or not \
+                self.toplevel_window.winfo_exists():
+            # create window if its None or destroyed
+            self.toplevel_window = ToplevelWindow(self)
+        else:
+            self.toplevel_window.focus()
 
 
 class TabFilter(customtkinter.CTkTabview):
@@ -1380,6 +1390,17 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
     def hide_frame(self, frame):
         frame.pack_forget()
+
+
+class ToplevelWindow(customtkinter.CTkToplevel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.geometry("400x300")
+
+        self.label = customtkinter.CTkLabel(self, text="ToplevelWindow")
+        self.label.pack(padx=20, pady=20)
+
+        self.attributes("-topmost", True)
 
 
 if __name__ == "__main__":
