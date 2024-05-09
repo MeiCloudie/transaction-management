@@ -1403,13 +1403,46 @@ class FilterWindow(customtkinter.CTkToplevel):
         self.minsize(1720, 960)
         self.configure(fg_color="white")
 
-        self.label = customtkinter.CTkLabel(self, text="FilterWindow")
-        self.label.pack(padx=20, pady=20)
+        self.create_widget()
 
         self.attributes("-topmost", True)
 
         if platform.startswith("win"):
             self.after(200, lambda: self.iconbitmap("./logo.ico"))
+
+    def create_widget(self):
+        # self.load_data_from_json()
+
+        self.header_frame_for_filter_window = HeaderFrameForFilterWindow(
+            master=self)
+        self.header_frame_for_filter_window.pack(padx=10, pady=10, fill="x")
+
+
+class HeaderFrameForFilterWindow(customtkinter.CTkFrame):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
+        self.configure(fg_color="#dbdbdb", bg_color="#ebebeb")
+
+        self.label_transaction = customtkinter.CTkLabel(
+            self, text="FILTER", text_color="black",
+            font=("TkDefaultFont", 24, "bold"))
+        self.label_transaction.grid(
+            row=0, column=0, sticky="w", padx=12, pady=5)
+
+        self.buttons_frame = customtkinter.CTkFrame(self)
+        self.buttons_frame.grid(row=0, column=1, sticky="e", padx=12, pady=5)
+        self.buttons_frame.configure(fg_color="transparent")
+
+        self.btn_close = customtkinter.CTkButton(
+            self.buttons_frame,
+            text="CLOSE FILTER",
+            fg_color="#d93547",
+            hover_color="dark red",
+        )
+        self.btn_close.pack(side="right", padx=5, pady=5)
+
+        self.columnconfigure(0, weight=0)
+        self.columnconfigure(1, weight=1)
 
 
 if __name__ == "__main__":
