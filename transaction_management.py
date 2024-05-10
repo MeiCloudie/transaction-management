@@ -1440,6 +1440,84 @@ class FilterWindow(customtkinter.CTkToplevel):
         )
         label_title.pack(padx=20, pady=(10, 5), anchor="w")
 
+        separator_style = ttk.Style()
+        separator_style.configure(
+            "Separator.TSeparator", background="#989DA1", borderwidth=5)
+
+        from_frame = customtkinter.CTkFrame(
+            master=time_range_selector_frame,
+            fg_color="transparent"
+        )
+        from_frame.pack(padx=20, pady=(5, 0), anchor="w")
+
+        from_title = customtkinter.CTkLabel(
+            master=from_frame,
+            text="From:",
+            font=("Arial", 14),
+            text_color="black",
+            anchor="w"
+        )
+        from_title.grid(row=0, column=0, padx=10, pady=5)
+
+        from_frame_entry_day = customtkinter.CTkEntry(
+            master=from_frame, placeholder_text="Day", width=60)
+        from_frame_entry_day.grid(row=0, column=1, padx=10, pady=5)
+
+        separator_day_month_from_frame = ttk.Separator(
+            from_frame, orient="horizontal", style="Separator.TSeparator")
+        separator_day_month_from_frame.grid(row=0, column=2,
+                                            padx=0, pady=5, sticky="ew")
+
+        from_frame_entry_month = customtkinter.CTkEntry(
+            master=from_frame, placeholder_text="Month", width=60)
+        from_frame_entry_month.grid(row=0, column=3, padx=10, pady=5)
+
+        separator_month_year_from_frame = ttk.Separator(
+            from_frame, orient="horizontal", style="Separator.TSeparator")
+        separator_month_year_from_frame.grid(
+            row=0, column=4, padx=0, pady=5, sticky="ew")
+
+        from_frame_entry_year = customtkinter.CTkEntry(
+            master=from_frame, placeholder_text="Year", width=60)
+        from_frame_entry_year.grid(row=0, column=5, padx=10, pady=5)
+
+        to_frame = customtkinter.CTkFrame(
+            master=time_range_selector_frame,
+            fg_color="transparent"
+        )
+        to_frame.pack(padx=20, pady=(0, 10), anchor="w")
+
+        to_title = customtkinter.CTkLabel(
+            master=to_frame,
+            text="To:    ",
+            font=("Arial", 14),
+            text_color="black",
+            anchor="w"
+        )
+        to_title.grid(row=0, column=0, padx=10, pady=5)
+
+        to_frame_entry_day = customtkinter.CTkEntry(
+            master=to_frame, placeholder_text="Day", width=60)
+        to_frame_entry_day.grid(row=0, column=1, padx=10, pady=5)
+
+        separator_day_month_to_frame = ttk.Separator(
+            to_frame, orient="horizontal", style="Separator.TSeparator")
+        separator_day_month_to_frame.grid(row=0, column=2,
+                                          padx=0, pady=5, sticky="ew")
+
+        to_frame_entry_month = customtkinter.CTkEntry(
+            master=to_frame, placeholder_text="Month", width=60)
+        to_frame_entry_month.grid(row=0, column=3, padx=10, pady=5)
+
+        separator_month_year_to_frame = ttk.Separator(
+            to_frame, orient="horizontal", style="Separator.TSeparator")
+        separator_month_year_to_frame.grid(
+            row=0, column=4, padx=0, pady=5, sticky="ew")
+
+        to_frame_entry_year = customtkinter.CTkEntry(
+            master=to_frame, placeholder_text="Year", width=60)
+        to_frame_entry_year.grid(row=0, column=5, padx=10, pady=5)
+
     def create_total_amount_selector_frame(self, frame):
         total_amount_selector_frame = customtkinter.CTkFrame(
             master=frame,
