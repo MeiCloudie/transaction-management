@@ -276,6 +276,7 @@ class HeaderFrame(customtkinter.CTkFrame):
         if self.filter_window is None or not \
                 self.filter_window.winfo_exists():
             self.filter_window = FilterWindow(self)
+            self.filter_window.after(10, self.filter_window.lift)
         else:
             self.filter_window.focus()
 
@@ -1404,8 +1405,6 @@ class FilterWindow(customtkinter.CTkToplevel):
         self.configure(fg_color="white")
 
         self.create_widget()
-
-        self.attributes("-topmost", True)
 
         if platform.startswith("win"):
             self.after(200, lambda: self.iconbitmap("./logo.ico"))
