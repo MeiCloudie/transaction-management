@@ -1,5 +1,6 @@
 import json
 from tkinter import ttk, messagebox
+import tkinter as tk
 import customtkinter
 from enum import Enum
 from abc import ABC, abstractmethod
@@ -1412,7 +1413,7 @@ class FilterWindow(customtkinter.CTkToplevel):
 
     def create_widget(self):
         self.header_frame_for_filter_window = HeaderFrameForWindow(
-            master=self, label_header="FILTER")
+            master=self, label_header="FILTER", submit_event=self.submit_event)
         self.header_frame_for_filter_window.pack(padx=10, pady=10, fill="x")
 
         self.create_selector_frames()
@@ -1465,31 +1466,31 @@ class FilterWindow(customtkinter.CTkToplevel):
         )
         from_title.grid(row=0, column=0, padx=10, pady=5)
 
-        from_frame_entry_day = customtkinter.CTkEntry(
+        self.from_frame_entry_day = customtkinter.CTkEntry(
             master=from_frame, placeholder_text="Day", width=60)
-        from_frame_entry_day.grid(row=0, column=1, padx=10, pady=5)
+        self.from_frame_entry_day.grid(row=0, column=1, padx=10, pady=5)
 
         separator_day_month_from_frame = ttk.Separator(
             from_frame, orient="horizontal", style="Separator.TSeparator")
         separator_day_month_from_frame.grid(row=0, column=2,
                                             padx=0, pady=5, sticky="ew")
 
-        from_frame_entry_month = customtkinter.CTkEntry(
+        self.from_frame_entry_month = customtkinter.CTkEntry(
             master=from_frame, placeholder_text="Month", width=60)
-        from_frame_entry_month.grid(row=0, column=3, padx=10, pady=5)
+        self.from_frame_entry_month.grid(row=0, column=3, padx=10, pady=5)
 
         separator_month_year_from_frame = ttk.Separator(
             from_frame, orient="horizontal", style="Separator.TSeparator")
         separator_month_year_from_frame.grid(
             row=0, column=4, padx=0, pady=5, sticky="ew")
 
-        from_frame_entry_year = customtkinter.CTkEntry(
+        self.from_frame_entry_year = customtkinter.CTkEntry(
             master=from_frame, placeholder_text="Year", width=60)
-        from_frame_entry_year.grid(row=0, column=5, padx=10, pady=5)
+        self.from_frame_entry_year.grid(row=0, column=5, padx=10, pady=5)
 
-        from_frame_entry_day.insert(0, str(current_date.day))
-        from_frame_entry_month.insert(0, str(current_date.month))
-        from_frame_entry_year.insert(0, str(current_date.year))
+        self.from_frame_entry_day.insert(0, str(current_date.day))
+        self.from_frame_entry_month.insert(0, str(current_date.month))
+        self.from_frame_entry_year.insert(0, str(current_date.year))
 
         to_frame = customtkinter.CTkFrame(
             master=time_range_selector_frame,
@@ -1506,31 +1507,31 @@ class FilterWindow(customtkinter.CTkToplevel):
         )
         to_title.grid(row=0, column=0, padx=10, pady=5)
 
-        to_frame_entry_day = customtkinter.CTkEntry(
+        self.to_frame_entry_day = customtkinter.CTkEntry(
             master=to_frame, placeholder_text="Day", width=60)
-        to_frame_entry_day.grid(row=0, column=1, padx=10, pady=5)
+        self.to_frame_entry_day.grid(row=0, column=1, padx=10, pady=5)
 
         separator_day_month_to_frame = ttk.Separator(
             to_frame, orient="horizontal", style="Separator.TSeparator")
         separator_day_month_to_frame.grid(row=0, column=2,
                                           padx=0, pady=5, sticky="ew")
 
-        to_frame_entry_month = customtkinter.CTkEntry(
+        self.to_frame_entry_month = customtkinter.CTkEntry(
             master=to_frame, placeholder_text="Month", width=60)
-        to_frame_entry_month.grid(row=0, column=3, padx=10, pady=5)
+        self.to_frame_entry_month.grid(row=0, column=3, padx=10, pady=5)
 
         separator_month_year_to_frame = ttk.Separator(
             to_frame, orient="horizontal", style="Separator.TSeparator")
         separator_month_year_to_frame.grid(
             row=0, column=4, padx=0, pady=5, sticky="ew")
 
-        to_frame_entry_year = customtkinter.CTkEntry(
+        self.to_frame_entry_year = customtkinter.CTkEntry(
             master=to_frame, placeholder_text="Year", width=60)
-        to_frame_entry_year.grid(row=0, column=5, padx=10, pady=5)
+        self.to_frame_entry_year.grid(row=0, column=5, padx=10, pady=5)
 
-        to_frame_entry_day.insert(0, str(next_month_date.day))
-        to_frame_entry_month.insert(0, str(next_month_date.month))
-        to_frame_entry_year.insert(0, str(next_month_date.year))
+        self.to_frame_entry_day.insert(0, str(next_month_date.day))
+        self.to_frame_entry_month.insert(0, str(next_month_date.month))
+        self.to_frame_entry_year.insert(0, str(next_month_date.year))
 
     def create_total_amount_selector_frame(self, frame):
         total_amount_selector_frame = customtkinter.CTkFrame(
@@ -1577,9 +1578,33 @@ class FilterWindow(customtkinter.CTkToplevel):
             height=530)
         frame.pack(padx=10, pady=10, fill="x")
 
+        self.result_submit_var = tk.StringVar()
+        self.result_submit_label = customtkinter.CTkLabel(
+            frame,
+            textvariable=self.result_submit_var,
+            text_color="black",
+            font=("Arial", 10, "bold")
+        )
+        self.result_submit_label.pack(padx=5, pady=0, side="left")
+
+    def submit_event(self):
+        from_day = self.from_frame_entry_day.get()
+        from_month = self.from_frame_entry_month.get()
+        from_year = self.from_frame_entry_year.get()
+        to_day = self.to_frame_entry_day.get()
+        to_month = self.to_frame_entry_month.get()
+        to_year = self.to_frame_entry_year.get()
+        chose_range = self.optionmenu.get()
+
+        result_text = f"from - day: {from_day}, month: {from_month}, \
+        year: {from_year}, to - day: {to_day}, month: {to_month}, \
+        year: {to_year}, chose total amount: {chose_range}"
+
+        self.result_submit_var.set(result_text)
+
 
 class HeaderFrameForWindow(customtkinter.CTkFrame):
-    def __init__(self, master, label_header, **kwargs):
+    def __init__(self, master, label_header, submit_event, **kwargs):
         super().__init__(master, **kwargs)
         self.configure(fg_color="#dbdbdb", bg_color="#ffffff")
 
@@ -1607,6 +1632,7 @@ class HeaderFrameForWindow(customtkinter.CTkFrame):
             text=f"SUBMIT {label_header}",
             fg_color="green",
             hover_color="dark green",
+            command=submit_event
         )
         self.btn_submit.pack(side="right", padx=5, pady=5)
 
