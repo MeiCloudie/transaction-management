@@ -1417,6 +1417,8 @@ class FilterWindow(customtkinter.CTkToplevel):
 
         self.create_selector_frames()
 
+        self.create_filter_result_frame()
+
     def create_selector_frames(self):
         selector_frame = customtkinter.CTkFrame(
             master=self, fg_color="transparent")
@@ -1568,6 +1570,12 @@ class FilterWindow(customtkinter.CTkToplevel):
 
     def optionmenu_callback(self, choice):
         print("optionmenu clicked:", choice)
+
+    def create_filter_result_frame(self):
+        frame = customtkinter.CTkScrollableFrame(
+            self, fg_color="#dbdbdb", bg_color="#ffffff",
+            height=530)
+        frame.pack(padx=10, pady=10, fill="x")
 
 
 class HeaderFrameForWindow(customtkinter.CTkFrame):
