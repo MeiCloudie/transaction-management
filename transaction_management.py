@@ -1411,20 +1411,18 @@ class FilterWindow(customtkinter.CTkToplevel):
             self.after(200, lambda: self.iconbitmap("./logo.ico"))
 
     def create_widget(self):
-        # self.load_data_from_json()
-
-        self.header_frame_for_filter_window = HeaderFrameForFilterWindow(
-            master=self)
+        self.header_frame_for_filter_window = HeaderFrameForWindow(
+            master=self, label_header="FILTER")
         self.header_frame_for_filter_window.pack(padx=10, pady=10, fill="x")
 
 
-class HeaderFrameForFilterWindow(customtkinter.CTkFrame):
-    def __init__(self, master, **kwargs):
+class HeaderFrameForWindow(customtkinter.CTkFrame):
+    def __init__(self, master, label_header, **kwargs):
         super().__init__(master, **kwargs)
         self.configure(fg_color="#dbdbdb", bg_color="#ebebeb")
 
         self.label_transaction = customtkinter.CTkLabel(
-            self, text="FILTER", text_color="black",
+            self, text=label_header, text_color="black",
             font=("TkDefaultFont", 24, "bold"))
         self.label_transaction.grid(
             row=0, column=0, sticky="w", padx=12, pady=5)
@@ -1435,7 +1433,7 @@ class HeaderFrameForFilterWindow(customtkinter.CTkFrame):
 
         self.btn_close = customtkinter.CTkButton(
             self.buttons_frame,
-            text="CLOSE FILTER",
+            text=f"CLOSE {label_header}",
             fg_color="#d93547",
             hover_color="dark red",
             command=self.master.destroy
