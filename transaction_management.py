@@ -1400,7 +1400,7 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 class FilterWindow(customtkinter.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.title("Transaction Management")
+        self.title("Transaction Management - FILTER")
         self.iconbitmap(default='./logo.ico')
         self.minsize(1720, 960)
         self.configure(fg_color="white")
