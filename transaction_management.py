@@ -5,6 +5,7 @@ from enum import Enum
 from abc import ABC, abstractmethod
 from PIL import Image
 import datetime
+from datetime import timedelta
 from sys import platform
 
 
@@ -1431,6 +1432,9 @@ class FilterWindow(customtkinter.CTkToplevel):
         )
         time_range_selector_frame.grid(row=0, column=0, padx=10, pady=5)
 
+        current_date = datetime.datetime.now()
+        next_month_date = current_date + timedelta(days=30)
+
         label_title = customtkinter.CTkLabel(
             master=time_range_selector_frame,
             text="Select time range",
@@ -1481,6 +1485,10 @@ class FilterWindow(customtkinter.CTkToplevel):
             master=from_frame, placeholder_text="Year", width=60)
         from_frame_entry_year.grid(row=0, column=5, padx=10, pady=5)
 
+        from_frame_entry_day.insert(0, str(current_date.day))
+        from_frame_entry_month.insert(0, str(current_date.month))
+        from_frame_entry_year.insert(0, str(current_date.year))
+
         to_frame = customtkinter.CTkFrame(
             master=time_range_selector_frame,
             fg_color="transparent"
@@ -1517,6 +1525,10 @@ class FilterWindow(customtkinter.CTkToplevel):
         to_frame_entry_year = customtkinter.CTkEntry(
             master=to_frame, placeholder_text="Year", width=60)
         to_frame_entry_year.grid(row=0, column=5, padx=10, pady=5)
+
+        to_frame_entry_day.insert(0, str(next_month_date.day))
+        to_frame_entry_month.insert(0, str(next_month_date.month))
+        to_frame_entry_year.insert(0, str(next_month_date.year))
 
     def create_total_amount_selector_frame(self, frame):
         total_amount_selector_frame = customtkinter.CTkFrame(
