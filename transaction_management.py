@@ -1546,6 +1546,29 @@ class FilterWindow(customtkinter.CTkToplevel):
         )
         label_title.pack(padx=20, pady=(10, 5), anchor="w")
 
+        label_chose_range = customtkinter.CTkLabel(
+            master=total_amount_selector_frame,
+            text="Chose range (VND):",
+            font=("Arial", 14),
+            text_color="black",
+            anchor="w"
+        )
+        label_chose_range.pack(padx=20, pady=5, anchor="w")
+
+        self.create_optionmenu_chose_range(total_amount_selector_frame)
+
+    def create_optionmenu_chose_range(self, frame):
+        self.optionmenu = customtkinter.CTkOptionMenu(
+            frame,
+            values=["All", "< 100M", "100M - 500M", "500M - 1B", "> 1B"],
+            command=self.optionmenu_callback
+        )
+        self.optionmenu.set("All")
+        self.optionmenu.pack(padx=30, pady=(5, 20), side="left")
+
+    def optionmenu_callback(self, choice):
+        print("optionmenu clicked:", choice)
+
 
 class HeaderFrameForWindow(customtkinter.CTkFrame):
     def __init__(self, master, label_header, **kwargs):
