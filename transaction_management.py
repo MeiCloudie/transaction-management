@@ -1438,6 +1438,7 @@ class HeaderFrameForFilterWindow(customtkinter.CTkFrame):
             text="CLOSE FILTER",
             fg_color="#d93547",
             hover_color="dark red",
+            command=self.master.destroy
         )
         self.btn_close.pack(side="right", padx=5, pady=5)
 
