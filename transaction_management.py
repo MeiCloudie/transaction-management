@@ -1596,11 +1596,41 @@ class FilterWindow(customtkinter.CTkToplevel):
         to_year = self.to_frame_entry_year.get()
         chose_range = self.optionmenu.get()
 
+        if not self.validate_date(from_day, from_month, from_year) \
+                or not self.validate_date(to_day, to_month, to_year):
+            messagebox.showerror("Invalid Date", "Date is not valid.")
+            self.after(10, self.lift)
+            return
+
         result_text = f"from - day: {from_day}, month: {from_month}, \
         year: {from_year}, to - day: {to_day}, month: {to_month}, \
         year: {to_year}, chose total amount: {chose_range}"
 
         self.result_submit_var.set(result_text)
+
+    def validate_date(self, day, month, year):
+        try:
+            day = int(day)
+            month = int(month)
+            year = int(year)
+        except ValueError:
+            return False
+
+        if month < 1 or month > 12:
+            return False
+
+        if day < 1 or day > 31:
+            return False
+
+        if year < 1500:
+            return False
+
+        try:
+            datetime.datetime(year, month, day)
+        except ValueError:
+            return False
+
+        return True
 
 
 class HeaderFrameForWindow(customtkinter.CTkFrame):
