@@ -1415,6 +1415,54 @@ class FilterWindow(customtkinter.CTkToplevel):
             master=self, label_header="FILTER")
         self.header_frame_for_filter_window.pack(padx=10, pady=10, fill="x")
 
+        self.create_selector_frames()
+
+    def create_selector_frames(self):
+        selector_frame = customtkinter.CTkFrame(
+            master=self, fg_color="transparent")
+        selector_frame.pack(side="top", fill="x")
+
+        self.create_time_range_selector_frame(selector_frame)
+        self.create_total_amount_selector_frame(selector_frame)
+
+    def create_time_range_selector_frame(self, frame):
+        time_range_selector_frame = customtkinter.CTkFrame(
+            master=frame,
+            fg_color="#eaeaea",
+            corner_radius=5,
+            border_width=1,
+            border_color="#989DA1"
+        )
+        time_range_selector_frame.grid(row=0, column=0, padx=10, pady=10)
+
+        label_title = customtkinter.CTkLabel(
+            master=time_range_selector_frame,
+            text="Select time range",
+            font=("Arial", 20, "bold"),
+            text_color="black",
+            anchor="w"
+        )
+        label_title.pack(padx=20, pady=(10, 5), anchor="w")
+
+    def create_total_amount_selector_frame(self, frame):
+        total_amount_selector_frame = customtkinter.CTkFrame(
+            master=frame,
+            fg_color="#eaeaea",
+            corner_radius=5,
+            border_width=1,
+            border_color="#989DA1"
+        )
+        total_amount_selector_frame.grid(row=0, column=1, padx=10, pady=10)
+
+        label_title = customtkinter.CTkLabel(
+            master=total_amount_selector_frame,
+            text="Select filter by Total Amount",
+            font=("Arial", 20, "bold"),
+            text_color="black",
+            anchor="w"
+        )
+        label_title.pack(padx=20, pady=(10, 5), anchor="w")
+
 
 class HeaderFrameForWindow(customtkinter.CTkFrame):
     def __init__(self, master, label_header, **kwargs):
