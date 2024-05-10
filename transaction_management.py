@@ -238,8 +238,10 @@ class HeaderFrame(customtkinter.CTkFrame):
             self.buttons_frame,
             text=None,
             image=self.search_icon,
-            width=30, height=30)
+            width=30, height=30, command=self.open_search_window)
         self.btn_search.pack(side="right", padx=5, pady=5)
+
+        self.search_window = None
 
         self.btn_filter = customtkinter.CTkButton(
             self.buttons_frame,
@@ -280,6 +282,14 @@ class HeaderFrame(customtkinter.CTkFrame):
             self.filter_window.after(10, self.filter_window.lift)
         else:
             self.filter_window.focus()
+
+    def open_search_window(self):
+        if self.search_window is None or not \
+                self.search_window.winfo_exists():
+            self.search_window = SearchWindow(self)
+            self.search_window.after(10, self.search_window.lift)
+        else:
+            self.search_window.focus()
 
 
 class TabFilter(customtkinter.CTkTabview):
@@ -1896,6 +1906,33 @@ class FilterWindow(customtkinter.CTkToplevel):
         formatted_total_amount = "{}.{}".format(
             formatted_integer_part, decimal_part)
         return formatted_total_amount
+
+
+class SearchWindow(customtkinter.CTkToplevel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.title("Transaction Management - SEARCH")
+        self.iconbitmap(default='./logo.ico')
+        self.minsize(1720, 960)
+        self.configure(fg_color="white")
+
+        self.create_widget()
+
+        if platform.startswith("win"):
+            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+
+        self.transactions = \
+            self.master.master.transaction_list.get_transactions()
+
+    def create_widget(self):
+        self.header_frame_for_filter_window = HeaderFrameForWindow(
+            master=self, label_header="SEARCH",
+            submit_event=lambda: self.submit_event(self.transactions))
+        self.header_frame_for_filter_window.pack(padx=10, pady=10, fill="x")
+
+        # self.create_selector_frames()
+
+        # self.create_filter_result_frame()
 
 
 class HeaderFrameForWindow(customtkinter.CTkFrame):
