@@ -1427,12 +1427,9 @@ class FilterWindow(customtkinter.CTkToplevel):
     def create_time_range_selector_frame(self, frame):
         time_range_selector_frame = customtkinter.CTkFrame(
             master=frame,
-            fg_color="#eaeaea",
-            corner_radius=5,
-            border_width=1,
-            border_color="#989DA1"
+            fg_color="#dbdbdb", bg_color="#ffffff"
         )
-        time_range_selector_frame.grid(row=0, column=0, padx=10, pady=10)
+        time_range_selector_frame.grid(row=0, column=0, padx=10, pady=5)
 
         label_title = customtkinter.CTkLabel(
             master=time_range_selector_frame,
@@ -1446,12 +1443,9 @@ class FilterWindow(customtkinter.CTkToplevel):
     def create_total_amount_selector_frame(self, frame):
         total_amount_selector_frame = customtkinter.CTkFrame(
             master=frame,
-            fg_color="#eaeaea",
-            corner_radius=5,
-            border_width=1,
-            border_color="#989DA1"
+            fg_color="#dbdbdb", bg_color="#ffffff"
         )
-        total_amount_selector_frame.grid(row=0, column=1, padx=10, pady=10)
+        total_amount_selector_frame.grid(row=0, column=1, padx=10, pady=5)
 
         label_title = customtkinter.CTkLabel(
             master=total_amount_selector_frame,
@@ -1466,7 +1460,7 @@ class FilterWindow(customtkinter.CTkToplevel):
 class HeaderFrameForWindow(customtkinter.CTkFrame):
     def __init__(self, master, label_header, **kwargs):
         super().__init__(master, **kwargs)
-        self.configure(fg_color="#dbdbdb", bg_color="#ebebeb")
+        self.configure(fg_color="#dbdbdb", bg_color="#ffffff")
 
         self.label_transaction = customtkinter.CTkLabel(
             self, text=label_header, text_color="black",
@@ -1486,6 +1480,14 @@ class HeaderFrameForWindow(customtkinter.CTkFrame):
             command=self.master.destroy
         )
         self.btn_close.pack(side="right", padx=5, pady=5)
+
+        self.btn_submit = customtkinter.CTkButton(
+            self.buttons_frame,
+            text=f"SUBMIT {label_header}",
+            fg_color="green",
+            hover_color="dark green",
+        )
+        self.btn_submit.pack(side="right", padx=5, pady=5)
 
         self.columnconfigure(0, weight=0)
         self.columnconfigure(1, weight=1)
