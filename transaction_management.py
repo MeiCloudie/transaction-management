@@ -1928,7 +1928,7 @@ class SearchWindow(customtkinter.CTkToplevel):
     def create_widget(self):
         self.header_frame_for_search_window = HeaderFrameForWindow(
             master=self, label_header="SEARCH",
-            submit_event=lambda: self.submit_event(self.transactions),
+            submit_event=lambda: self.submit_event(),
             show_submit=False,
             show_search_bar=True
         )
@@ -1942,7 +1942,7 @@ class SearchWindow(customtkinter.CTkToplevel):
             height=700)
         self.result_frame.pack(padx=10, pady=10, fill="x")
 
-    def submit_event(self, transactions):
+    def submit_event(self):
         for widget in self.result_frame.winfo_children():
             widget.destroy()
 
@@ -1973,6 +1973,24 @@ class SearchWindow(customtkinter.CTkToplevel):
                 return
 
         transactions_search = self.search_transactions(choice)
+        self.total_transactions = len(transactions_search)
+
+        search_result_label = customtkinter.CTkLabel(
+            self.result_frame,
+            text=f"Search results: {self.total_transactions} transactions",
+            text_color="black",
+            font=("Arial", 24, "bold"))
+        search_result_label.pack(
+            padx=10, pady=10, side="top", anchor="w")
+
+        separator_style = ttk.Style()
+        separator_style.configure(
+            "Separator.TSeparator", background="#989DA1", borderwidth=1)
+
+        separator = ttk.Separator(
+            self.result_frame, orient="horizontal",
+            style="Separator.TSeparator")
+        separator.pack(padx=10, pady=(10, 20), fill="x")
 
         self.create_content_treeview_search_result(
             self.result_frame, transactions_search)
