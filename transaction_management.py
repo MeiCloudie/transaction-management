@@ -262,8 +262,11 @@ class HeaderFrame(customtkinter.CTkFrame):
         self.btn_refresh.pack(side="right", padx=5, pady=5)
 
         self.btn_add_transaction = customtkinter.CTkButton(
-            self.buttons_frame, text="ADD TRANSACTION")
+            self.buttons_frame, text="ADD TRANSACTION",
+            command=self.open_add_transaction_window)
         self.btn_add_transaction.pack(side="right", padx=5, pady=5)
+
+        self.add_transaction_window = None
 
         self.btn_report = customtkinter.CTkButton(
             self.buttons_frame, text="REPORT", text_color="#1f6aa5",
@@ -290,6 +293,15 @@ class HeaderFrame(customtkinter.CTkFrame):
             self.search_window.after(10, self.search_window.lift)
         else:
             self.search_window.focus()
+
+    def open_add_transaction_window(self):
+        if self.add_transaction_window is None or not \
+                self.add_transaction_window.winfo_exists():
+            self.add_transaction_window = AddTransactionWindow(self)
+            self.add_transaction_window.after(10,
+                                              self.add_transaction_window.lift)
+        else:
+            self.add_transaction_window.focus()
 
 
 class TabFilter(customtkinter.CTkTabview):
@@ -2395,6 +2407,23 @@ class HeaderFrameForWindow(customtkinter.CTkFrame):
                 self.entry_frame, placeholder_text="Search type... (Ex: Gold)",
                 width=280)
             self.search_entry.grid(row=0, column=1, padx=2, pady=0)
+
+
+class AddTransactionWindow(customtkinter.CTkToplevel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.title("Add Transaction")
+        self.iconbitmap(default='./logo.ico')
+        self.minsize(400, 600)
+        self.configure(fg_color="white")
+
+        self.create_widget()
+
+        if platform.startswith("win"):
+            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+
+    def create_widget(self):
+        pass
 
 
 if __name__ == "__main__":
