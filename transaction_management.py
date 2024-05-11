@@ -1935,7 +1935,9 @@ class SearchWindow(customtkinter.CTkToplevel):
             master=self, label_header="SEARCH",
             submit_event=lambda: placeholder_submit_event
             if show_submit_button else None,
-            show_submit=False)
+            show_submit=False,
+            show_search_bar=True
+            )
         self.header_frame_for_filter_window.pack(padx=10, pady=10, fill="x")
 
         # self.create_selector_frames()
@@ -1945,7 +1947,7 @@ class SearchWindow(customtkinter.CTkToplevel):
 
 class HeaderFrameForWindow(customtkinter.CTkFrame):
     def __init__(self, master, label_header, submit_event,
-                 show_submit=True, show_search_bar=True, **kwargs):
+                 show_submit=True, show_search_bar=False, **kwargs):
         super().__init__(master, **kwargs)
         self.configure(fg_color="#dbdbdb", bg_color="#ffffff")
 
