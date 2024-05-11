@@ -2442,7 +2442,92 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         self.create_widgets()
 
     def create_widgets(self):
-        pass
+        self.create_tab_add_gold_transaction(
+            self.tab_add_gold_transaction)
+        self.create_tab_add_currency_transaction(
+            self.tab_add_currency_transaction)
+
+    def create_tab_add_gold_transaction(self, tab):
+        label_unit_price = customtkinter.CTkLabel(
+            master=tab,
+            text="Unit Price (VND/tael):",
+            font=("Arial", 14),
+            text_color="black",
+        )
+        label_unit_price.pack(padx=20, pady=5, anchor="w")
+
+        label_quantity = customtkinter.CTkLabel(
+            master=tab,
+            text="Quantity (tael):",
+            font=("Arial", 14),
+            text_color="black",
+        )
+        label_quantity.pack(padx=20, pady=5, anchor="w")
+
+        label_gold_type = customtkinter.CTkLabel(
+            master=tab,
+            text="Gold Type:",
+            font=("Arial", 14),
+            text_color="black",
+        )
+        label_gold_type.pack(padx=20, pady=5, anchor="w")
+
+        label_total_amount = customtkinter.CTkLabel(
+            master=tab,
+            text="Total Amount (VND):",
+            font=("Arial", 14),
+            text_color="black",
+        )
+        label_total_amount.pack(padx=20, pady=5, anchor="w")
+
+        label_transaction_date = customtkinter.CTkLabel(
+            master=tab,
+            text="Transaction Date:",
+            font=("Arial", 14),
+            text_color="black",
+        )
+        label_transaction_date.pack(padx=20, pady=5, anchor="w")
+
+    def create_tab_add_currency_transaction(self, tab):
+        label_quantity = customtkinter.CTkLabel(
+            master=tab,
+            text="Quantity:",
+            font=("Arial", 14),
+            text_color="black",
+        )
+        label_quantity.pack(padx=20, pady=5, anchor="w")
+
+        label_currency_type = customtkinter.CTkLabel(
+            master=tab,
+            text="Currency Type:",
+            font=("Arial", 14),
+            text_color="black",
+        )
+        label_currency_type.pack(padx=20, pady=5, anchor="w")
+
+        label_exchange_rate = customtkinter.CTkLabel(
+            master=tab,
+            text="Exchange Rate (VND):",
+            font=("Arial", 14),
+            text_color="black",
+        )
+        label_exchange_rate.pack(padx=20, pady=5, anchor="w")
+
+        label_total_amount = customtkinter.CTkLabel(
+            master=tab,
+            text="Total Amount (VND):",
+            font=("Arial", 14),
+            text_color="black",
+        )
+        label_total_amount.pack(padx=20, pady=5, anchor="w")
+
+        label_transaction_date = customtkinter.CTkLabel(
+            master=tab,
+            text="Transaction Date:",
+            font=("Arial", 14),
+            text_color="black",
+        )
+        label_transaction_date.pack(padx=20, pady=5, anchor="w")
 
 
 if __name__ == "__main__":
