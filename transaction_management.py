@@ -216,7 +216,7 @@ class TransactionApp(customtkinter.CTk):
 class HeaderFrame(customtkinter.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
-        self.configure(fg_color="#dbdbdb", bg_color="#ebebeb")
+        self.configure(fg_color="#dbdbdb", bg_color="#f2f2f2")
         self.refresh_icon = customtkinter.CTkImage(
             Image.open('./refresh.ico'))
         self.filter_icon = customtkinter.CTkImage(
@@ -307,7 +307,7 @@ class HeaderFrame(customtkinter.CTkFrame):
 class TabFilter(customtkinter.CTkTabview):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
-        self.configure(fg_color="#ffffff", bg_color="#ebebeb",
+        self.configure(fg_color="#ffffff", bg_color="#f2f2f2",
                        border_width=1, border_color="#989DA1")
 
         self.tab_last_month = self.add("LAST MONTH")
