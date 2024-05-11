@@ -2060,31 +2060,31 @@ class SearchWindow(customtkinter.CTkToplevel):
             border_width=2, border_color="#4a4a4a")
         frame_gold.pack(padx=5, pady=5, fill="x")
 
-        treeview_gold_transaction = self.create_gold_treeview_search_result(
-            frame_gold, gold_transactions)
-        self.populate_treeview_with_gold_search_result(
-            treeview_gold_transaction, gold_transactions)
-        treeview_gold_transaction.pack(padx=20, pady=(10, 20), fill="x")
-
-        separator_style = ttk.Style()
-        separator_style.configure(
-            "Separator.TSeparator", background="#989DA1", borderwidth=1)
-
-        separator = ttk.Separator(
-            frame, orient="horizontal", style="Separator.TSeparator")
-        separator.pack(padx=10, pady=10, fill="x")
+        if gold_transactions:
+            treeview_gold_transaction \
+                = self.create_gold_treeview_search_result(
+                    frame_gold, gold_transactions)
+            self.populate_treeview_with_gold_search_result(
+                treeview_gold_transaction, gold_transactions)
+            treeview_gold_transaction.pack(padx=20, pady=(10, 20), fill="x")
+        else:
+            frame_gold.destroy()
 
         frame_currency = customtkinter.CTkFrame(
             frame, fg_color="#ffffff",
             border_width=2, border_color="#4a4a4a")
         frame_currency.pack(padx=5, pady=5, fill="x")
 
-        treeview_currency_transaction\
-            = self.create_currency_treeview_search_result(
-                frame_currency, currency_transactions)
-        self.populate_treeview_with_currency_search_result(
-            treeview_currency_transaction, currency_transactions)
-        treeview_currency_transaction.pack(padx=20, pady=(10, 20), fill="x")
+        if currency_transactions:
+            treeview_currency_transaction \
+                = self.create_currency_treeview_search_result(
+                    frame_currency, currency_transactions)
+            self.populate_treeview_with_currency_search_result(
+                treeview_currency_transaction, currency_transactions)
+            treeview_currency_transaction.pack(
+                padx=20, pady=(10, 20), fill="x")
+        else:
+            frame_currency.destroy()
 
     def create_header_transaction_treeview(self, frame, total_amount, label):
         frame_header = customtkinter.CTkFrame(
