@@ -1426,7 +1426,8 @@ class FilterWindow(customtkinter.CTkToplevel):
     def create_widget(self):
         self.header_frame_for_filter_window = HeaderFrameForWindow(
             master=self, label_header="FILTER",
-            submit_event=lambda: self.submit_event(self.transactions))
+            submit_event=lambda: self.submit_event(self.transactions),
+            show_submit=True)
         self.header_frame_for_filter_window.pack(padx=10, pady=10, fill="x")
 
         self.create_selector_frames()
@@ -1925,9 +1926,16 @@ class SearchWindow(customtkinter.CTkToplevel):
             self.master.master.transaction_list.get_transactions()
 
     def create_widget(self):
+        show_submit_button = False
+
+        def placeholder_submit_event():
+            pass
+
         self.header_frame_for_filter_window = HeaderFrameForWindow(
             master=self, label_header="SEARCH",
-            submit_event=lambda: self.submit_event(self.transactions))
+            submit_event=lambda: placeholder_submit_event
+            if show_submit_button else None,
+            show_submit=False)
         self.header_frame_for_filter_window.pack(padx=10, pady=10, fill="x")
 
         # self.create_selector_frames()
@@ -1936,7 +1944,8 @@ class SearchWindow(customtkinter.CTkToplevel):
 
 
 class HeaderFrameForWindow(customtkinter.CTkFrame):
-    def __init__(self, master, label_header, submit_event, **kwargs):
+    def __init__(self, master, label_header, submit_event,
+                 show_submit=True, **kwargs):
         super().__init__(master, **kwargs)
         self.configure(fg_color="#dbdbdb", bg_color="#ffffff")
 
@@ -1959,14 +1968,15 @@ class HeaderFrameForWindow(customtkinter.CTkFrame):
         )
         self.btn_close.pack(side="right", padx=5, pady=5)
 
-        self.btn_submit = customtkinter.CTkButton(
-            self.buttons_frame,
-            text=f"SUBMIT {label_header}",
-            fg_color="green",
-            hover_color="dark green",
-            command=submit_event
-        )
-        self.btn_submit.pack(side="right", padx=5, pady=5)
+        if show_submit:
+            self.btn_submit = customtkinter.CTkButton(
+                self.buttons_frame,
+                text=f"SUBMIT {label_header}",
+                fg_color="green",
+                hover_color="dark green",
+                command=submit_event
+            )
+            self.btn_submit.pack(side="right", padx=5, pady=5)
 
         self.columnconfigure(0, weight=0)
         self.columnconfigure(1, weight=1)
