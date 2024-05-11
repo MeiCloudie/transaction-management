@@ -1958,13 +1958,17 @@ class SearchWindow(customtkinter.CTkToplevel):
                     return
 
         if choice == "Date":
-            if not self.header_frame_for_search_window.entry_day.get() \
-                or not \
-                self.header_frame_for_search_window._entry_month.get() \
-                or not \
-                    self.header_frame_for_search_window.entry_year.get():
+            day = self.header_frame_for_search_window.entry_day.get()
+            month = self.header_frame_for_search_window._entry_month.get()
+            year = self.header_frame_for_search_window.entry_year.get()
+            if not day or not month or not year:
                 messagebox.showerror(
                     "Missing Input", "Please fill in all date fields.")
+                self.after(10, self.lift)
+                return
+            if not self.validate_date(day, month, year):
+                messagebox.showerror(
+                    "Invalid Date", "Please enter a valid date.")
                 self.after(10, self.lift)
                 return
 
@@ -1983,6 +1987,30 @@ class SearchWindow(customtkinter.CTkToplevel):
         result_label = customtkinter.CTkLabel(
             self.result_frame, text=search_text, text_color="black")
         result_label.pack(padx=10, pady=5)
+
+    def validate_date(self, day, month, year):
+        try:
+            day = int(day)
+            month = int(month)
+            year = int(year)
+        except ValueError:
+            return False
+
+        if month < 1 or month > 12:
+            return False
+
+        if day < 1 or day > 31:
+            return False
+
+        if year < 1500:
+            return False
+
+        try:
+            datetime.datetime(year, month, day)
+        except ValueError:
+            return False
+
+        return True
 
 
 class HeaderFrameForWindow(customtkinter.CTkFrame):
