@@ -2423,6 +2423,25 @@ class AddTransactionWindow(customtkinter.CTkToplevel):
             self.after(200, lambda: self.iconbitmap("./logo.ico"))
 
     def create_widget(self):
+        self.add_transaction_tab_views = AddTransactionTabView(master=self)
+        self.add_transaction_tab_views.pack(padx=20, pady=5, fill="x")
+
+
+class AddTransactionTabView(customtkinter.CTkTabview):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
+        self.configure(fg_color="#ffffff", bg_color="#ffffff",
+                       border_width=1, border_color="#989DA1")
+
+        self.tab_add_gold_transaction = self.add("GOLD")
+        self.tab_add_currency_transaction = self.add("CURRENCY")
+
+        self.set("GOLD")
+        self.configure(corner_radius=5)
+
+        self.create_widgets()
+
+    def create_widgets(self):
         pass
 
 
