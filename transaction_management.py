@@ -1926,23 +1926,63 @@ class SearchWindow(customtkinter.CTkToplevel):
             self.master.master.transaction_list.get_transactions()
 
     def create_widget(self):
-        show_submit_button = False
-
-        def placeholder_submit_event():
-            pass
-
-        self.header_frame_for_filter_window = HeaderFrameForWindow(
+        self.header_frame_for_search_window = HeaderFrameForWindow(
             master=self, label_header="SEARCH",
-            submit_event=lambda: placeholder_submit_event
-            if show_submit_button else None,
+            submit_event=lambda: self.submit_event(self.transactions),
             show_submit=False,
             show_search_bar=True
-            )
-        self.header_frame_for_filter_window.pack(padx=10, pady=10, fill="x")
+        )
+        self.header_frame_for_search_window.pack(padx=10, pady=10, fill="x")
 
-        # self.create_selector_frames()
+        self.create_search_result_frame()
 
-        # self.create_filter_result_frame()
+    def create_search_result_frame(self):
+        self.result_frame = customtkinter.CTkScrollableFrame(
+            self, fg_color="#dbdbdb", bg_color="#ffffff",
+            height=700)
+        self.result_frame.pack(padx=10, pady=10, fill="x")
+
+    def submit_event(self, transactions):
+        for widget in self.result_frame.winfo_children():
+            widget.destroy()
+
+        choice = self.header_frame_for_search_window.optionmenu.get()
+
+        for widget in self. \
+                header_frame_for_search_window.entry_frame.winfo_children():
+            if isinstance(widget, customtkinter.CTkEntry):
+                if not widget.get():
+                    messagebox.showerror(
+                        "Missing Input", "Please fill in all fields.")
+                    self.after(10, self.lift)
+                    return
+
+        if choice == "Date":
+            if not self.header_frame_for_search_window.entry_day.get() \
+                or not \
+                self.header_frame_for_search_window._entry_month.get() \
+                or not \
+                    self.header_frame_for_search_window.entry_year.get():
+                messagebox.showerror(
+                    "Missing Input", "Please fill in all date fields.")
+                self.after(10, self.lift)
+                return
+
+        if choice == "Code":
+            search_text = \
+                self.header_frame_for_search_window.search_entry.get()
+        elif choice == "Date":
+            day = self.header_frame_for_search_window.entry_day.get()
+            month = self.header_frame_for_search_window._entry_month.get()
+            year = self.header_frame_for_search_window.entry_year.get()
+            search_text = f"{day}/{month}/{year}"
+        elif choice == "Type":
+            search_text = \
+                self.header_frame_for_search_window.search_entry.get()
+
+        result_label = customtkinter.CTkLabel(
+            self.result_frame, text=search_text, text_color="black")
+        result_label.pack(padx=10, pady=5)
 
 
 class HeaderFrameForWindow(customtkinter.CTkFrame):
