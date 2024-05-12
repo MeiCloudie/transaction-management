@@ -2456,6 +2456,10 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         )
         label_unit_price.pack(padx=20, pady=5, anchor="w")
 
+        entry_unit_price = customtkinter.CTkEntry(
+            master=tab, placeholder_text="Ex: 85.200.000")
+        entry_unit_price.pack(padx=20, pady=0, anchor="w", fill="x")
+
         label_quantity = customtkinter.CTkLabel(
             master=tab,
             text="Quantity (tael):",
@@ -2464,6 +2468,10 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         )
         label_quantity.pack(padx=20, pady=5, anchor="w")
 
+        entry_quantity = customtkinter.CTkEntry(
+            master=tab, placeholder_text="Ex: 10")
+        entry_quantity.pack(padx=20, pady=0, anchor="w", fill="x")
+
         label_gold_type = customtkinter.CTkLabel(
             master=tab,
             text="Gold Type:",
@@ -2471,14 +2479,6 @@ class AddTransactionTabView(customtkinter.CTkTabview):
             text_color="black",
         )
         label_gold_type.pack(padx=20, pady=5, anchor="w")
-
-        label_total_amount = customtkinter.CTkLabel(
-            master=tab,
-            text="Total Amount (VND):",
-            font=("Arial", 14),
-            text_color="black",
-        )
-        label_total_amount.pack(padx=20, pady=5, anchor="w")
 
         label_transaction_date = customtkinter.CTkLabel(
             master=tab,
@@ -2497,6 +2497,10 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         )
         label_quantity.pack(padx=20, pady=5, anchor="w")
 
+        entry_quantity = customtkinter.CTkEntry(
+            master=tab, placeholder_text="Ex: 50")
+        entry_quantity.pack(padx=20, pady=0, anchor="w", fill="x")
+
         label_currency_type = customtkinter.CTkLabel(
             master=tab,
             text="Currency Type:",
@@ -2513,13 +2517,9 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         )
         label_exchange_rate.pack(padx=20, pady=5, anchor="w")
 
-        label_total_amount = customtkinter.CTkLabel(
-            master=tab,
-            text="Total Amount (VND):",
-            font=("Arial", 14),
-            text_color="black",
-        )
-        label_total_amount.pack(padx=20, pady=5, anchor="w")
+        entry_exchange_rate = customtkinter.CTkEntry(
+            master=tab, placeholder_text="Ex: 23.130")
+        entry_exchange_rate.pack(padx=20, pady=0, anchor="w", fill="x")
 
         label_transaction_date = customtkinter.CTkLabel(
             master=tab,
