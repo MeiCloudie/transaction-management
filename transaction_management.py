@@ -2501,27 +2501,27 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         )
         date_frame.pack(padx=20, pady=(0, 5), anchor="w", fill="x")
 
-        self.entry_day = customtkinter.CTkEntry(
+        entry_day = customtkinter.CTkEntry(
             master=date_frame, placeholder_text="Day", width=95)
-        self.entry_day.grid(row=0, column=0, padx=(0, 5), pady=0, sticky="ew")
+        entry_day.grid(row=0, column=0, padx=(0, 5), pady=0, sticky="ew")
 
         separator_day_month = ttk.Separator(
             date_frame, orient="horizontal", style="Separator.TSeparator")
         separator_day_month.grid(row=0, column=1,
                                  padx=1, pady=0, sticky="ew")
 
-        self._entry_month = customtkinter.CTkEntry(
+        _entry_month = customtkinter.CTkEntry(
             master=date_frame, placeholder_text="Month", width=95)
-        self._entry_month.grid(row=0, column=2, padx=5, pady=0)
+        _entry_month.grid(row=0, column=2, padx=5, pady=0)
 
         separator_month_year = ttk.Separator(
             date_frame, orient="horizontal", style="Separator.TSeparator")
         separator_month_year.grid(
             row=0, column=3, padx=1, pady=0, sticky="ew")
 
-        self.entry_year = customtkinter.CTkEntry(
+        entry_year = customtkinter.CTkEntry(
             master=date_frame, placeholder_text="Year", width=95)
-        self.entry_year.grid(row=0, column=4, padx=(5, 0), pady=0)
+        entry_year.grid(row=0, column=4, padx=(5, 0), pady=0)
 
     def combobox_gold_type_callback(self, choice):
         print("combobox_gold_type dropdown clicked:", choice)
@@ -2547,6 +2547,13 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         )
         label_currency_type.pack(padx=20, pady=5, anchor="w")
 
+        combobox_currency_type = customtkinter.CTkComboBox(tab, values=[
+            "VND", "USD", "EUR"
+        ],
+            command=self.combobox_currency_type_callback)
+        combobox_currency_type.set("VND")
+        combobox_currency_type.pack(padx=20, pady=0, anchor="w", fill="x")
+
         label_exchange_rate = customtkinter.CTkLabel(
             master=tab,
             text="Exchange Rate (VND):",
@@ -2566,6 +2573,37 @@ class AddTransactionTabView(customtkinter.CTkTabview):
             text_color="black",
         )
         label_transaction_date.pack(padx=20, pady=5, anchor="w")
+
+        date_frame = customtkinter.CTkFrame(
+            master=tab,
+            fg_color="transparent"
+        )
+        date_frame.pack(padx=20, pady=(0, 5), anchor="w", fill="x")
+
+        entry_day = customtkinter.CTkEntry(
+            master=date_frame, placeholder_text="Day", width=95)
+        entry_day.grid(row=0, column=0, padx=(0, 5), pady=0, sticky="ew")
+
+        separator_day_month = ttk.Separator(
+            date_frame, orient="horizontal", style="Separator.TSeparator")
+        separator_day_month.grid(row=0, column=1,
+                                 padx=1, pady=0, sticky="ew")
+
+        _entry_month = customtkinter.CTkEntry(
+            master=date_frame, placeholder_text="Month", width=95)
+        _entry_month.grid(row=0, column=2, padx=5, pady=0)
+
+        separator_month_year = ttk.Separator(
+            date_frame, orient="horizontal", style="Separator.TSeparator")
+        separator_month_year.grid(
+            row=0, column=3, padx=1, pady=0, sticky="ew")
+
+        entry_year = customtkinter.CTkEntry(
+            master=date_frame, placeholder_text="Year", width=95)
+        entry_year.grid(row=0, column=4, padx=(5, 0), pady=0)
+
+    def combobox_currency_type_callback(self, choice):
+        print("combobox_currency_type dropdown clicked:", choice)
 
 
 if __name__ == "__main__":
