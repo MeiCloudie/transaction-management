@@ -2414,7 +2414,7 @@ class AddTransactionWindow(customtkinter.CTkToplevel):
         super().__init__(*args, **kwargs)
         self.title("Add Transaction")
         self.iconbitmap(default='./logo.ico')
-        self.minsize(400, 600)
+        self.minsize(400, 500)
         self.configure(fg_color="#d9d9d9")
 
         self.create_widget()
@@ -2523,8 +2523,33 @@ class AddTransactionTabView(customtkinter.CTkTabview):
             master=date_frame, placeholder_text="Year", width=95)
         entry_year.grid(row=0, column=4, padx=(5, 0), pady=0)
 
+        buttons_frame = customtkinter.CTkFrame(tab, fg_color="transparent")
+        buttons_frame.pack(padx=20, pady=(100, 5), anchor="w", fill="x")
+
+        button_confirm = customtkinter.CTkButton(
+            buttons_frame,
+            text="CONFIRM",
+            width=150,
+            command=self.gold_confirm_button_callback)
+        button_confirm.grid(row=0, column=0, sticky="ew", padx=(0, 6), pady=5)
+
+        button_cancel = customtkinter.CTkButton(
+            buttons_frame,
+            text="CANCEL",
+            width=150,
+            fg_color="red",
+            hover_color="dark red",
+            command=self.gold_cancel_button_callback)
+        button_cancel.grid(row=0, column=1, sticky="ew", padx=(6, 0), pady=5)
+
     def combobox_gold_type_callback(self, choice):
         print("combobox_gold_type dropdown clicked:", choice)
+
+    def gold_confirm_button_callback(self):
+        print("gold_confirm_button_callback")
+
+    def gold_cancel_button_callback(self):
+        print("gold_cancel_button_callback")
 
     def create_tab_add_currency_transaction(self, tab):
         label_quantity = customtkinter.CTkLabel(
@@ -2602,8 +2627,33 @@ class AddTransactionTabView(customtkinter.CTkTabview):
             master=date_frame, placeholder_text="Year", width=95)
         entry_year.grid(row=0, column=4, padx=(5, 0), pady=0)
 
+        buttons_frame = customtkinter.CTkFrame(tab, fg_color="transparent")
+        buttons_frame.pack(padx=20, pady=(100, 5), anchor="w", fill="x")
+
+        button_confirm = customtkinter.CTkButton(
+            buttons_frame,
+            text="CONFIRM",
+            width=150,
+            command=self.currency_confirm_button_callback)
+        button_confirm.grid(row=0, column=0, sticky="ew", padx=(0, 6), pady=5)
+
+        button_cancel = customtkinter.CTkButton(
+            buttons_frame,
+            text="CANCEL",
+            width=150,
+            fg_color="red",
+            hover_color="dark red",
+            command=self.currency_cancel_button_callback)
+        button_cancel.grid(row=0, column=1, sticky="ew", padx=(6, 0), pady=5)
+
     def combobox_currency_type_callback(self, choice):
         print("combobox_currency_type dropdown clicked:", choice)
+
+    def currency_confirm_button_callback(self):
+        print("currency_confirm_button_callback")
+
+    def currency_cancel_button_callback(self):
+        print("currency_cancel_button_callback")
 
 
 if __name__ == "__main__":
