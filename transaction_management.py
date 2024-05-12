@@ -2456,9 +2456,9 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         )
         label_unit_price.pack(padx=20, pady=5, anchor="w")
 
-        entry_unit_price = customtkinter.CTkEntry(
+        self.gold_entry_unit_price = customtkinter.CTkEntry(
             master=tab, placeholder_text="Ex: 85.200.000")
-        entry_unit_price.pack(padx=20, pady=0, anchor="w", fill="x")
+        self.gold_entry_unit_price.pack(padx=20, pady=0, anchor="w", fill="x")
 
         label_quantity = customtkinter.CTkLabel(
             master=tab,
@@ -2468,9 +2468,9 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         )
         label_quantity.pack(padx=20, pady=5, anchor="w")
 
-        entry_quantity = customtkinter.CTkEntry(
+        self.gold_entry_quantity = customtkinter.CTkEntry(
             master=tab, placeholder_text="Ex: 10")
-        entry_quantity.pack(padx=20, pady=0, anchor="w", fill="x")
+        self.gold_entry_quantity.pack(padx=20, pady=0, anchor="w", fill="x")
 
         label_gold_type = customtkinter.CTkLabel(
             master=tab,
@@ -2480,12 +2480,13 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         )
         label_gold_type.pack(padx=20, pady=5, anchor="w")
 
-        combobox_gold_type = customtkinter.CTkComboBox(tab, values=[
+        self.gold_combobox_gold_type = customtkinter.CTkComboBox(tab, values=[
             "SJC", "PNJ", "DOJI"
         ],
             command=self.combobox_gold_type_callback)
-        combobox_gold_type.set("SJC")
-        combobox_gold_type.pack(padx=20, pady=0, anchor="w", fill="x")
+        self.gold_combobox_gold_type.set("SJC")
+        self.gold_combobox_gold_type.pack(
+            padx=20, pady=0, anchor="w", fill="x")
 
         label_transaction_date = customtkinter.CTkLabel(
             master=tab,
@@ -2501,27 +2502,28 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         )
         date_frame.pack(padx=20, pady=(0, 5), anchor="w", fill="x")
 
-        entry_day = customtkinter.CTkEntry(
+        self.gold_entry_day = customtkinter.CTkEntry(
             master=date_frame, placeholder_text="Day", width=95)
-        entry_day.grid(row=0, column=0, padx=(0, 5), pady=0, sticky="ew")
+        self.gold_entry_day.grid(
+            row=0, column=0, padx=(0, 5), pady=0, sticky="ew")
 
         separator_day_month = ttk.Separator(
             date_frame, orient="horizontal", style="Separator.TSeparator")
         separator_day_month.grid(row=0, column=1,
                                  padx=1, pady=0, sticky="ew")
 
-        _entry_month = customtkinter.CTkEntry(
+        self.gold_entry_month = customtkinter.CTkEntry(
             master=date_frame, placeholder_text="Month", width=95)
-        _entry_month.grid(row=0, column=2, padx=5, pady=0)
+        self.gold_entry_month.grid(row=0, column=2, padx=5, pady=0)
 
         separator_month_year = ttk.Separator(
             date_frame, orient="horizontal", style="Separator.TSeparator")
         separator_month_year.grid(
             row=0, column=3, padx=1, pady=0, sticky="ew")
 
-        entry_year = customtkinter.CTkEntry(
+        self.gold_entry_year = customtkinter.CTkEntry(
             master=date_frame, placeholder_text="Year", width=95)
-        entry_year.grid(row=0, column=4, padx=(5, 0), pady=0)
+        self.gold_entry_year.grid(row=0, column=4, padx=(5, 0), pady=0)
 
         buttons_frame = customtkinter.CTkFrame(tab, fg_color="transparent")
         buttons_frame.pack(padx=20, pady=(100, 5), anchor="w", fill="x")
@@ -2546,7 +2548,21 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         print("combobox_gold_type dropdown clicked:", choice)
 
     def gold_confirm_button_callback(self):
-        print("gold_confirm_button_callback")
+        unit_price = self.gold_entry_unit_price.get()
+        quantity = self.gold_entry_quantity.get()
+        day = self.gold_entry_day.get()
+        month = self.gold_entry_month.get()
+        year = self.gold_entry_year.get()
+        gold_type = self.gold_combobox_gold_type.get()
+
+        if not all([unit_price, quantity, day, month, year, gold_type]):
+            print("Please fill in all fields.")
+            return
+
+        print("Unit Price:", unit_price)
+        print("Quantity:", quantity)
+        print("Transaction Date:", f"{day}/{month}/{year}")
+        print("Gold Type:", gold_type)
 
     def create_tab_add_currency_transaction(self, tab):
         label_quantity = customtkinter.CTkLabel(
@@ -2557,9 +2573,10 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         )
         label_quantity.pack(padx=20, pady=5, anchor="w")
 
-        entry_quantity = customtkinter.CTkEntry(
+        self.currency_entry_quantity = customtkinter.CTkEntry(
             master=tab, placeholder_text="Ex: 50")
-        entry_quantity.pack(padx=20, pady=0, anchor="w", fill="x")
+        self.currency_entry_quantity.pack(
+            padx=20, pady=0, anchor="w", fill="x")
 
         label_currency_type = customtkinter.CTkLabel(
             master=tab,
@@ -2569,12 +2586,16 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         )
         label_currency_type.pack(padx=20, pady=5, anchor="w")
 
-        combobox_currency_type = customtkinter.CTkComboBox(tab, values=[
-            "VND", "USD", "EUR"
-        ],
-            command=self.combobox_currency_type_callback)
-        combobox_currency_type.set("VND")
-        combobox_currency_type.pack(padx=20, pady=0, anchor="w", fill="x")
+        self.currency_combobox_currency_type = \
+            customtkinter.CTkComboBox(tab,
+                                      values=[
+                                          "VND", "USD", "EUR"
+                                      ],
+                                      command=self.
+                                      combobox_currency_type_callback)
+        self.currency_combobox_currency_type.set("VND")
+        self.currency_combobox_currency_type.pack(
+            padx=20, pady=0, anchor="w", fill="x")
 
         label_exchange_rate = customtkinter.CTkLabel(
             master=tab,
@@ -2584,9 +2605,10 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         )
         label_exchange_rate.pack(padx=20, pady=5, anchor="w")
 
-        entry_exchange_rate = customtkinter.CTkEntry(
+        self.currency_entry_exchange_rate = customtkinter.CTkEntry(
             master=tab, placeholder_text="Ex: 23.130")
-        entry_exchange_rate.pack(padx=20, pady=0, anchor="w", fill="x")
+        self.currency_entry_exchange_rate.pack(padx=20, pady=0, anchor="w",
+                                               fill="x")
 
         label_transaction_date = customtkinter.CTkLabel(
             master=tab,
@@ -2602,27 +2624,28 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         )
         date_frame.pack(padx=20, pady=(0, 5), anchor="w", fill="x")
 
-        entry_day = customtkinter.CTkEntry(
+        self.currency_entry_day = customtkinter.CTkEntry(
             master=date_frame, placeholder_text="Day", width=95)
-        entry_day.grid(row=0, column=0, padx=(0, 5), pady=0, sticky="ew")
+        self.currency_entry_day.grid(row=0, column=0, padx=(0, 5), pady=0,
+                                     sticky="ew")
 
         separator_day_month = ttk.Separator(
             date_frame, orient="horizontal", style="Separator.TSeparator")
         separator_day_month.grid(row=0, column=1,
                                  padx=1, pady=0, sticky="ew")
 
-        _entry_month = customtkinter.CTkEntry(
+        self.currency_entry_month = customtkinter.CTkEntry(
             master=date_frame, placeholder_text="Month", width=95)
-        _entry_month.grid(row=0, column=2, padx=5, pady=0)
+        self.currency_entry_month.grid(row=0, column=2, padx=5, pady=0)
 
         separator_month_year = ttk.Separator(
             date_frame, orient="horizontal", style="Separator.TSeparator")
         separator_month_year.grid(
             row=0, column=3, padx=1, pady=0, sticky="ew")
 
-        entry_year = customtkinter.CTkEntry(
+        self.currency_entry_year = customtkinter.CTkEntry(
             master=date_frame, placeholder_text="Year", width=95)
-        entry_year.grid(row=0, column=4, padx=(5, 0), pady=0)
+        self.currency_entry_year.grid(row=0, column=4, padx=(5, 0), pady=0)
 
         buttons_frame = customtkinter.CTkFrame(tab, fg_color="transparent")
         buttons_frame.pack(padx=20, pady=(100, 5), anchor="w", fill="x")
@@ -2647,7 +2670,21 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         print("combobox_currency_type dropdown clicked:", choice)
 
     def currency_confirm_button_callback(self):
-        print("currency_confirm_button_callback")
+        quantity = self.currency_entry_quantity.get()
+        exchange_rate = self.currency_entry_exchange_rate.get()
+        day = self.currency_entry_day.get()
+        month = self.currency_entry_month.get()
+        year = self.currency_entry_year.get()
+        currency_type = self.currency_combobox_currency_type.get()
+
+        if not all([quantity, exchange_rate, day, month, year, currency_type]):
+            print("Please fill in all fields.")
+            return
+
+        print("Quantity:", quantity)
+        print("Currency Type:", currency_type)
+        print("Exchange Rate (VND):", exchange_rate)
+        print("Transaction Date:", f"{day}/{month}/{year}")
 
 
 if __name__ == "__main__":
