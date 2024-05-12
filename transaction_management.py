@@ -2539,7 +2539,7 @@ class AddTransactionTabView(customtkinter.CTkTabview):
             width=150,
             fg_color="red",
             hover_color="dark red",
-            command=self.gold_cancel_button_callback)
+            command=self.master.destroy)
         button_cancel.grid(row=0, column=1, sticky="ew", padx=(6, 0), pady=5)
 
     def combobox_gold_type_callback(self, choice):
@@ -2547,9 +2547,6 @@ class AddTransactionTabView(customtkinter.CTkTabview):
 
     def gold_confirm_button_callback(self):
         print("gold_confirm_button_callback")
-
-    def gold_cancel_button_callback(self):
-        print("gold_cancel_button_callback")
 
     def create_tab_add_currency_transaction(self, tab):
         label_quantity = customtkinter.CTkLabel(
@@ -2643,7 +2640,7 @@ class AddTransactionTabView(customtkinter.CTkTabview):
             width=150,
             fg_color="red",
             hover_color="dark red",
-            command=self.currency_cancel_button_callback)
+            command=self.master.destroy)
         button_cancel.grid(row=0, column=1, sticky="ew", padx=(6, 0), pady=5)
 
     def combobox_currency_type_callback(self, choice):
@@ -2651,9 +2648,6 @@ class AddTransactionTabView(customtkinter.CTkTabview):
 
     def currency_confirm_button_callback(self):
         print("currency_confirm_button_callback")
-
-    def currency_cancel_button_callback(self):
-        print("currency_cancel_button_callback")
 
 
 if __name__ == "__main__":
