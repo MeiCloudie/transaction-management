@@ -2423,7 +2423,8 @@ class AddTransactionWindow(customtkinter.CTkToplevel):
             self.after(200, lambda: self.iconbitmap("./logo.ico"))
 
     def create_widget(self):
-        self.add_transaction_tab_views = AddTransactionTabView(master=self)
+        self.add_transaction_tab_views = AddTransactionTabView(
+            master=self)
         self.add_transaction_tab_views.pack(padx=20, pady=5, fill="x")
 
 
@@ -2556,7 +2557,9 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         gold_type = self.gold_combobox_gold_type.get()
 
         if not all([unit_price, quantity, day, month, year, gold_type]):
-            print("Please fill in all fields.")
+            messagebox.showerror(
+                "Missing Input", "Please fill in all fields.")
+            self.focus()
             return
 
         print("Unit Price:", unit_price)
@@ -2678,7 +2681,9 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         currency_type = self.currency_combobox_currency_type.get()
 
         if not all([quantity, exchange_rate, day, month, year, currency_type]):
-            print("Please fill in all fields.")
+            messagebox.showerror(
+                "Missing Input", "Please fill in all fields.")
+            self.focus()
             return
 
         print("Quantity:", quantity)
