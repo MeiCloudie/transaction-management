@@ -2458,7 +2458,7 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         label_unit_price.pack(padx=20, pady=5, anchor="w")
 
         self.gold_entry_unit_price = customtkinter.CTkEntry(
-            master=tab, placeholder_text="Ex: 85.200.000")
+            master=tab, placeholder_text="Ex: 85,200,000.7")
         self.gold_entry_unit_price.pack(padx=20, pady=0, anchor="w", fill="x")
 
         label_quantity = customtkinter.CTkLabel(
@@ -2562,10 +2562,70 @@ class AddTransactionTabView(customtkinter.CTkTabview):
             self.focus()
             return
 
+        unit_price = self.validate_and_convert_input(unit_price)
+        if unit_price is None:
+            messagebox.showerror(
+                "Invalid Unit Price", "Unit Price must be a valid number.")
+            self.focus()
+            return
+
+        quantity = self.validate_and_convert_input(quantity)
+        if quantity is None:
+            messagebox.showerror(
+                "Invalid Quantity", "Quantity must be a valid number.")
+            self.focus()
+            return
+
+        day_submit = int(day)
+        month_submit = int(month)
+        year_submit = int(year)
+
+        if not self.validate_date(day_submit, month_submit, year_submit):
+            messagebox.showerror("Invalid Date", "Date is not valid.")
+            self.focus()
+            return
+
+        if gold_type not in ["SJC", "PNJ", "DOJI"]:
+            messagebox.showerror("Invalid Gold Type",
+                                 "Gold Type must be 'SJC', 'PNJ', or 'DOJI'.")
+            self.focus()
+            return
+
         print("Unit Price:", unit_price)
         print("Quantity:", quantity)
         print("Transaction Date:", f"{day}/{month}/{year}")
         print("Gold Type:", gold_type)
+
+    def validate_and_convert_input(self, input_str):
+        try:
+            input_str = input_str.replace(",", "")
+            return float(input_str)
+        except ValueError:
+            return None
+
+    def validate_date(self, day, month, year):
+        try:
+            day = int(day)
+            month = int(month)
+            year = int(year)
+        except ValueError:
+            return False
+
+        if month < 1 or month > 12:
+            return False
+
+        if day < 1 or day > 31:
+            return False
+
+        if year < 1500:
+            return False
+
+        try:
+            datetime.datetime(year, month, day)
+        except ValueError:
+            return False
+
+        return True
 
     def create_tab_add_currency_transaction(self, tab):
         label_quantity = customtkinter.CTkLabel(
