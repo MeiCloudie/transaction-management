@@ -127,6 +127,9 @@ class TransactionList:
     def get_transactions(self):
         return self._transactions
 
+    def clear(self):
+        self._transactions = []
+
 
 customtkinter.set_appearance_mode("light")
 customtkinter.set_default_color_theme("dark-blue")
@@ -141,11 +144,10 @@ class TransactionApp(customtkinter.CTk):
         self.minsize(1720, 960)
 
         self.transaction_list = TransactionList()
+        self.load_data_from_json()
         self.create_widget()
 
     def create_widget(self):
-        self.load_data_from_json()
-
         self.header_frame = HeaderFrame(master=self)
         self.header_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
@@ -212,11 +214,25 @@ class TransactionApp(customtkinter.CTk):
         except json.JSONDecodeError:
             messagebox.showerror("Error", "Invalid JSON format in data file.")
 
+    def refresh_data_from_json(self):
+        messagebox.showinfo("Refreshing Data",
+                            "Refreshing data. Please wait...")
+
+        self.transaction_list.clear()
+        self.load_data_from_json()
+
+        if self.header_frame is not None:
+            self.header_frame.destroy()
+        if self.tab_filter is not None:
+            self.tab_filter.destroy()
+
+        self.create_widget()
+
 
 class HeaderFrame(customtkinter.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
-        self.configure(fg_color="#dbdbdb", bg_color="#ebebeb")
+        self.configure(fg_color="#dbdbdb", bg_color="#f2f2f2")
         self.refresh_icon = customtkinter.CTkImage(
             Image.open('./refresh.ico'))
         self.filter_icon = customtkinter.CTkImage(
@@ -259,11 +275,15 @@ class HeaderFrame(customtkinter.CTkFrame):
             fg_color="green",
             hover_color="dark green",
             width=30, height=30)
+        self.btn_refresh.configure(command=self.master.refresh_data_from_json)
         self.btn_refresh.pack(side="right", padx=5, pady=5)
 
         self.btn_add_transaction = customtkinter.CTkButton(
-            self.buttons_frame, text="ADD TRANSACTION")
+            self.buttons_frame, text="ADD TRANSACTION",
+            command=self.open_add_transaction_window)
         self.btn_add_transaction.pack(side="right", padx=5, pady=5)
+
+        self.add_transaction_window = None
 
         self.btn_report = customtkinter.CTkButton(
             self.buttons_frame, text="REPORT", text_color="#1f6aa5",
@@ -291,11 +311,20 @@ class HeaderFrame(customtkinter.CTkFrame):
         else:
             self.search_window.focus()
 
+    def open_add_transaction_window(self):
+        if self.add_transaction_window is None or not \
+                self.add_transaction_window.winfo_exists():
+            self.add_transaction_window = AddTransactionWindow(self)
+            self.add_transaction_window.after(10,
+                                              self.add_transaction_window.lift)
+        else:
+            self.add_transaction_window.focus()
+
 
 class TabFilter(customtkinter.CTkTabview):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
-        self.configure(fg_color="#ffffff", bg_color="#ebebeb",
+        self.configure(fg_color="#ffffff", bg_color="#f2f2f2",
                        border_width=1, border_color="#989DA1")
 
         self.tab_last_month = self.add("LAST MONTH")
@@ -2395,6 +2424,497 @@ class HeaderFrameForWindow(customtkinter.CTkFrame):
                 self.entry_frame, placeholder_text="Search type... (Ex: Gold)",
                 width=280)
             self.search_entry.grid(row=0, column=1, padx=2, pady=0)
+
+
+class AddTransactionWindow(customtkinter.CTkToplevel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.title("Add Transaction")
+        self.iconbitmap(default='./logo.ico')
+        self.minsize(400, 500)
+        self.configure(fg_color="#d9d9d9")
+
+        self.create_widget()
+
+        if platform.startswith("win"):
+            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+
+    def create_widget(self):
+        self.add_transaction_tab_views = AddTransactionTabView(
+            master=self)
+        self.add_transaction_tab_views.pack(padx=20, pady=5, fill="x")
+
+
+class AddTransactionTabView(customtkinter.CTkTabview):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
+        self.configure(fg_color="#ffffff", bg_color="#d9d9d9",
+                       border_width=2, border_color="#989DA1")
+
+        self.tab_add_gold_transaction = self.add("GOLD")
+        self.tab_add_currency_transaction = self.add("CURRENCY")
+
+        self.set("GOLD")
+        self.configure(corner_radius=5)
+
+        with open('data.json', 'r') as json_file:
+            data = json.load(json_file)
+
+        self.exchange_rates = data['exchange_rates']
+
+        self.create_widgets()
+
+    def create_widgets(self):
+        self.create_tab_add_gold_transaction(
+            self.tab_add_gold_transaction)
+        self.create_tab_add_currency_transaction(
+            self.tab_add_currency_transaction)
+
+    def create_tab_add_gold_transaction(self, tab):
+        label_unit_price = customtkinter.CTkLabel(
+            master=tab,
+            text="Unit Price (VND/tael):",
+            font=("Arial", 14),
+            text_color="black",
+        )
+        label_unit_price.pack(padx=20, pady=5, anchor="w")
+
+        self.gold_entry_unit_price = customtkinter.CTkEntry(
+            master=tab, placeholder_text="Ex: 85,200,000.7")
+        self.gold_entry_unit_price.pack(padx=20, pady=0, anchor="w", fill="x")
+
+        label_quantity = customtkinter.CTkLabel(
+            master=tab,
+            text="Quantity (tael):",
+            font=("Arial", 14),
+            text_color="black",
+        )
+        label_quantity.pack(padx=20, pady=5, anchor="w")
+
+        self.gold_entry_quantity = customtkinter.CTkEntry(
+            master=tab, placeholder_text="Ex: 10")
+        self.gold_entry_quantity.pack(padx=20, pady=0, anchor="w", fill="x")
+
+        label_gold_type = customtkinter.CTkLabel(
+            master=tab,
+            text="Gold Type:",
+            font=("Arial", 14),
+            text_color="black",
+        )
+        label_gold_type.pack(padx=20, pady=5, anchor="w")
+
+        self.gold_combobox_gold_type = customtkinter.CTkComboBox(tab, values=[
+            "SJC", "PNJ", "DOJI"
+        ])
+        self.gold_combobox_gold_type.set("SJC")
+        self.gold_combobox_gold_type.pack(
+            padx=20, pady=0, anchor="w", fill="x")
+
+        label_transaction_date = customtkinter.CTkLabel(
+            master=tab,
+            text="Transaction Date:",
+            font=("Arial", 14),
+            text_color="black",
+        )
+        label_transaction_date.pack(padx=20, pady=5, anchor="w")
+
+        date_frame = customtkinter.CTkFrame(
+            master=tab,
+            fg_color="transparent"
+        )
+        date_frame.pack(padx=20, pady=(0, 5), anchor="w", fill="x")
+
+        self.gold_entry_day = customtkinter.CTkEntry(
+            master=date_frame, placeholder_text="Day", width=95)
+        self.gold_entry_day.grid(
+            row=0, column=0, padx=(0, 5), pady=0, sticky="ew")
+
+        separator_day_month = ttk.Separator(
+            date_frame, orient="horizontal", style="Separator.TSeparator")
+        separator_day_month.grid(row=0, column=1,
+                                 padx=1, pady=0, sticky="ew")
+
+        self.gold_entry_month = customtkinter.CTkEntry(
+            master=date_frame, placeholder_text="Month", width=95)
+        self.gold_entry_month.grid(row=0, column=2, padx=5, pady=0)
+
+        separator_month_year = ttk.Separator(
+            date_frame, orient="horizontal", style="Separator.TSeparator")
+        separator_month_year.grid(
+            row=0, column=3, padx=1, pady=0, sticky="ew")
+
+        self.gold_entry_year = customtkinter.CTkEntry(
+            master=date_frame, placeholder_text="Year", width=95)
+        self.gold_entry_year.grid(row=0, column=4, padx=(5, 0), pady=0)
+
+        buttons_frame = customtkinter.CTkFrame(tab, fg_color="transparent")
+        buttons_frame.pack(padx=20, pady=(100, 5), anchor="w", fill="x")
+
+        button_confirm = customtkinter.CTkButton(
+            buttons_frame,
+            text="CONFIRM",
+            width=150,
+            command=self.gold_confirm_button_callback)
+        button_confirm.grid(row=0, column=0, sticky="ew", padx=(0, 6), pady=5)
+
+        button_cancel = customtkinter.CTkButton(
+            buttons_frame,
+            text="CANCEL",
+            width=150,
+            fg_color="red",
+            hover_color="dark red",
+            command=self.master.destroy)
+        button_cancel.grid(row=0, column=1, sticky="ew", padx=(6, 0), pady=5)
+
+    def gold_confirm_button_callback(self):
+        unit_price = self.gold_entry_unit_price.get()
+        quantity = self.gold_entry_quantity.get()
+        day_submit = self.gold_entry_day.get()
+        month_submit = self.gold_entry_month.get()
+        year_submit = self.gold_entry_year.get()
+        gold_type = self.gold_combobox_gold_type.get()
+
+        if not all([unit_price, quantity, day_submit, month_submit,
+                    year_submit, gold_type]):
+            messagebox.showerror(
+                "Missing Input", "Please fill in all fields.")
+            self.focus()
+            return
+
+        unit_price = self.validate_and_convert_input(unit_price)
+        if unit_price is None:
+            messagebox.showerror(
+                "Invalid Unit Price", "Unit Price must be a valid number.")
+            self.focus()
+            return
+
+        quantity = self.validate_and_convert_input(quantity)
+        if quantity is None:
+            messagebox.showerror(
+                "Invalid Quantity", "Quantity must be a valid number.")
+            self.focus()
+            return
+
+        day = int(day_submit)
+        month = int(month_submit)
+        year = int(year_submit)
+
+        if not self.validate_date(day, month, year):
+            messagebox.showerror("Invalid Date", "Date is not valid.")
+            self.focus()
+            return
+
+        if gold_type not in ["SJC", "PNJ", "DOJI"]:
+            messagebox.showerror("Invalid Gold Type",
+                                 "Gold Type must be 'SJC', 'PNJ', or 'DOJI'.")
+            self.focus()
+            return
+
+        with open("data.json", "r") as file:
+            data = json.load(file)
+
+        new_data = {
+            "id": "",
+            "day": day,
+            "month": month,
+            "year": year,
+            "unit_price": unit_price,
+            "quantity": quantity,
+            "type": "gold",
+            "gold_type": GoldType[self.gold_combobox_gold_type.get()].value
+        }
+
+        new_data_id = self.generate_gold_id(data["transactions"])
+        new_data["id"] = new_data_id
+
+        data["transactions"].append(new_data)
+
+        with open("data.json", "w") as file:
+            json.dump(data, file, indent=4)
+
+        messagebox.showinfo("Success", "Gold transaction added successfully. \
+                            \nPlease Refresh Data!")
+        self.focus()
+
+    def generate_gold_id(self, transactions):
+        gold_transactions = [t for t in transactions if t["type"] == "gold"]
+        num_gold_transactions = len(gold_transactions)
+
+        new_id = f"GLD{num_gold_transactions + 1:03}"
+
+        for transaction in transactions:
+            if transaction["id"] == new_id:
+                num_gold_transactions += 1
+                new_id = f"GLD{num_gold_transactions + 1:03}"
+
+        return new_id
+
+    def create_tab_add_currency_transaction(self, tab):
+        label_quantity = customtkinter.CTkLabel(
+            master=tab,
+            text="Quantity:",
+            font=("Arial", 14),
+            text_color="black",
+        )
+        label_quantity.pack(padx=20, pady=5, anchor="w")
+
+        self.currency_entry_quantity = customtkinter.CTkEntry(
+            master=tab, placeholder_text="Ex: 50")
+        self.currency_entry_quantity.pack(
+            padx=20, pady=0, anchor="w", fill="x")
+
+        label_currency_type = customtkinter.CTkLabel(
+            master=tab,
+            text="Currency Type:",
+            font=("Arial", 14),
+            text_color="black",
+        )
+        label_currency_type.pack(padx=20, pady=5, anchor="w")
+
+        self.currency_combobox_currency_type = \
+            customtkinter.CTkComboBox(tab,
+                                      values=[
+                                          "VND", "USD", "EUR"
+                                      ],
+                                      command=self.
+                                      combobox_currency_type_callback)
+        self.currency_combobox_currency_type.set("VND")
+        self.currency_combobox_currency_type.pack(
+            padx=20, pady=0, anchor="w", fill="x")
+
+        label_exchange_rate = customtkinter.CTkLabel(
+            master=tab,
+            text="Exchange Rate (VND):",
+            font=("Arial", 14),
+            text_color="black",
+        )
+        label_exchange_rate.pack(padx=20, pady=5, anchor="w")
+
+        self.currency_entry_exchange_rate = customtkinter.CTkEntry(
+            master=tab, placeholder_text="23,130.6")
+        self.currency_entry_exchange_rate.pack(padx=20, pady=0, anchor="w",
+                                               fill="x")
+        self.currency_entry_exchange_rate.insert(
+            0, str(self.exchange_rates[0]["rate"]))
+        self.currency_entry_exchange_rate.configure(state="readonly")
+
+        label_transaction_date = customtkinter.CTkLabel(
+            master=tab,
+            text="Transaction Date:",
+            font=("Arial", 14),
+            text_color="black",
+        )
+        label_transaction_date.pack(padx=20, pady=5, anchor="w")
+
+        date_frame = customtkinter.CTkFrame(
+            master=tab,
+            fg_color="transparent"
+        )
+        date_frame.pack(padx=20, pady=(0, 5), anchor="w", fill="x")
+
+        self.currency_entry_day = customtkinter.CTkEntry(
+            master=date_frame, placeholder_text="Day", width=95)
+        self.currency_entry_day.grid(row=0, column=0, padx=(0, 5), pady=0,
+                                     sticky="ew")
+
+        separator_day_month = ttk.Separator(
+            date_frame, orient="horizontal", style="Separator.TSeparator")
+        separator_day_month.grid(row=0, column=1,
+                                 padx=1, pady=0, sticky="ew")
+
+        self.currency_entry_month = customtkinter.CTkEntry(
+            master=date_frame, placeholder_text="Month", width=95)
+        self.currency_entry_month.grid(row=0, column=2, padx=5, pady=0)
+
+        separator_month_year = ttk.Separator(
+            date_frame, orient="horizontal", style="Separator.TSeparator")
+        separator_month_year.grid(
+            row=0, column=3, padx=1, pady=0, sticky="ew")
+
+        self.currency_entry_year = customtkinter.CTkEntry(
+            master=date_frame, placeholder_text="Year", width=95)
+        self.currency_entry_year.grid(row=0, column=4, padx=(5, 0), pady=0)
+
+        buttons_frame = customtkinter.CTkFrame(tab, fg_color="transparent")
+        buttons_frame.pack(padx=20, pady=(100, 5), anchor="w", fill="x")
+
+        button_confirm = customtkinter.CTkButton(
+            buttons_frame,
+            text="CONFIRM",
+            width=150,
+            command=self.currency_confirm_button_callback)
+        button_confirm.grid(row=0, column=0, sticky="ew", padx=(0, 6), pady=5)
+
+        button_cancel = customtkinter.CTkButton(
+            buttons_frame,
+            text="CANCEL",
+            width=150,
+            fg_color="red",
+            hover_color="dark red",
+            command=self.master.destroy)
+        button_cancel.grid(row=0, column=1, sticky="ew", padx=(6, 0), pady=5)
+
+    def combobox_currency_type_callback(self, choice):
+        try:
+            currency_type = CurrencyType[choice].value
+        except KeyError:
+            return
+
+        exchange_rate = self.get_exchange_rate(currency_type)
+        self.currency_entry_exchange_rate.configure(state="normal")
+        self.currency_entry_exchange_rate.delete(0, "end")
+        self.currency_entry_exchange_rate.insert(0, str(exchange_rate))
+        self.currency_entry_exchange_rate.configure(state="readonly")
+
+    def get_exchange_rate(self, currency_type):
+        for rate in self.exchange_rates:
+            if rate['currency_type'] == currency_type:
+                return self.format_price_number(rate['rate'])
+
+        return self.format_price_number(0.0)
+
+    def currency_confirm_button_callback(self):
+        quantity = self.currency_entry_quantity.get()
+        exchange_rate = self.currency_entry_exchange_rate.get()
+        day_submit = self.currency_entry_day.get()
+        month_submit = self.currency_entry_month.get()
+        year_submit = self.currency_entry_year.get()
+        currency_type = self.currency_combobox_currency_type.get()
+
+        if not all([quantity, exchange_rate, day_submit, month_submit,
+                    year_submit, currency_type]):
+            messagebox.showerror(
+                "Missing Input", "Please fill in all fields.")
+            self.focus()
+            return
+
+        quantity = self.validate_and_convert_input(quantity)
+        if quantity is None:
+            messagebox.showerror(
+                "Invalid Quantity", "Quantity must be a valid number.")
+            self.focus()
+            return
+
+        exchange_rate = self.validate_and_convert_input(exchange_rate)
+        if exchange_rate is None:
+            messagebox.showerror(
+                "Invalid Exchange Rate",
+                "Exchange Rate must be a valid number.")
+            self.focus()
+            return
+
+        day = int(day_submit)
+        month = int(month_submit)
+        year = int(year_submit)
+
+        if not self.validate_date(day, month, year):
+            messagebox.showerror("Invalid Date", "Date is not valid.")
+            self.focus()
+            return
+
+        if currency_type not in ["VND", "USD", "EUR"]:
+            messagebox. \
+                showerror("Invalid Currency Type",
+                          "Currency Type must be 'VND', 'USD', or 'EUR'.")
+            self.focus()
+            return
+
+        with open("data.json", "r") as file:
+            data = json.load(file)
+
+        exchange_rates = data["exchange_rates"]
+
+        exchange_rate = None
+        for rate in exchange_rates:
+            if rate["currency_type"] == CurrencyType[currency_type].value:
+                exchange_rate = rate
+                break
+
+        if exchange_rate is None:
+            messagebox.showerror("Exchange Rate Not Found",
+                                 f"No exchange rate found for currency type \
+                                {currency_type}.")
+            self.focus()
+            return
+
+        new_data = {
+            "id": "",
+            "day": day,
+            "month": month,
+            "year": year,
+            "quantity": quantity,
+            "type": "currency",
+            "currency_type": CurrencyType[currency_type].value,
+            "exchange_rate": exchange_rate
+        }
+
+        new_data_id = self.generate_currency_id(data["transactions"])
+        new_data["id"] = new_data_id
+
+        data["transactions"].append(new_data)
+
+        with open("data.json", "w") as file:
+            json.dump(data, file, indent=4)
+
+        messagebox.showinfo("Success",
+                            "Currency transaction added successfully. \
+                            Please Refresh Data!")
+        self.focus()
+
+    def generate_currency_id(self, transactions):
+        currency_transactions = [
+            t for t in transactions if t["type"] == "currency"]
+        num_currency_transactions = len(currency_transactions)
+
+        new_id = f"CUR{num_currency_transactions + 1:03}"
+
+        for transaction in transactions:
+            if transaction["id"] == new_id:
+                num_currency_transactions += 1
+                new_id = f"CUR{num_currency_transactions + 1:03}"
+
+        return new_id
+
+    def validate_and_convert_input(self, input_str):
+        try:
+            input_str = input_str.replace(",", "")
+            return float(input_str)
+        except ValueError:
+            return None
+
+    def validate_date(self, day, month, year):
+        try:
+            day = int(day)
+            month = int(month)
+            year = int(year)
+        except ValueError:
+            return False
+
+        if month < 1 or month > 12:
+            return False
+
+        if day < 1 or day > 31:
+            return False
+
+        if year < 1500:
+            return False
+
+        try:
+            datetime.datetime(year, month, day)
+        except ValueError:
+            return False
+
+        return True
+
+    def format_price_number(self, total_amount):
+        if '.' in str(total_amount):
+            integer_part, decimal_part = str(total_amount).split(".")
+        else:
+            integer_part, decimal_part = str(total_amount), '00'
+        formatted_integer_part = "{:,.0f}".format(float(integer_part))
+        formatted_total_amount = "{}.{}".format(
+            formatted_integer_part, decimal_part)
+        return formatted_total_amount
 
 
 if __name__ == "__main__":
