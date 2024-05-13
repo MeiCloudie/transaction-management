@@ -2640,9 +2640,11 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         label_exchange_rate.pack(padx=20, pady=5, anchor="w")
 
         self.currency_entry_exchange_rate = customtkinter.CTkEntry(
-            master=tab, placeholder_text="Ex: 23.130")
+            master=tab, placeholder_text="23,130.6")
         self.currency_entry_exchange_rate.pack(padx=20, pady=0, anchor="w",
                                                fill="x")
+        self.currency_entry_exchange_rate.insert(0, str("1.0"))
+        self.currency_entry_exchange_rate.configure(state="readonly")
 
         label_transaction_date = customtkinter.CTkLabel(
             master=tab,
@@ -2701,7 +2703,21 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         button_cancel.grid(row=0, column=1, sticky="ew", padx=(6, 0), pady=5)
 
     def combobox_currency_type_callback(self, choice):
-        print("combobox_currency_type dropdown clicked:", choice)
+        exchange_rate = self.get_exchange_rate(choice)
+        self.currency_entry_exchange_rate.configure(state="normal")
+        self.currency_entry_exchange_rate.delete(0, "end")
+        self.currency_entry_exchange_rate.insert(0, str(exchange_rate))
+        self.currency_entry_exchange_rate.configure(state="readonly")
+
+    def get_exchange_rate(self, currency_type):
+        if currency_type == "VND":
+            return self.format_price_number(1.0)
+        elif currency_type == "USD":
+            return self.format_price_number(23000.0)
+        elif currency_type == "EUR":
+            return self.format_price_number(50000.0)
+        else:
+            return self.format_price_number(0.0)
 
     def currency_confirm_button_callback(self):
         quantity = self.currency_entry_quantity.get()
@@ -2722,6 +2738,14 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         if quantity is None:
             messagebox.showerror(
                 "Invalid Quantity", "Quantity must be a valid number.")
+            self.focus()
+            return
+
+        exchange_rate = self.validate_and_convert_input(exchange_rate)
+        if exchange_rate is None:
+            messagebox.showerror(
+                "Invalid Exchange Rate",
+                "Exchange Rate must be a valid number.")
             self.focus()
             return
 
@@ -2777,6 +2801,16 @@ class AddTransactionTabView(customtkinter.CTkTabview):
             return False
 
         return True
+
+    def format_price_number(self, total_amount):
+        if '.' in str(total_amount):
+            integer_part, decimal_part = str(total_amount).split(".")
+        else:
+            integer_part, decimal_part = str(total_amount), '00'
+        formatted_integer_part = "{:,.0f}".format(float(integer_part))
+        formatted_total_amount = "{}.{}".format(
+            formatted_integer_part, decimal_part)
+        return formatted_total_amount
 
 
 if __name__ == "__main__":
