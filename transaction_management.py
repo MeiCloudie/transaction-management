@@ -1641,7 +1641,7 @@ class FilterWindow(customtkinter.CTkToplevel):
                                      to_year_str])):
             messagebox.showerror(
                 "Invalid Input", "Please enter valid numerical \
-                values for date fields.")
+                \nvalues for date fields.")
             self.after(10, self.lift)
             return
 
@@ -2595,6 +2595,13 @@ class AddTransactionTabView(customtkinter.CTkTabview):
             self.focus()
             return
 
+        if not all(map(str.isdigit, [day_submit, month_submit, year_submit])):
+            messagebox.showerror(
+                "Invalid Input", "Please enter valid numerical \
+                \nvalues for date fields.")
+            self.after(10, self.lift)
+            return
+
         day = int(day_submit)
         month = int(month_submit)
         year = int(year_submit)
@@ -2801,6 +2808,13 @@ class AddTransactionTabView(customtkinter.CTkTabview):
                 "Invalid Exchange Rate",
                 "Exchange Rate must be a valid number.")
             self.focus()
+            return
+
+        if not all(map(str.isdigit, [day_submit, month_submit, year_submit])):
+            messagebox.showerror(
+                "Invalid Input", "Please enter valid numerical \
+                \nvalues for date fields.")
+            self.after(10, self.lift)
             return
 
         day = int(day_submit)
