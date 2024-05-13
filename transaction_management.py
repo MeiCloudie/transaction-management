@@ -2803,11 +2803,56 @@ class AddTransactionTabView(customtkinter.CTkTabview):
             self.focus()
             return
 
-        print("Quantity:", quantity)
-        print("Currency Type:", currency_type)
-        print("Exchange Rate (VND):", exchange_rate)
-        print("Transaction Date:", f"{
-              day}/{month}/{year}")
+        with open("data.json", "r") as file:
+            data = json.load(file)
+
+        exchange_rates = data["exchange_rates"]
+
+        exchange_rate = None
+        for rate in exchange_rates:
+            if rate["currency_type"] == CurrencyType[currency_type].value:
+                exchange_rate = rate
+                break
+
+        if exchange_rate is None:
+            messagebox.showerror("Exchange Rate Not Found",
+                                 f"No exchange rate found for currency type \
+                                {currency_type}.")
+            self.focus()
+            return
+
+        new_data = {
+            "id": "",
+            "day": day,
+            "month": month,
+            "year": year,
+            "quantity": quantity,
+            "type": "currency",
+            "currency_type": CurrencyType[currency_type].value,
+            "exchange_rate": exchange_rate
+        }
+
+        new_data_id = self.generate_currency_id(data["transactions"])
+        new_data["id"] = new_data_id
+
+        data["transactions"].append(new_data)
+
+        with open("data.json", "w") as file:
+            json.dump(data, file, indent=4)
+
+    def generate_currency_id(self, transactions):
+        currency_transactions = [
+            t for t in transactions if t["type"] == "currency"]
+        num_currency_transactions = len(currency_transactions)
+
+        new_id = f"CUR{num_currency_transactions + 1:03}"
+
+        for transaction in transactions:
+            if transaction["id"] == new_id:
+                num_currency_transactions += 1
+                new_id = f"CUR{num_currency_transactions + 1:03}"
+
+        return new_id
 
     def validate_and_convert_input(self, input_str):
         try:
