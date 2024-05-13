@@ -2551,12 +2551,13 @@ class AddTransactionTabView(customtkinter.CTkTabview):
     def gold_confirm_button_callback(self):
         unit_price = self.gold_entry_unit_price.get()
         quantity = self.gold_entry_quantity.get()
-        day = self.gold_entry_day.get()
-        month = self.gold_entry_month.get()
-        year = self.gold_entry_year.get()
+        day_submit = self.gold_entry_day.get()
+        month_submit = self.gold_entry_month.get()
+        year_submit = self.gold_entry_year.get()
         gold_type = self.gold_combobox_gold_type.get()
 
-        if not all([unit_price, quantity, day, month, year, gold_type]):
+        if not all([unit_price, quantity, day_submit, month_submit,
+                    year_submit, gold_type]):
             messagebox.showerror(
                 "Missing Input", "Please fill in all fields.")
             self.focus()
@@ -2576,11 +2577,11 @@ class AddTransactionTabView(customtkinter.CTkTabview):
             self.focus()
             return
 
-        day_submit = int(day)
-        month_submit = int(month)
-        year_submit = int(year)
+        day = int(day_submit)
+        month = int(month_submit)
+        year = int(year_submit)
 
-        if not self.validate_date(day_submit, month_submit, year_submit):
+        if not self.validate_date(day, month, year):
             messagebox.showerror("Invalid Date", "Date is not valid.")
             self.focus()
             return
@@ -2593,39 +2594,9 @@ class AddTransactionTabView(customtkinter.CTkTabview):
 
         print("Unit Price:", unit_price)
         print("Quantity:", quantity)
-        print("Transaction Date:", f"{day}/{month}/{year}")
+        print("Transaction Date:", f"{
+              day}/{month}/{year}")
         print("Gold Type:", gold_type)
-
-    def validate_and_convert_input(self, input_str):
-        try:
-            input_str = input_str.replace(",", "")
-            return float(input_str)
-        except ValueError:
-            return None
-
-    def validate_date(self, day, month, year):
-        try:
-            day = int(day)
-            month = int(month)
-            year = int(year)
-        except ValueError:
-            return False
-
-        if month < 1 or month > 12:
-            return False
-
-        if day < 1 or day > 31:
-            return False
-
-        if year < 1500:
-            return False
-
-        try:
-            datetime.datetime(year, month, day)
-        except ValueError:
-            return False
-
-        return True
 
     def create_tab_add_currency_transaction(self, tab):
         label_quantity = customtkinter.CTkLabel(
@@ -2735,21 +2706,77 @@ class AddTransactionTabView(customtkinter.CTkTabview):
     def currency_confirm_button_callback(self):
         quantity = self.currency_entry_quantity.get()
         exchange_rate = self.currency_entry_exchange_rate.get()
-        day = self.currency_entry_day.get()
-        month = self.currency_entry_month.get()
-        year = self.currency_entry_year.get()
+        day_submit = self.currency_entry_day.get()
+        month_submit = self.currency_entry_month.get()
+        year_submit = self.currency_entry_year.get()
         currency_type = self.currency_combobox_currency_type.get()
 
-        if not all([quantity, exchange_rate, day, month, year, currency_type]):
+        if not all([quantity, exchange_rate, day_submit, month_submit,
+                    year_submit, currency_type]):
             messagebox.showerror(
                 "Missing Input", "Please fill in all fields.")
+            self.focus()
+            return
+
+        quantity = self.validate_and_convert_input(quantity)
+        if quantity is None:
+            messagebox.showerror(
+                "Invalid Quantity", "Quantity must be a valid number.")
+            self.focus()
+            return
+
+        day = int(day_submit)
+        month = int(month_submit)
+        year = int(year_submit)
+
+        if not self.validate_date(day, month, year):
+            messagebox.showerror("Invalid Date", "Date is not valid.")
+            self.focus()
+            return
+
+        if currency_type not in ["VND", "USD", "EUR"]:
+            messagebox. \
+                showerror("Invalid Currency Type",
+                          "Currency Type must be 'VND', 'USD', or 'EUR'.")
             self.focus()
             return
 
         print("Quantity:", quantity)
         print("Currency Type:", currency_type)
         print("Exchange Rate (VND):", exchange_rate)
-        print("Transaction Date:", f"{day}/{month}/{year}")
+        print("Transaction Date:", f"{
+              day}/{month}/{year}")
+
+    def validate_and_convert_input(self, input_str):
+        try:
+            input_str = input_str.replace(",", "")
+            return float(input_str)
+        except ValueError:
+            return None
+
+    def validate_date(self, day, month, year):
+        try:
+            day = int(day)
+            month = int(month)
+            year = int(year)
+        except ValueError:
+            return False
+
+        if month < 1 or month > 12:
+            return False
+
+        if day < 1 or day > 31:
+            return False
+
+        if year < 1500:
+            return False
+
+        try:
+            datetime.datetime(year, month, day)
+        except ValueError:
+            return False
+
+        return True
 
 
 if __name__ == "__main__":
