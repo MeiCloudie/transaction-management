@@ -2633,7 +2633,7 @@ class AddTransactionTabView(customtkinter.CTkTabview):
             json.dump(data, file, indent=4)
 
         messagebox.showinfo("Success", "Gold transaction added successfully. \
-                            Please Refresh Data!")
+                            \nPlease Refresh Data!")
         self.focus()
 
     def generate_gold_id(self, transactions):
