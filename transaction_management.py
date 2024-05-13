@@ -127,6 +127,9 @@ class TransactionList:
     def get_transactions(self):
         return self._transactions
 
+    def clear(self):
+        self._transactions = []
+
 
 customtkinter.set_appearance_mode("light")
 customtkinter.set_default_color_theme("dark-blue")
@@ -141,11 +144,10 @@ class TransactionApp(customtkinter.CTk):
         self.minsize(1720, 960)
 
         self.transaction_list = TransactionList()
+        self.load_data_from_json()
         self.create_widget()
 
     def create_widget(self):
-        self.load_data_from_json()
-
         self.header_frame = HeaderFrame(master=self)
         self.header_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
@@ -212,6 +214,18 @@ class TransactionApp(customtkinter.CTk):
         except json.JSONDecodeError:
             messagebox.showerror("Error", "Invalid JSON format in data file.")
 
+    def refresh_data_from_json(self):
+        print("refresh")
+        self.transaction_list.clear()
+        self.load_data_from_json()
+        # Xóa các widget trong header frame và tab filter nếu chúng tồn tại
+        if self.header_frame is not None:
+            self.header_frame.destroy()
+        if self.tab_filter is not None:
+            self.tab_filter.destroy()
+        # Tạo lại các widget
+        self.create_widget()
+
 
 class HeaderFrame(customtkinter.CTkFrame):
     def __init__(self, master, **kwargs):
@@ -259,6 +273,7 @@ class HeaderFrame(customtkinter.CTkFrame):
             fg_color="green",
             hover_color="dark green",
             width=30, height=30)
+        self.btn_refresh.configure(command=self.master.refresh_data_from_json)
         self.btn_refresh.pack(side="right", padx=5, pady=5)
 
         self.btn_add_transaction = customtkinter.CTkButton(
