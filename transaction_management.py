@@ -2440,6 +2440,11 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         self.set("GOLD")
         self.configure(corner_radius=5)
 
+        with open('data.json', 'r') as json_file:
+            data = json.load(json_file)
+
+        self.exchange_rates = data['exchange_rates']
+
         self.create_widgets()
 
     def create_widgets(self):
@@ -2643,7 +2648,8 @@ class AddTransactionTabView(customtkinter.CTkTabview):
             master=tab, placeholder_text="23,130.6")
         self.currency_entry_exchange_rate.pack(padx=20, pady=0, anchor="w",
                                                fill="x")
-        self.currency_entry_exchange_rate.insert(0, str("1.0"))
+        self.currency_entry_exchange_rate.insert(
+            0, str(self.exchange_rates[0]["rate"]))
         self.currency_entry_exchange_rate.configure(state="readonly")
 
         label_transaction_date = customtkinter.CTkLabel(
@@ -2703,21 +2709,24 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         button_cancel.grid(row=0, column=1, sticky="ew", padx=(6, 0), pady=5)
 
     def combobox_currency_type_callback(self, choice):
-        exchange_rate = self.get_exchange_rate(choice)
+        try:
+            currency_type = CurrencyType[choice].value
+        except KeyError:
+            print("Invalid currency type!")
+            return
+
+        exchange_rate = self.get_exchange_rate(currency_type)
         self.currency_entry_exchange_rate.configure(state="normal")
         self.currency_entry_exchange_rate.delete(0, "end")
         self.currency_entry_exchange_rate.insert(0, str(exchange_rate))
         self.currency_entry_exchange_rate.configure(state="readonly")
 
     def get_exchange_rate(self, currency_type):
-        if currency_type == "VND":
-            return self.format_price_number(1.0)
-        elif currency_type == "USD":
-            return self.format_price_number(23000.0)
-        elif currency_type == "EUR":
-            return self.format_price_number(50000.0)
-        else:
-            return self.format_price_number(0.0)
+        for rate in self.exchange_rates:
+            if rate['currency_type'] == currency_type:
+                return self.format_price_number(rate['rate'])
+
+        return self.format_price_number(0.0)
 
     def currency_confirm_button_callback(self):
         quantity = self.currency_entry_quantity.get()
