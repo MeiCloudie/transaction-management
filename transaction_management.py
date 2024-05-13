@@ -2597,11 +2597,40 @@ class AddTransactionTabView(customtkinter.CTkTabview):
             self.focus()
             return
 
-        print("Unit Price:", unit_price)
-        print("Quantity:", quantity)
-        print("Transaction Date:", f"{
-              day}/{month}/{year}")
-        print("Gold Type:", gold_type)
+        with open("data.json", "r") as file:
+            data = json.load(file)
+
+        new_data = {
+            "id": "",
+            "day": day,
+            "month": month,
+            "year": year,
+            "unit_price": unit_price,
+            "quantity": quantity,
+            "type": "gold",
+            "gold_type": GoldType[self.gold_combobox_gold_type.get()].value
+        }
+
+        new_data_id = self.generate_gold_id(data["transactions"])
+        new_data["id"] = new_data_id
+
+        data["transactions"].append(new_data)
+
+        with open("data.json", "w") as file:
+            json.dump(data, file, indent=4)
+
+    def generate_gold_id(self, transactions):
+        gold_transactions = [t for t in transactions if t["type"] == "gold"]
+        num_gold_transactions = len(gold_transactions)
+
+        new_id = f"GLD{num_gold_transactions + 1:03}"
+
+        for transaction in transactions:
+            if transaction["id"] == new_id:
+                num_gold_transactions += 1
+                new_id = f"GLD{num_gold_transactions + 1:03}"
+
+        return new_id
 
     def create_tab_add_currency_transaction(self, tab):
         label_quantity = customtkinter.CTkLabel(
