@@ -215,15 +215,17 @@ class TransactionApp(customtkinter.CTk):
             messagebox.showerror("Error", "Invalid JSON format in data file.")
 
     def refresh_data_from_json(self):
-        print("refresh")
+        messagebox.showinfo("Refreshing Data",
+                            "Refreshing data. Please wait...")
+
         self.transaction_list.clear()
         self.load_data_from_json()
-        # Xóa các widget trong header frame và tab filter nếu chúng tồn tại
+
         if self.header_frame is not None:
             self.header_frame.destroy()
         if self.tab_filter is not None:
             self.tab_filter.destroy()
-        # Tạo lại các widget
+
         self.create_widget()
 
 
@@ -2503,8 +2505,7 @@ class AddTransactionTabView(customtkinter.CTkTabview):
 
         self.gold_combobox_gold_type = customtkinter.CTkComboBox(tab, values=[
             "SJC", "PNJ", "DOJI"
-        ],
-            command=self.combobox_gold_type_callback)
+        ])
         self.gold_combobox_gold_type.set("SJC")
         self.gold_combobox_gold_type.pack(
             padx=20, pady=0, anchor="w", fill="x")
@@ -2564,9 +2565,6 @@ class AddTransactionTabView(customtkinter.CTkTabview):
             hover_color="dark red",
             command=self.master.destroy)
         button_cancel.grid(row=0, column=1, sticky="ew", padx=(6, 0), pady=5)
-
-    def combobox_gold_type_callback(self, choice):
-        print("combobox_gold_type dropdown clicked:", choice)
 
     def gold_confirm_button_callback(self):
         unit_price = self.gold_entry_unit_price.get()
@@ -2633,6 +2631,10 @@ class AddTransactionTabView(customtkinter.CTkTabview):
 
         with open("data.json", "w") as file:
             json.dump(data, file, indent=4)
+
+        messagebox.showinfo("Success", "Gold transaction added successfully. \
+                            Please Refresh Data!")
+        self.focus()
 
     def generate_gold_id(self, transactions):
         gold_transactions = [t for t in transactions if t["type"] == "gold"]
@@ -2756,7 +2758,6 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         try:
             currency_type = CurrencyType[choice].value
         except KeyError:
-            print("Invalid currency type!")
             return
 
         exchange_rate = self.get_exchange_rate(currency_type)
@@ -2854,6 +2855,11 @@ class AddTransactionTabView(customtkinter.CTkTabview):
 
         with open("data.json", "w") as file:
             json.dump(data, file, indent=4)
+
+        messagebox.showinfo("Success",
+                            "Currency transaction added successfully. \
+                            Please Refresh Data!")
+        self.focus()
 
     def generate_currency_id(self, transactions):
         currency_transactions = [
