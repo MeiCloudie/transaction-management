@@ -571,6 +571,9 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         self.option_segmented_button_date = True
         self.option_segmented_button_total_amount = True
 
+        self.gold_treeviews = {}
+        self.currency_treeviews = {}
+
         self.create_tab_group_by_sort_by_widgets()
 
     def create_tab_group_by_sort_by_widgets(self):
@@ -831,13 +834,59 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
                 total_amount += transaction._total_amount
         return total_amount
 
+    def on_gold_treeview_select(self, event):
+        treeview = event.widget
+        selected_items = treeview.selection()
+        if selected_items:
+            selected_item = selected_items[0]
+            values = treeview.item(selected_item, "values")
+
+            transaction_code = values[0]
+            unit_price = values[1]
+            quantity = values[2]
+            gold_type = values[3]
+            total_amount = values[4]
+
+            print(f"Transaction Code: {transaction_code}")
+            print(f"Unit Price: {unit_price}")
+            print(f"Quantity: {quantity}")
+            print(f"Gold Type: {gold_type}")
+            print(f"Total Amount: {total_amount}")
+        else:
+            print("No item selected")
+
+    def on_currency_treeview_select(self, event):
+        treeview = event.widget
+        selected_items = treeview.selection()
+        if selected_items:
+            selected_item = selected_items[0]
+            values = treeview.item(selected_item, "values")
+
+            transaction_code = values[0]
+            quantity = values[1]
+            exchange_rate = values[2]
+            currency_type = values[3]
+            total_amount = values[4]
+
+            print(f"Transaction Code: {transaction_code}")
+            print(f"Quantity: {quantity}")
+            print(f"Exchange Rate: {exchange_rate}")
+            print(f"Currency Type: {currency_type}")
+            print(f"Total Amount: {total_amount}")
+        else:
+            print("No item selected")
+
     def create_content_treeview_by_date(self, frame, transactions,
                                         day, month, year):
-        treeview_gold_transaction = \
-            self.create_gold_transaction_treeview_by_date(frame)
-        self.populate_treeview_with_gold_transactions_by_date(
-            treeview_gold_transaction, transactions, day, month, year)
-        treeview_gold_transaction.pack(padx=10, pady=10, fill="x")
+        if (day, month, year) not in self.gold_treeviews:
+            gold_treeview = \
+                self.create_gold_transaction_treeview_by_date(frame)
+            self.populate_treeview_with_gold_transactions_by_date(
+                gold_treeview, transactions, day, month, year)
+            gold_treeview.pack(padx=10, pady=10, fill="x")
+            self.gold_treeviews[(day, month, year)] = gold_treeview
+        else:
+            gold_treeview = self.gold_treeviews[(day, month, year)]
 
         separator_style = ttk.Style()
         separator_style.configure(
@@ -847,11 +896,20 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(padx=10, pady=10, fill="x")
 
-        treeview_currency_transaction \
-            = self.create_currency_transaction_treeview_by_date(frame)
-        self.populate_treeview_with_currency_transactions_by_date(
-            treeview_currency_transaction, transactions, day, month, year)
-        treeview_currency_transaction.pack(padx=10, pady=10, fill="x")
+        if (day, month, year) not in self.currency_treeviews:
+            currency_treeview = \
+                self.create_currency_transaction_treeview_by_date(
+                    frame)
+            self.populate_treeview_with_currency_transactions_by_date(
+                currency_treeview, transactions, day, month, year)
+            currency_treeview.pack(padx=10, pady=10, fill="x")
+            self.currency_treeviews[(day, month, year)] = currency_treeview
+        else:
+            currency_treeview = self.currency_treeviews[(day, month, year)]
+
+        gold_treeview.bind('<<TreeviewSelect>>', self.on_gold_treeview_select)
+        currency_treeview.bind('<<TreeviewSelect>>',
+                               self.on_currency_treeview_select)
 
     def create_gold_transaction_treeview_by_date(self, frame):
         frame_label_actions = customtkinter.CTkFrame(
