@@ -841,17 +841,17 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             selected_item = selected_items[0]
             values = treeview.item(selected_item, "values")
 
-            transaction_code = values[0]
-            unit_price = values[1]
-            quantity = values[2]
-            gold_type = values[3]
-            total_amount = values[4]
+            self.selected_gold_transaction_code = values[0]
+            self.selected_gold_unit_price = values[1]
+            self.selected_gold_quantity = values[2]
+            self.selected_gold_type = values[3]
+            self.selected_gold_total_amount = values[4]
 
-            print(f"Transaction Code: {transaction_code}")
-            print(f"Unit Price: {unit_price}")
-            print(f"Quantity: {quantity}")
-            print(f"Gold Type: {gold_type}")
-            print(f"Total Amount: {total_amount}")
+            print(f"Transaction Code: {self.selected_gold_transaction_code}")
+            print(f"Unit Price: {self.selected_gold_unit_price}")
+            print(f"Quantity: {self.selected_gold_quantity}")
+            print(f"Gold Type: {self.selected_gold_type}")
+            print(f"Total Amount: {self.selected_gold_total_amount}")
         else:
             print("No item selected")
 
@@ -862,17 +862,19 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             selected_item = selected_items[0]
             values = treeview.item(selected_item, "values")
 
-            transaction_code = values[0]
-            quantity = values[1]
-            exchange_rate = values[2]
-            currency_type = values[3]
-            total_amount = values[4]
+            self.selected_currency_transaction_code = values[0]
+            self.selected_currency_quantity = values[1]
+            self.selected_currency_exchange_rate = values[2]
+            self.selected_currency_type = values[3]
+            self.selected_currency_total_amount = values[4]
 
-            print(f"Transaction Code: {transaction_code}")
-            print(f"Quantity: {quantity}")
-            print(f"Exchange Rate: {exchange_rate}")
-            print(f"Currency Type: {currency_type}")
-            print(f"Total Amount: {total_amount}")
+            print(
+                f"Transaction Code: {self.selected_currency_transaction_code}"
+                )
+            print(f"Quantity: {self.selected_currency_quantity}")
+            print(f"Exchange Rate: {self.selected_currency_exchange_rate}")
+            print(f"Currency Type: {self.selected_currency_type}")
+            print(f"Total Amount: {self.selected_currency_total_amount}")
         else:
             print("No item selected")
 
