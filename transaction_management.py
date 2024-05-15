@@ -1020,6 +1020,7 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             font=("Arial", 16, "bold"))
         currency_transaction_label.grid(row=0, column=0, padx=0, pady=0,
                                         sticky="w")
+
         frame_action_buttons = customtkinter.CTkFrame(
             frame_label_actions, fg_color="transparent")
         frame_action_buttons.grid(row=0, column=1, padx=0, pady=0, sticky="e")
@@ -1201,6 +1202,11 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             treeview_currency_transaction, currency_transactions)
         treeview_currency_transaction.pack(padx=20, pady=(10, 20), fill="x")
 
+        treeview_gold_transaction.bind(
+            '<<TreeviewSelect>>', self.on_gold_treeview_select)
+        treeview_currency_transaction.bind(
+            '<<TreeviewSelect>>', self.on_currency_treeview_select)
+
     def create_header_transaction_treeview(self, frame, total_amount, label):
         frame_header = customtkinter.CTkFrame(
             frame, fg_color="transparent")
@@ -1258,6 +1264,61 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             total_amount_gold)
         self.create_header_transaction_treeview(
             frame, formatted_total_amount_gold, "GOLD TRANSACTIONS")
+
+        frame_label_actions = customtkinter.CTkFrame(
+            frame, fg_color="transparent")
+        frame_label_actions.pack(padx=10, pady=(5, 0), fill="x")
+
+        frame_action_buttons = customtkinter.CTkFrame(
+            frame_label_actions, fg_color="transparent")
+        frame_action_buttons.grid(row=0, column=1, padx=7, pady=0, sticky="e")
+
+        label_actions = customtkinter.CTkLabel(
+            frame_action_buttons, text="Actions:", text_color="black",
+            font=("Arial", 14))
+        label_actions.pack(side="left", padx=5, pady=0)
+
+        details_icon = customtkinter.CTkImage(
+            Image.open('./details.ico'))
+        edit_icon = customtkinter.CTkImage(
+            Image.open('./edit.ico'))
+        delete_icon = customtkinter.CTkImage(
+            Image.open('./delete.ico'))
+
+        btn_details = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=details_icon,
+            width=30, height=30,
+            fg_color="#ffffff",
+            hover_color="light blue",
+            border_width=1,
+            border_color="#5b8dcb",
+            corner_radius=5,
+            command=self.open_view_details_gold_transaction_window)
+        btn_details.pack(side="left", padx=2, pady=0)
+
+        self.view_details_gold_transaction_window = None
+
+        btn_edit = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=edit_icon,
+            width=30, height=30)
+        btn_edit.pack(side="left", padx=2, pady=0)
+
+        btn_delete = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=delete_icon,
+            width=30, height=30,
+            fg_color="red",
+            hover_color="dark red",
+            corner_radius=5)
+        btn_delete.pack(side="left", padx=2, pady=0)
+
+        frame_label_actions.columnconfigure(0, weight=0)
+        frame_label_actions.columnconfigure(1, weight=1)
 
         treeview_style = ttk.Style()
         treeview_style.configure(
