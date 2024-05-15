@@ -1321,6 +1321,61 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         self.create_header_transaction_treeview(
             frame, formatted_total_amount_currency, "CURRENCY TRANSACTIONS")
 
+        frame_label_actions = customtkinter.CTkFrame(
+            frame, fg_color="transparent")
+        frame_label_actions.pack(padx=10, pady=(5, 0), fill="x")
+
+        frame_action_buttons = customtkinter.CTkFrame(
+            frame_label_actions, fg_color="transparent")
+        frame_action_buttons.grid(row=0, column=1, padx=7, pady=0, sticky="e")
+
+        label_actions = customtkinter.CTkLabel(
+            frame_action_buttons, text="Actions:", text_color="black",
+            font=("Arial", 14))
+        label_actions.pack(side="left", padx=5, pady=0)
+
+        details_icon = customtkinter.CTkImage(
+            Image.open('./details.ico'))
+        edit_icon = customtkinter.CTkImage(
+            Image.open('./edit.ico'))
+        delete_icon = customtkinter.CTkImage(
+            Image.open('./delete.ico'))
+
+        btn_details = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=details_icon,
+            width=30, height=30,
+            fg_color="#ffffff",
+            hover_color="light blue",
+            border_width=1,
+            border_color="#5b8dcb",
+            corner_radius=5,
+            command=self.open_view_details_currency_transaction_window)
+        btn_details.pack(side="left", padx=2, pady=0)
+
+        self.view_details_currency_transaction_window = None
+
+        btn_edit = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=edit_icon,
+            width=30, height=30)
+        btn_edit.pack(side="left", padx=2, pady=0)
+
+        btn_delete = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=delete_icon,
+            width=30, height=30,
+            fg_color="red",
+            hover_color="dark red",
+            corner_radius=5)
+        btn_delete.pack(side="left", padx=2, pady=0)
+
+        frame_label_actions.columnconfigure(0, weight=0)
+        frame_label_actions.columnconfigure(1, weight=1)
+
         treeview_style = ttk.Style()
         treeview_style.configure(
             "Treeview.Heading", font=("Arial", 10, "bold"))
