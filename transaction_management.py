@@ -834,40 +834,6 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
                 total_amount += transaction._total_amount
         return total_amount
 
-    def on_gold_treeview_select(self, event):
-        treeview = event.widget
-        selected_items = treeview.selection()
-        if selected_items:
-            selected_item = selected_items[0]
-            values = treeview.item(selected_item, "values")
-
-            self.selected_gold_status = True
-            self.selected_gold_transaction_code = values[0]
-            self.selected_gold_unit_price = values[1]
-            self.selected_gold_quantity = values[2]
-            self.selected_gold_type = values[3]
-            self.selected_gold_total_amount = values[4]
-
-        else:
-            self.selected_gold_status = False
-
-    def on_currency_treeview_select(self, event):
-        treeview = event.widget
-        selected_items = treeview.selection()
-        if selected_items:
-            selected_item = selected_items[0]
-            values = treeview.item(selected_item, "values")
-
-            self.selected_currency_status = True
-            self.selected_currency_transaction_code = values[0]
-            self.selected_currency_quantity = values[1]
-            self.selected_currency_exchange_rate = values[2]
-            self.selected_currency_type = values[3]
-            self.selected_currency_total_amount = values[4]
-
-        else:
-            self.selected_currency_status = False
-
     def create_content_treeview_by_date(self, frame, transactions,
                                         day, month, year):
         self.selected_gold_status = False
@@ -1421,6 +1387,40 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
                     formatted_exchange_rate,
                     formatted_total_amount
                 ))
+
+    def on_gold_treeview_select(self, event):
+        treeview = event.widget
+        selected_items = treeview.selection()
+        if selected_items:
+            selected_item = selected_items[0]
+            values = treeview.item(selected_item, "values")
+
+            self.selected_gold_status = True
+            self.selected_gold_transaction_code = values[0]
+            self.selected_gold_unit_price = values[1]
+            self.selected_gold_quantity = values[2]
+            self.selected_gold_type = values[3]
+            self.selected_gold_total_amount = values[4]
+
+        else:
+            self.selected_gold_status = False
+
+    def on_currency_treeview_select(self, event):
+        treeview = event.widget
+        selected_items = treeview.selection()
+        if selected_items:
+            selected_item = selected_items[0]
+            values = treeview.item(selected_item, "values")
+
+            self.selected_currency_status = True
+            self.selected_currency_transaction_code = values[0]
+            self.selected_currency_quantity = values[1]
+            self.selected_currency_exchange_rate = values[2]
+            self.selected_currency_type = values[3]
+            self.selected_currency_total_amount = values[4]
+
+        else:
+            self.selected_currency_status = False
 
     # Sort By Frame
     def create_date_sort_by_frame(self, parent, transactions, option):
