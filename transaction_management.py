@@ -870,7 +870,7 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
             print(
                 f"Transaction Code: {self.selected_currency_transaction_code}"
-                )
+            )
             print(f"Quantity: {self.selected_currency_quantity}")
             print(f"Exchange Rate: {self.selected_currency_exchange_rate}")
             print(f"Currency Type: {self.selected_currency_type}")
@@ -948,8 +948,11 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             hover_color="light blue",
             border_width=1,
             border_color="#5b8dcb",
-            corner_radius=5)
+            corner_radius=5,
+            command=self.open_view_details_window)
         btn_details.pack(side="left", padx=2, pady=0)
+
+        self.view_details_window = None
 
         btn_edit = customtkinter.CTkButton(
             frame_action_buttons,
@@ -995,6 +998,14 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
                          text="Total Amount (VND)", anchor="w")
 
         return treeview
+
+    def open_view_details_window(self):
+        if self.view_details_window is None or not \
+                self.view_details_window.winfo_exists():
+            self.view_details_window = ViewDetailsGoldTransactionWindow(self)
+            self.view_details_window.after(10, self.view_details_window.lift)
+        else:
+            self.view_details_window.focus()
 
     def create_currency_transaction_treeview_by_date(self, frame):
         currency_transaction_label = customtkinter.CTkLabel(
@@ -1545,6 +1556,37 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
     def hide_frame(self, frame):
         frame.pack_forget()
+
+
+class ViewDetailsGoldTransactionWindow(customtkinter.CTkToplevel):
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.title("View Details Transaction")
+        self.iconbitmap(default='./logo.ico')
+        self.minsize(400, 500)
+        self.configure(fg_color="#d9d9d9")
+        self.parent = parent
+
+        self.create_widget()
+
+        if platform.startswith("win"):
+            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+
+    def create_widget(self):
+        gold_transaction_label = customtkinter.CTkLabel(
+            self, text="Selected Gold Transaction:", font=("Arial", 12, "bold")
+        )
+        gold_transaction_label.pack(pady=(10, 5))
+
+        gold_data_label = customtkinter.CTkLabel(
+            self, text=f"Transaction Code: {
+                self.parent.selected_gold_transaction_code}\n"
+            f"Unit Price: {self.parent.selected_gold_unit_price}\n"
+            f"Quantity: {self.parent.selected_gold_quantity}\n"
+            f"Gold Type: {self.parent.selected_gold_type}\n"
+            f"Total Amount: {self.parent.selected_gold_total_amount}"
+        )
+        gold_data_label.pack(pady=(0, 10))
 
 
 class FilterWindow(customtkinter.CTkToplevel):
