@@ -841,6 +841,7 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             selected_item = selected_items[0]
             values = treeview.item(selected_item, "values")
 
+            self.selected_gold_status = True
             self.selected_gold_transaction_code = values[0]
             self.selected_gold_unit_price = values[1]
             self.selected_gold_quantity = values[2]
@@ -854,6 +855,7 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             print(f"Total Amount: {self.selected_gold_total_amount}")
         else:
             print("No item selected")
+            self.selected_gold_status = False
 
     def on_currency_treeview_select(self, event):
         treeview = event.widget
@@ -862,6 +864,7 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             selected_item = selected_items[0]
             values = treeview.item(selected_item, "values")
 
+            self.selected_currency_status = True
             self.selected_currency_transaction_code = values[0]
             self.selected_currency_quantity = values[1]
             self.selected_currency_exchange_rate = values[2]
@@ -877,9 +880,13 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             print(f"Total Amount: {self.selected_currency_total_amount}")
         else:
             print("No item selected")
+            self.selected_currency_status = False
 
     def create_content_treeview_by_date(self, frame, transactions,
                                         day, month, year):
+        self.selected_gold_status = False
+        self.selected_currency_status = False
+
         if (day, month, year) not in self.gold_treeviews:
             gold_treeview = \
                 self.create_gold_transaction_treeview_by_date(frame)
@@ -949,10 +956,10 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             border_width=1,
             border_color="#5b8dcb",
             corner_radius=5,
-            command=self.open_view_details_window)
+            command=self.open_view_details_gold_transaction_window)
         btn_details.pack(side="left", padx=2, pady=0)
 
-        self.view_details_window = None
+        self.view_details_gold_transaction_window = None
 
         btn_edit = customtkinter.CTkButton(
             frame_action_buttons,
@@ -999,13 +1006,22 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
         return treeview
 
-    def open_view_details_window(self):
-        if self.view_details_window is None or not \
-                self.view_details_window.winfo_exists():
-            self.view_details_window = ViewDetailsGoldTransactionWindow(self)
-            self.view_details_window.after(10, self.view_details_window.lift)
+    def open_view_details_gold_transaction_window(self):
+        if self.selected_gold_status:
+            if self.view_details_gold_transaction_window is None \
+                or not self.view_details_gold_transaction_window \
+                    .winfo_exists():
+                self.view_details_gold_transaction_window \
+                    = ViewDetailsGoldTransactionWindow(
+                        self)
+                self.view_details_gold_transaction_window.after(
+                    10, self.view_details_gold_transaction_window.lift)
+            else:
+                self.view_details_gold_transaction_window.focus()
         else:
-            self.view_details_window.focus()
+            messagebox.showinfo(
+                "Notification",
+                "Please select a gold transaction to view details.")
 
     def create_currency_transaction_treeview_by_date(self, frame):
         currency_transaction_label = customtkinter.CTkLabel(

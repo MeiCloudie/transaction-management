@@ -2,8 +2,8 @@
   "transactions": [
     {
       "id": "GLD001",
-      "day": 24,
-      "month": 6,
+      "day": 2,
+      "month": 5,
       "year": 2024,
       "unit_price": 85200000.0,
       "quantity": 2.0,
@@ -12,8 +12,8 @@
     },
     {
       "id": "GLD002",
-      "day": 21,
-      "month": 3,
+      "day": 2,
+      "month": 5,
       "year": 2024,
       "unit_price": 75500000.0,
       "quantity": 3.0,
