@@ -2079,13 +2079,13 @@ class ViewDetailsGoldTransactionWindow(customtkinter.CTkToplevel):
             details_frame, text="GOLD TRANSACTION",
             font=("Arial", 20, "bold")
         )
-        gold_transaction_label.pack(padx=20, pady=(20, 5), anchor="w")
+        gold_transaction_label.pack(padx=20, pady=(20, 0), anchor="w")
 
         gold_transaction_code = customtkinter.CTkLabel(
             details_frame, text=f"Code: {
                 self.parent.selected_gold_transaction_code}"
         )
-        gold_transaction_code.pack(padx=20, pady=0, anchor="w")
+        gold_transaction_code.pack(padx=20, pady=(0, 5), anchor="w")
 
         separator_style = ttk.Style()
         separator_style.configure(
@@ -2097,7 +2097,7 @@ class ViewDetailsGoldTransactionWindow(customtkinter.CTkToplevel):
 
         gold_unit_price_frame = customtkinter.CTkFrame(
             details_frame, fg_color="transparent")
-        gold_unit_price_frame.pack(padx=20, pady=0, fill="x")
+        gold_unit_price_frame.pack(padx=20, pady=5, fill="x")
 
         gold_unit_price_label = customtkinter.CTkLabel(
             gold_unit_price_frame, text="Unit Price (VND/tael):"
@@ -2117,7 +2117,7 @@ class ViewDetailsGoldTransactionWindow(customtkinter.CTkToplevel):
 
         gold_quantity_frame = customtkinter.CTkFrame(
             details_frame, fg_color="transparent")
-        gold_quantity_frame.pack(padx=20, pady=0, fill="x")
+        gold_quantity_frame.pack(padx=20, pady=5, fill="x")
 
         gold_quantity_label = customtkinter.CTkLabel(
             gold_quantity_frame, text="Quantity (tael):"
@@ -2137,7 +2137,7 @@ class ViewDetailsGoldTransactionWindow(customtkinter.CTkToplevel):
 
         gold_type_frame = customtkinter.CTkFrame(
             details_frame, fg_color="transparent")
-        gold_type_frame.pack(padx=20, pady=0, fill="x")
+        gold_type_frame.pack(padx=20, pady=5, fill="x")
 
         gold_type_label = customtkinter.CTkLabel(
             gold_type_frame, text="Gold Type:"
@@ -2157,7 +2157,7 @@ class ViewDetailsGoldTransactionWindow(customtkinter.CTkToplevel):
 
         gold_total_amount_frame = customtkinter.CTkFrame(
             details_frame, fg_color="transparent")
-        gold_total_amount_frame.pack(padx=20, pady=0, fill="x")
+        gold_total_amount_frame.pack(padx=20, pady=5, fill="x")
 
         gold_total_amount_label = customtkinter.CTkLabel(
             gold_total_amount_frame, text="Total Amount (VND):"
@@ -2177,7 +2177,7 @@ class ViewDetailsGoldTransactionWindow(customtkinter.CTkToplevel):
 
         gold_transaction_date_frame = customtkinter.CTkFrame(
             details_frame, fg_color="transparent")
-        gold_transaction_date_frame.pack(padx=20, pady=0, fill="x")
+        gold_transaction_date_frame.pack(padx=20, pady=5, fill="x")
 
         gold_transaction_date_label = customtkinter.CTkLabel(
             gold_transaction_date_frame, text="Transaction Date:"
@@ -2195,15 +2195,14 @@ class ViewDetailsGoldTransactionWindow(customtkinter.CTkToplevel):
         gold_transaction_date_frame.columnconfigure(0, weight=0)
         gold_transaction_date_frame.columnconfigure(1, weight=1)
 
-        gold_data_label = customtkinter.CTkLabel(
-            details_frame, text=f"Transaction Code: {
-                self.parent.selected_gold_transaction_code}\n"
-            f"Unit Price: {self.parent.selected_gold_unit_price}\n"
-            f"Quantity: {self.parent.selected_gold_quantity}\n"
-            f"Gold Type: {self.parent.selected_gold_type}\n"
-            f"Total Amount: {self.parent.selected_gold_total_amount}"
+        btn_close = customtkinter.CTkButton(
+            details_frame,
+            text="CLOSE",
+            fg_color="#d93547",
+            hover_color="dark red",
+            command=self.destroy
         )
-        gold_data_label.pack(pady=(0, 10))
+        btn_close.pack(padx=20, pady=(100, 20), anchor="e")
 
 
 class ViewDetailsCurrencyTransactionWindow(customtkinter.CTkToplevel):
