@@ -556,6 +556,13 @@ class TabFilter(customtkinter.CTkTabview):
         return formatted_total_amount
 
 
+class TabGroupBySortByType(Enum):
+    GROUPBYDATE = 0
+    GROUPBYCATEGORY = 1
+    SORTBYDATE = 2
+    SORTBYTOTALAMOUNT = 3
+
+
 class TabGroupBySortBy(customtkinter.CTkTabview):
     def __init__(self, master, transactions, **kwargs):
         super().__init__(master, **kwargs)
@@ -872,9 +879,16 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         else:
             currency_treeview = self.currency_treeviews[(day, month, year)]
 
-        gold_treeview.bind('<<TreeviewSelect>>', self.on_gold_treeview_select)
+        gold_treeview.bind('<<TreeviewSelect>>', lambda event:
+                           self.on_gold_treeview_select(
+                               event,
+                               tab_type=TabGroupBySortByType.GROUPBYDATE,
+                               transactions=transactions))
         currency_treeview.bind('<<TreeviewSelect>>',
-                               self.on_currency_treeview_select)
+                               lambda event: self.on_currency_treeview_select(
+                                   event,
+                                   tab_type=TabGroupBySortByType.GROUPBYDATE,
+                                   transactions=transactions))
 
     def create_gold_transaction_treeview_by_date(self, frame):
         frame_label_actions = customtkinter.CTkFrame(
@@ -1139,9 +1153,17 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         treeview_currency_transaction.pack(padx=20, pady=(10, 20), fill="x")
 
         treeview_gold_transaction.bind(
-            '<<TreeviewSelect>>', self.on_gold_treeview_select)
+            '<<TreeviewSelect>>', lambda event:
+            self.on_gold_treeview_select(
+                event,
+                tab_type=TabGroupBySortByType.GROUPBYCATEGORY,
+                transactions=transactions))
         treeview_currency_transaction.bind(
-            '<<TreeviewSelect>>', self.on_currency_treeview_select)
+            '<<TreeviewSelect>>', lambda event:
+            self.on_currency_treeview_select(
+                event,
+                tab_type=TabGroupBySortByType.GROUPBYCATEGORY,
+                transactions=transactions))
 
     def create_header_transaction_treeview(self, frame, total_amount, label):
         frame_header = customtkinter.CTkFrame(
@@ -1484,7 +1506,11 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
                 self.populate_tv_with_gold_sort_by_total_amount(
                     treeview_transaction, transactions)
                 treeview_transaction.bind(
-                    '<<TreeviewSelect>>', self.on_gold_treeview_select)
+                    '<<TreeviewSelect>>', lambda event:
+                    self.on_gold_treeview_select(
+                        event,
+                        tab_type=TabGroupBySortByType.SORTBYTOTALAMOUNT,
+                        transactions=transactions))
             elif isinstance(transactions[0], CurrencyTransaction):
                 treeview_transaction \
                     = self.create_currency_tv_sort_by_total_amount(
@@ -1492,7 +1518,11 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
                 self.populate_tv_with_currency_sort_by_total_amount(
                     treeview_transaction, transactions)
                 treeview_transaction.bind(
-                    '<<TreeviewSelect>>', self.on_currency_treeview_select)
+                    '<<TreeviewSelect>>', lambda event:
+                    self.on_currency_treeview_select(
+                        event,
+                        tab_type=TabGroupBySortByType.SORTBYTOTALAMOUNT,
+                        transactions=transactions))
 
             treeview_transaction.pack(
                 padx=20, pady=(10, 20), fill="x")
@@ -1781,39 +1811,170 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
                 ))
 
     # General auxiliary functions
-    def on_gold_treeview_select(self, event):
-        treeview = event.widget
-        selected_items = treeview.selection()
-        if selected_items:
-            selected_item = selected_items[0]
-            values = treeview.item(selected_item, "values")
+    def on_gold_treeview_select(self, event, tab_type, transactions):
+        if tab_type == TabGroupBySortByType.GROUPBYDATE or \
+                tab_type == TabGroupBySortByType.SORTBYDATE:
+            treeview = event.widget
+            selected_items = treeview.selection()
+            if selected_items:
+                selected_item = selected_items[0]
+                values = treeview.item(selected_item, "values")
 
-            self.selected_gold_status = True
-            self.selected_gold_transaction_code = values[0]
-            self.selected_gold_unit_price = values[1]
-            self.selected_gold_quantity = values[2]
-            self.selected_gold_type = values[3]
-            self.selected_gold_total_amount = values[4]
+                self.selected_gold_status = True
+                self.selected_gold_transaction_code = values[0]
+                self.selected_gold_unit_price = values[1]
+                self.selected_gold_quantity = values[2]
+                self.selected_gold_type = values[3]
+                self.selected_gold_total_amount = values[4]
 
-        else:
-            self.selected_gold_status = False
+                self.selected_gold_transaction_date = None
 
-    def on_currency_treeview_select(self, event):
-        treeview = event.widget
-        selected_items = treeview.selection()
-        if selected_items:
-            selected_item = selected_items[0]
-            values = treeview.item(selected_item, "values")
+                for transaction in transactions:
+                    if isinstance(transaction, GoldTransaction):
+                        if str(transaction._id) == \
+                                str(self.selected_gold_transaction_code):
+                            day = transaction._day
+                            month = transaction._month
+                            year = transaction._year
 
-            self.selected_currency_status = True
-            self.selected_currency_transaction_code = values[0]
-            self.selected_currency_quantity = values[1]
-            self.selected_currency_exchange_rate = values[2]
-            self.selected_currency_type = values[3]
-            self.selected_currency_total_amount = values[4]
+                            month_name = str(MonthLabel(month))
 
-        else:
-            self.selected_currency_status = False
+                            formatted_date = f"{day} {month_name} {year}"
+
+                            self.selected_gold_transaction_date \
+                                = formatted_date
+                            break
+
+            else:
+                self.selected_gold_status = False
+
+        if tab_type == TabGroupBySortByType.GROUPBYCATEGORY:
+            treeview = event.widget
+            selected_items = treeview.selection()
+            if selected_items:
+                selected_item = selected_items[0]
+                values = treeview.item(selected_item, "values")
+
+                self.selected_gold_status = True
+                self.selected_gold_transaction_code = values[0]
+                self.selected_gold_transaction_date = values[1]
+                self.selected_gold_unit_price = values[2]
+                self.selected_gold_quantity = values[3]
+                self.selected_gold_type = values[4]
+                self.selected_gold_total_amount = values[5]
+            else:
+                self.selected_gold_status = False
+
+        if tab_type == TabGroupBySortByType.SORTBYTOTALAMOUNT:
+            treeview = event.widget
+            selected_items = treeview.selection()
+            if selected_items:
+                selected_item = selected_items[0]
+                values = treeview.item(selected_item, "values")
+
+                self.selected_gold_status = True
+                self.selected_gold_transaction_code = values[0]
+                self.selected_gold_transaction_date = values[1]
+                self.selected_gold_unit_price = values[2]
+                self.selected_gold_quantity = values[3]
+                self.selected_gold_type = values[4]
+
+                self.selected_gold_total_amount = None
+
+                for transaction in transactions:
+                    if isinstance(transaction, GoldTransaction):
+                        if str(transaction._id) == \
+                                str(self.selected_gold_transaction_code):
+                            formatted_total_amount = self.format_price_number(
+                                transaction._total_amount)
+                            self.selected_gold_total_amount = \
+                                formatted_total_amount
+                            break
+            else:
+                self.selected_gold_status = False
+
+    def on_currency_treeview_select(self, event, tab_type, transactions):
+        if tab_type == TabGroupBySortByType.GROUPBYDATE or \
+                tab_type == TabGroupBySortByType.SORTBYDATE:
+            treeview = event.widget
+            selected_items = treeview.selection()
+            if selected_items:
+                selected_item = selected_items[0]
+                values = treeview.item(selected_item, "values")
+
+                self.selected_currency_status = True
+                self.selected_currency_transaction_code = values[0]
+                self.selected_currency_quantity = values[1]
+                self.selected_currency_exchange_rate = values[2]
+                self.selected_currency_type = values[3]
+                self.selected_currency_total_amount = values[4]
+
+                self.selected_currency_transaction_date = None
+
+                for transaction in transactions:
+                    if isinstance(transaction, CurrencyTransaction):
+                        if str(transaction._id) == \
+                                str(self.selected_currency_transaction_code):
+                            day = transaction._day
+                            month = transaction._month
+                            year = transaction._year
+
+                            month_name = str(MonthLabel(month))
+
+                            formatted_date = f"{day} {month_name} {year}"
+
+                            self.selected_currency_transaction_date \
+                                = formatted_date
+                            break
+
+            else:
+                self.selected_currency_status = False
+
+        if tab_type == TabGroupBySortByType.GROUPBYCATEGORY:
+            treeview = event.widget
+            selected_items = treeview.selection()
+            if selected_items:
+                selected_item = selected_items[0]
+                values = treeview.item(selected_item, "values")
+
+                self.selected_currency_status = True
+                self.selected_currency_transaction_code = values[0]
+                self.selected_currency_transaction_date = values[1]
+                self.selected_currency_quantity = values[2]
+                self.selected_currency_exchange_rate = values[3]
+                self.selected_currency_type = values[4]
+                self.selected_currency_total_amount = values[5]
+            else:
+                self.selected_currency_status = False
+
+        if tab_type == TabGroupBySortByType.SORTBYTOTALAMOUNT:
+            treeview = event.widget
+            selected_items = treeview.selection()
+            if selected_items:
+                selected_item = selected_items[0]
+                values = treeview.item(selected_item, "values")
+
+                self.selected_currency_status = True
+                self.selected_currency_transaction_code = values[0]
+                self.selected_currency_transaction_date = values[1]
+                self.selected_currency_quantity = values[2]
+                self.selected_currency_exchange_rate = values[3]
+                self.selected_currency_type = values[4]
+
+                self.selected_currency_total_amount = None
+
+                for transaction in transactions:
+                    if isinstance(transaction, CurrencyTransaction):
+                        if str(transaction._id) == \
+                                str(self.selected_currency_transaction_code):
+                            formatted_total_amount = self.format_price_number(
+                                transaction._total_amount)
+                            self.selected_currency_total_amount = \
+                                formatted_total_amount
+                            break
+
+            else:
+                self.selected_currency_status = False
 
     def open_view_details_gold_transaction_window(self):
         if self.selected_gold_status:
@@ -1838,11 +1999,13 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         self.selected_gold_quantity = None
         self.selected_gold_type = None
         self.selected_gold_total_amount = None
+        self.selected_gold_transaction_date = None
         self.selected_currency_transaction_code = None
         self.selected_currency_quantity = None
         self.selected_currency_exchange_rate = None
         self.selected_currency_type = None
         self.selected_currency_total_amount = None
+        self.selected_currency_transaction_date = None
 
     def open_view_details_currency_transaction_window(self):
         if self.selected_currency_status:
@@ -1867,11 +2030,13 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         self.selected_gold_quantity = None
         self.selected_gold_type = None
         self.selected_gold_total_amount = None
+        self.selected_gold_transaction_date = None
         self.selected_currency_transaction_code = None
         self.selected_currency_quantity = None
         self.selected_currency_exchange_rate = None
         self.selected_currency_type = None
         self.selected_currency_total_amount = None
+        self.selected_currency_transaction_date = None
 
     def format_price_number(self, total_amount):
         if '.' in str(total_amount):
@@ -2022,7 +2187,7 @@ class ViewDetailsGoldTransactionWindow(customtkinter.CTkToplevel):
 
         gold_transaction_date_value = customtkinter.CTkLabel(
             gold_transaction_date_frame, font=("Arial", 14, "bold"), text=f"{
-                1+1}",
+                self.parent.selected_gold_transaction_date}",
         )
         gold_transaction_date_value.grid(row=0, column=1, padx=0, pady=0,
                                          sticky="e")
@@ -2069,7 +2234,9 @@ class ViewDetailsCurrencyTransactionWindow(customtkinter.CTkToplevel):
             f"Quantity: {self.parent.selected_currency_quantity}\n"
             f"Exchange Rate: {self.parent.selected_currency_exchange_rate}\n"
             f"Currency Type: {self.parent.selected_currency_type}\n"
-            f"Total Amount: {self.parent.selected_currency_total_amount}"
+            f"Total Amount: {self.parent.selected_currency_total_amount}\n"
+            f"Transaction Date: {
+                self.parent.selected_currency_transaction_date}"
         )
         currency_data_label.pack(pady=(0, 10))
 
