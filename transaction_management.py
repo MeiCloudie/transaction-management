@@ -613,10 +613,14 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
     # Set up Tab View
     def show_default_frame_group_by(self):
+        self.gold_treeviews = {}
+        self.currency_treeviews = {}
         self.show_frame(self.date_frame)
         self.hide_frame(self.category_frame)
 
     def show_default_frame_sort_by(self):
+        self.gold_treeviews = {}
+        self.currency_treeviews = {}
         self.show_frame(self.date_sort_by_frame)
         self.hide_frame(self.total_amount_sort_by_frame)
 
