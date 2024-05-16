@@ -935,8 +935,11 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             frame_action_buttons,
             text=None,
             image=edit_icon,
-            width=30, height=30)
+            width=30, height=30,
+            command=self.open_edit_gold_transaction_window)
         btn_edit.pack(side="left", padx=2, pady=0)
+
+        self.edit_gold_transaction_window = None
 
         btn_delete = customtkinter.CTkButton(
             frame_action_buttons,
@@ -1023,8 +1026,11 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             frame_action_buttons,
             text=None,
             image=edit_icon,
-            width=30, height=30)
+            width=30, height=30,
+            command=self.open_edit_currency_transaction_window)
         btn_edit.pack(side="left", padx=2, pady=0)
+
+        self.edit_currency_transaction_window = None
 
         btn_delete = customtkinter.CTkButton(
             frame_action_buttons,
@@ -1262,8 +1268,11 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             frame_action_buttons,
             text=None,
             image=edit_icon,
-            width=30, height=30)
+            width=30, height=30,
+            command=self.open_edit_gold_transaction_window)
         btn_edit.pack(side="left", padx=2, pady=0)
+
+        self.edit_gold_transaction_window = None
 
         btn_delete = customtkinter.CTkButton(
             frame_action_buttons,
@@ -1352,8 +1361,11 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             frame_action_buttons,
             text=None,
             image=edit_icon,
-            width=30, height=30)
+            width=30, height=30,
+            command=self.open_edit_currency_transaction_window)
         btn_edit.pack(side="left", padx=2, pady=0)
+
+        self.edit_currency_transaction_window = None
 
         btn_delete = customtkinter.CTkButton(
             frame_action_buttons,
@@ -1633,8 +1645,11 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             frame_action_buttons,
             text=None,
             image=edit_icon,
-            width=30, height=30)
+            width=30, height=30,
+            command=self.open_edit_gold_transaction_window)
         btn_edit.pack(side="left", padx=2, pady=0)
+
+        self.edit_gold_transaction_window = None
 
         btn_delete = customtkinter.CTkButton(
             frame_action_buttons,
@@ -1725,8 +1740,11 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             frame_action_buttons,
             text=None,
             image=edit_icon,
-            width=30, height=30)
+            width=30, height=30,
+            command=self.open_edit_currency_transaction_window)
         btn_edit.pack(side="left", padx=2, pady=0)
+
+        self.edit_currency_transaction_window = None
 
         btn_delete = customtkinter.CTkButton(
             frame_action_buttons,
@@ -2009,6 +2027,40 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             messagebox.showinfo(
                 "Notification",
                 "Please select a currency transaction to view details.")
+
+    def open_edit_gold_transaction_window(self):
+        if self.selected_gold_status:
+            if self.edit_gold_transaction_window is None \
+                or not self.edit_gold_transaction_window \
+                    .winfo_exists():
+                self.edit_gold_transaction_window \
+                    = EditGoldTransactionWindow(
+                        self)
+                self.edit_gold_transaction_window.after(
+                    10, self.edit_gold_transaction_window.lift)
+            else:
+                self.edit_gold_transaction_window.focus()
+        else:
+            messagebox.showinfo(
+                "Notification",
+                "Please select a gold transaction to edit.")
+
+    def open_edit_currency_transaction_window(self):
+        if self.selected_currency_status:
+            if self.edit_currency_transaction_window is None \
+                or not self.edit_currency_transaction_window \
+                    .winfo_exists():
+                self.edit_currency_transaction_window \
+                    = EditCurrencyTransactionWindow(
+                        self)
+                self.edit_currency_transaction_window.after(
+                    10, self.edit_currency_transaction_window.lift)
+            else:
+                self.edit_currency_transaction_window.focus()
+        else:
+            messagebox.showinfo(
+                "Notification",
+                "Please select a currency transaction to edit.")
 
     def format_price_number(self, total_amount):
         if '.' in str(total_amount):
@@ -2326,6 +2378,42 @@ class ViewDetailsCurrencyTransactionWindow(customtkinter.CTkToplevel):
             command=self.destroy
         )
         btn_close.pack(padx=20, pady=(100, 20), anchor="e")
+
+
+class EditGoldTransactionWindow(customtkinter.CTkToplevel):
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.title("Edit Transaction")
+        self.iconbitmap(default='./logo.ico')
+        self.minsize(400, 500)
+        self.configure(fg_color="#d9d9d9")
+        self.parent = parent
+
+        self.create_widget()
+
+        if platform.startswith("win"):
+            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+
+    def create_widget(self):
+        pass
+
+
+class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.title("Edit Transaction")
+        self.iconbitmap(default='./logo.ico')
+        self.minsize(400, 500)
+        self.configure(fg_color="#d9d9d9")
+        self.parent = parent
+
+        self.create_widget()
+
+        if platform.startswith("win"):
+            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+
+    def create_widget(self):
+        pass
 
 
 class FilterWindow(customtkinter.CTkToplevel):
