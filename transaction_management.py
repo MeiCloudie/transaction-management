@@ -978,6 +978,18 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             messagebox.showinfo(
                 "Notification",
                 "Please select a gold transaction to view details.")
+        self.selected_gold_status = False
+        self.selected_currency_status = False
+        self.selected_gold_transaction_code = None
+        self.selected_gold_unit_price = None
+        self.selected_gold_quantity = None
+        self.selected_gold_type = None
+        self.selected_gold_total_amount = None
+        self.selected_currency_transaction_code = None
+        self.selected_currency_quantity = None
+        self.selected_currency_exchange_rate = None
+        self.selected_currency_type = None
+        self.selected_currency_total_amount = None
 
     def create_currency_transaction_treeview_by_date(self, frame):
         frame_label_actions = customtkinter.CTkFrame(
@@ -1082,6 +1094,18 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             messagebox.showinfo(
                 "Notification",
                 "Please select a currency transaction to view details.")
+        self.selected_gold_status = False
+        self.selected_currency_status = False
+        self.selected_gold_transaction_code = None
+        self.selected_gold_unit_price = None
+        self.selected_gold_quantity = None
+        self.selected_gold_type = None
+        self.selected_gold_total_amount = None
+        self.selected_currency_transaction_code = None
+        self.selected_currency_quantity = None
+        self.selected_currency_exchange_rate = None
+        self.selected_currency_type = None
+        self.selected_currency_total_amount = None
 
     def populate_treeview_with_gold_transactions_by_date(self, treeview,
                                                          transactions,
