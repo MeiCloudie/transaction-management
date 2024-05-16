@@ -556,6 +556,13 @@ class TabFilter(customtkinter.CTkTabview):
         return formatted_total_amount
 
 
+class TabGroupBySortByType(Enum):
+    GROUPBYDATE = 0
+    GROUPBYCATEGORY = 1
+    SORTBYDATE = 2
+    SORTBYTOTALAMOUNT = 3
+
+
 class TabGroupBySortBy(customtkinter.CTkTabview):
     def __init__(self, master, transactions, **kwargs):
         super().__init__(master, **kwargs)
@@ -570,6 +577,9 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
         self.option_segmented_button_date = True
         self.option_segmented_button_total_amount = True
+
+        self.gold_treeviews = {}
+        self.currency_treeviews = {}
 
         self.create_tab_group_by_sort_by_widgets()
 
@@ -610,10 +620,14 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
     # Set up Tab View
     def show_default_frame_group_by(self):
+        self.gold_treeviews = {}
+        self.currency_treeviews = {}
         self.show_frame(self.date_frame)
         self.hide_frame(self.category_frame)
 
     def show_default_frame_sort_by(self):
+        self.gold_treeviews = {}
+        self.currency_treeviews = {}
         self.show_frame(self.date_sort_by_frame)
         self.hide_frame(self.total_amount_sort_by_frame)
 
@@ -833,11 +847,18 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
     def create_content_treeview_by_date(self, frame, transactions,
                                         day, month, year):
-        treeview_gold_transaction = \
-            self.create_gold_transaction_treeview_by_date(frame)
-        self.populate_treeview_with_gold_transactions_by_date(
-            treeview_gold_transaction, transactions, day, month, year)
-        treeview_gold_transaction.pack(padx=10, pady=10, fill="x")
+        self.selected_gold_status = False
+        self.selected_currency_status = False
+
+        if (day, month, year) not in self.gold_treeviews:
+            gold_treeview = \
+                self.create_gold_transaction_treeview_by_date(frame)
+            self.populate_treeview_with_gold_transactions_by_date(
+                gold_treeview, transactions, day, month, year)
+            gold_treeview.pack(padx=10, pady=10, fill="x")
+            self.gold_treeviews[(day, month, year)] = gold_treeview
+        else:
+            gold_treeview = self.gold_treeviews[(day, month, year)]
 
         separator_style = ttk.Style()
         separator_style.configure(
@@ -847,18 +868,88 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(padx=10, pady=10, fill="x")
 
-        treeview_currency_transaction \
-            = self.create_currency_transaction_treeview_by_date(frame)
-        self.populate_treeview_with_currency_transactions_by_date(
-            treeview_currency_transaction, transactions, day, month, year)
-        treeview_currency_transaction.pack(padx=10, pady=10, fill="x")
+        if (day, month, year) not in self.currency_treeviews:
+            currency_treeview = \
+                self.create_currency_transaction_treeview_by_date(
+                    frame)
+            self.populate_treeview_with_currency_transactions_by_date(
+                currency_treeview, transactions, day, month, year)
+            currency_treeview.pack(padx=10, pady=10, fill="x")
+            self.currency_treeviews[(day, month, year)] = currency_treeview
+        else:
+            currency_treeview = self.currency_treeviews[(day, month, year)]
+
+        gold_treeview.bind('<<TreeviewSelect>>', lambda event:
+                           self.on_gold_treeview_select(
+                               event,
+                               tab_type=TabGroupBySortByType.GROUPBYDATE,
+                               transactions=transactions))
+        currency_treeview.bind('<<TreeviewSelect>>',
+                               lambda event: self.on_currency_treeview_select(
+                                   event,
+                                   tab_type=TabGroupBySortByType.GROUPBYDATE,
+                                   transactions=transactions))
 
     def create_gold_transaction_treeview_by_date(self, frame):
+        frame_label_actions = customtkinter.CTkFrame(
+            frame, fg_color="transparent")
+        frame_label_actions.pack(padx=10, pady=(5, 0), fill="x")
+
         gold_transaction_label = customtkinter.CTkLabel(
-            frame, text="GOLD TRANSACTIONS", text_color="black",
+            frame_label_actions, text="GOLD TRANSACTIONS", text_color="black",
             font=("Arial", 16, "bold"))
-        gold_transaction_label.pack(
-            padx=10, pady=(5, 0), side="top", anchor="w")
+        gold_transaction_label.grid(row=0, column=0, padx=0, pady=0,
+                                    sticky="w")
+        frame_action_buttons = customtkinter.CTkFrame(
+            frame_label_actions, fg_color="transparent")
+        frame_action_buttons.grid(row=0, column=1, padx=0, pady=0, sticky="e")
+
+        label_actions = customtkinter.CTkLabel(
+            frame_action_buttons, text="Actions:", text_color="black",
+            font=("Arial", 14))
+        label_actions.pack(side="left", padx=5, pady=0)
+
+        details_icon = customtkinter.CTkImage(
+            Image.open('./details.ico'))
+        edit_icon = customtkinter.CTkImage(
+            Image.open('./edit.ico'))
+        delete_icon = customtkinter.CTkImage(
+            Image.open('./delete.ico'))
+
+        btn_details = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=details_icon,
+            width=30, height=30,
+            fg_color="#ffffff",
+            hover_color="light blue",
+            border_width=1,
+            border_color="#5b8dcb",
+            corner_radius=5,
+            command=self.open_view_details_gold_transaction_window)
+        btn_details.pack(side="left", padx=2, pady=0)
+
+        self.view_details_gold_transaction_window = None
+
+        btn_edit = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=edit_icon,
+            width=30, height=30)
+        btn_edit.pack(side="left", padx=2, pady=0)
+
+        btn_delete = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=delete_icon,
+            width=30, height=30,
+            fg_color="red",
+            hover_color="dark red",
+            corner_radius=5)
+        btn_delete.pack(side="left", padx=2, pady=0)
+
+        frame_label_actions.columnconfigure(0, weight=0)
+        frame_label_actions.columnconfigure(1, weight=1)
 
         treeview_style = ttk.Style()
         treeview_style.configure(
@@ -886,11 +977,67 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         return treeview
 
     def create_currency_transaction_treeview_by_date(self, frame):
+        frame_label_actions = customtkinter.CTkFrame(
+            frame, fg_color="transparent")
+        frame_label_actions.pack(padx=10, pady=(5, 0), fill="x")
+
         currency_transaction_label = customtkinter.CTkLabel(
-            frame, text="CURRENCY TRANSACTIONS", text_color="black",
+            frame_label_actions, text="CURRENCY TRANSACTIONS",
+            text_color="black",
             font=("Arial", 16, "bold"))
-        currency_transaction_label.pack(
-            padx=10, pady=(5, 0), side="top", anchor="w")
+        currency_transaction_label.grid(row=0, column=0, padx=0, pady=0,
+                                        sticky="w")
+
+        frame_action_buttons = customtkinter.CTkFrame(
+            frame_label_actions, fg_color="transparent")
+        frame_action_buttons.grid(row=0, column=1, padx=0, pady=0, sticky="e")
+
+        label_actions = customtkinter.CTkLabel(
+            frame_action_buttons, text="Actions:", text_color="black",
+            font=("Arial", 14))
+        label_actions.pack(side="left", padx=5, pady=0)
+
+        details_icon = customtkinter.CTkImage(
+            Image.open('./details.ico'))
+        edit_icon = customtkinter.CTkImage(
+            Image.open('./edit.ico'))
+        delete_icon = customtkinter.CTkImage(
+            Image.open('./delete.ico'))
+
+        btn_details = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=details_icon,
+            width=30, height=30,
+            fg_color="#ffffff",
+            hover_color="light blue",
+            border_width=1,
+            border_color="#5b8dcb",
+            corner_radius=5,
+            command=self.open_view_details_currency_transaction_window)
+        btn_details.pack(side="left", padx=2, pady=0)
+
+        self.view_details_currency_transaction_window = None
+
+        btn_edit = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=edit_icon,
+            width=30, height=30)
+        btn_edit.pack(side="left", padx=2, pady=0)
+
+        btn_delete = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=delete_icon,
+            width=30, height=30,
+            fg_color="red",
+            hover_color="dark red",
+            corner_radius=5)
+        btn_delete.pack(side="left", padx=2, pady=0)
+
+        frame_label_actions.columnconfigure(0, weight=0)
+        frame_label_actions.columnconfigure(1, weight=1)
 
         treeview_style = ttk.Style()
         treeview_style.configure(
@@ -1005,6 +1152,19 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             treeview_currency_transaction, currency_transactions)
         treeview_currency_transaction.pack(padx=20, pady=(10, 20), fill="x")
 
+        treeview_gold_transaction.bind(
+            '<<TreeviewSelect>>', lambda event:
+            self.on_gold_treeview_select(
+                event,
+                tab_type=TabGroupBySortByType.GROUPBYCATEGORY,
+                transactions=transactions))
+        treeview_currency_transaction.bind(
+            '<<TreeviewSelect>>', lambda event:
+            self.on_currency_treeview_select(
+                event,
+                tab_type=TabGroupBySortByType.GROUPBYCATEGORY,
+                transactions=transactions))
+
     def create_header_transaction_treeview(self, frame, total_amount, label):
         frame_header = customtkinter.CTkFrame(
             frame, fg_color="transparent")
@@ -1063,6 +1223,61 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         self.create_header_transaction_treeview(
             frame, formatted_total_amount_gold, "GOLD TRANSACTIONS")
 
+        frame_label_actions = customtkinter.CTkFrame(
+            frame, fg_color="transparent")
+        frame_label_actions.pack(padx=10, pady=(5, 0), fill="x")
+
+        frame_action_buttons = customtkinter.CTkFrame(
+            frame_label_actions, fg_color="transparent")
+        frame_action_buttons.grid(row=0, column=1, padx=7, pady=0, sticky="e")
+
+        label_actions = customtkinter.CTkLabel(
+            frame_action_buttons, text="Actions:", text_color="black",
+            font=("Arial", 14))
+        label_actions.pack(side="left", padx=5, pady=0)
+
+        details_icon = customtkinter.CTkImage(
+            Image.open('./details.ico'))
+        edit_icon = customtkinter.CTkImage(
+            Image.open('./edit.ico'))
+        delete_icon = customtkinter.CTkImage(
+            Image.open('./delete.ico'))
+
+        btn_details = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=details_icon,
+            width=30, height=30,
+            fg_color="#ffffff",
+            hover_color="light blue",
+            border_width=1,
+            border_color="#5b8dcb",
+            corner_radius=5,
+            command=self.open_view_details_gold_transaction_window)
+        btn_details.pack(side="left", padx=2, pady=0)
+
+        self.view_details_gold_transaction_window = None
+
+        btn_edit = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=edit_icon,
+            width=30, height=30)
+        btn_edit.pack(side="left", padx=2, pady=0)
+
+        btn_delete = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=delete_icon,
+            width=30, height=30,
+            fg_color="red",
+            hover_color="dark red",
+            corner_radius=5)
+        btn_delete.pack(side="left", padx=2, pady=0)
+
+        frame_label_actions.columnconfigure(0, weight=0)
+        frame_label_actions.columnconfigure(1, weight=1)
+
         treeview_style = ttk.Style()
         treeview_style.configure(
             "Treeview.Heading", font=("Arial", 10, "bold"))
@@ -1097,6 +1312,61 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             total_amount_currency)
         self.create_header_transaction_treeview(
             frame, formatted_total_amount_currency, "CURRENCY TRANSACTIONS")
+
+        frame_label_actions = customtkinter.CTkFrame(
+            frame, fg_color="transparent")
+        frame_label_actions.pack(padx=10, pady=(5, 0), fill="x")
+
+        frame_action_buttons = customtkinter.CTkFrame(
+            frame_label_actions, fg_color="transparent")
+        frame_action_buttons.grid(row=0, column=1, padx=7, pady=0, sticky="e")
+
+        label_actions = customtkinter.CTkLabel(
+            frame_action_buttons, text="Actions:", text_color="black",
+            font=("Arial", 14))
+        label_actions.pack(side="left", padx=5, pady=0)
+
+        details_icon = customtkinter.CTkImage(
+            Image.open('./details.ico'))
+        edit_icon = customtkinter.CTkImage(
+            Image.open('./edit.ico'))
+        delete_icon = customtkinter.CTkImage(
+            Image.open('./delete.ico'))
+
+        btn_details = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=details_icon,
+            width=30, height=30,
+            fg_color="#ffffff",
+            hover_color="light blue",
+            border_width=1,
+            border_color="#5b8dcb",
+            corner_radius=5,
+            command=self.open_view_details_currency_transaction_window)
+        btn_details.pack(side="left", padx=2, pady=0)
+
+        self.view_details_currency_transaction_window = None
+
+        btn_edit = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=edit_icon,
+            width=30, height=30)
+        btn_edit.pack(side="left", padx=2, pady=0)
+
+        btn_delete = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=delete_icon,
+            width=30, height=30,
+            fg_color="red",
+            hover_color="dark red",
+            corner_radius=5)
+        btn_delete.pack(side="left", padx=2, pady=0)
+
+        frame_label_actions.columnconfigure(0, weight=0)
+        frame_label_actions.columnconfigure(1, weight=1)
 
         treeview_style = ttk.Style()
         treeview_style.configure(
@@ -1235,12 +1505,24 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
                         frame_items, transactions)
                 self.populate_tv_with_gold_sort_by_total_amount(
                     treeview_transaction, transactions)
+                treeview_transaction.bind(
+                    '<<TreeviewSelect>>', lambda event:
+                    self.on_gold_treeview_select(
+                        event,
+                        tab_type=TabGroupBySortByType.SORTBYTOTALAMOUNT,
+                        transactions=transactions))
             elif isinstance(transactions[0], CurrencyTransaction):
                 treeview_transaction \
                     = self.create_currency_tv_sort_by_total_amount(
                         frame_items, transactions)
                 self.populate_tv_with_currency_sort_by_total_amount(
                     treeview_transaction, transactions)
+                treeview_transaction.bind(
+                    '<<TreeviewSelect>>', lambda event:
+                    self.on_currency_treeview_select(
+                        event,
+                        tab_type=TabGroupBySortByType.SORTBYTOTALAMOUNT,
+                        transactions=transactions))
 
             treeview_transaction.pack(
                 padx=20, pady=(10, 20), fill="x")
@@ -1312,6 +1594,61 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         self.create_header_transaction_treeview_sort_by(
             frame, formatted_total_amount_gold, "GOLD TRANSACTIONS")
 
+        frame_label_actions = customtkinter.CTkFrame(
+            frame, fg_color="transparent")
+        frame_label_actions.pack(padx=10, pady=(5, 0), fill="x")
+
+        frame_action_buttons = customtkinter.CTkFrame(
+            frame_label_actions, fg_color="transparent")
+        frame_action_buttons.grid(row=0, column=1, padx=7, pady=0, sticky="e")
+
+        label_actions = customtkinter.CTkLabel(
+            frame_action_buttons, text="Actions:", text_color="black",
+            font=("Arial", 14))
+        label_actions.pack(side="left", padx=5, pady=0)
+
+        details_icon = customtkinter.CTkImage(
+            Image.open('./details.ico'))
+        edit_icon = customtkinter.CTkImage(
+            Image.open('./edit.ico'))
+        delete_icon = customtkinter.CTkImage(
+            Image.open('./delete.ico'))
+
+        btn_details = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=details_icon,
+            width=30, height=30,
+            fg_color="#ffffff",
+            hover_color="light blue",
+            border_width=1,
+            border_color="#5b8dcb",
+            corner_radius=5,
+            command=self.open_view_details_gold_transaction_window)
+        btn_details.pack(side="left", padx=2, pady=0)
+
+        self.view_details_gold_transaction_window = None
+
+        btn_edit = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=edit_icon,
+            width=30, height=30)
+        btn_edit.pack(side="left", padx=2, pady=0)
+
+        btn_delete = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=delete_icon,
+            width=30, height=30,
+            fg_color="red",
+            hover_color="dark red",
+            corner_radius=5)
+        btn_delete.pack(side="left", padx=2, pady=0)
+
+        frame_label_actions.columnconfigure(0, weight=0)
+        frame_label_actions.columnconfigure(1, weight=1)
+
         treeview_style = ttk.Style()
         treeview_style.configure(
             "Treeview.Heading", font=("Arial", 10, "bold"))
@@ -1348,6 +1685,61 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             total_amount_currency)
         self.create_header_transaction_treeview_sort_by(
             frame, formatted_total_amount_currency, "CURRENCY TRANSACTIONS")
+
+        frame_label_actions = customtkinter.CTkFrame(
+            frame, fg_color="transparent")
+        frame_label_actions.pack(padx=10, pady=(5, 0), fill="x")
+
+        frame_action_buttons = customtkinter.CTkFrame(
+            frame_label_actions, fg_color="transparent")
+        frame_action_buttons.grid(row=0, column=1, padx=7, pady=0, sticky="e")
+
+        label_actions = customtkinter.CTkLabel(
+            frame_action_buttons, text="Actions:", text_color="black",
+            font=("Arial", 14))
+        label_actions.pack(side="left", padx=5, pady=0)
+
+        details_icon = customtkinter.CTkImage(
+            Image.open('./details.ico'))
+        edit_icon = customtkinter.CTkImage(
+            Image.open('./edit.ico'))
+        delete_icon = customtkinter.CTkImage(
+            Image.open('./delete.ico'))
+
+        btn_details = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=details_icon,
+            width=30, height=30,
+            fg_color="#ffffff",
+            hover_color="light blue",
+            border_width=1,
+            border_color="#5b8dcb",
+            corner_radius=5,
+            command=self.open_view_details_currency_transaction_window)
+        btn_details.pack(side="left", padx=2, pady=0)
+
+        self.view_details_currency_transaction_window = None
+
+        btn_edit = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=edit_icon,
+            width=30, height=30)
+        btn_edit.pack(side="left", padx=2, pady=0)
+
+        btn_delete = customtkinter.CTkButton(
+            frame_action_buttons,
+            text=None,
+            image=delete_icon,
+            width=30, height=30,
+            fg_color="red",
+            hover_color="dark red",
+            corner_radius=5)
+        btn_delete.pack(side="left", padx=2, pady=0)
+
+        frame_label_actions.columnconfigure(0, weight=0)
+        frame_label_actions.columnconfigure(1, weight=1)
 
         treeview_style = ttk.Style()
         treeview_style.configure(
@@ -1419,6 +1811,205 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
                 ))
 
     # General auxiliary functions
+    def on_gold_treeview_select(self, event, tab_type, transactions):
+        if tab_type == TabGroupBySortByType.GROUPBYDATE or \
+                tab_type == TabGroupBySortByType.SORTBYDATE:
+            treeview = event.widget
+            selected_items = treeview.selection()
+            if selected_items:
+                selected_item = selected_items[0]
+                values = treeview.item(selected_item, "values")
+
+                self.selected_gold_status = True
+                self.selected_gold_transaction_code = values[0]
+                self.selected_gold_unit_price = values[1]
+                self.selected_gold_quantity = values[2]
+                self.selected_gold_type = values[3]
+                self.selected_gold_total_amount = values[4]
+
+                self.selected_gold_transaction_date = None
+
+                for transaction in transactions:
+                    if isinstance(transaction, GoldTransaction):
+                        if str(transaction._id) == \
+                                str(self.selected_gold_transaction_code):
+                            day = transaction._day
+                            month = transaction._month
+                            year = transaction._year
+
+                            month_name = str(MonthLabel(month))
+
+                            formatted_date = f"{day} {month_name} {year}"
+
+                            self.selected_gold_transaction_date \
+                                = formatted_date
+                            break
+
+            else:
+                self.selected_gold_status = False
+
+        if tab_type == TabGroupBySortByType.GROUPBYCATEGORY:
+            treeview = event.widget
+            selected_items = treeview.selection()
+            if selected_items:
+                selected_item = selected_items[0]
+                values = treeview.item(selected_item, "values")
+
+                self.selected_gold_status = True
+                self.selected_gold_transaction_code = values[0]
+                self.selected_gold_transaction_date = values[1]
+                self.selected_gold_unit_price = values[2]
+                self.selected_gold_quantity = values[3]
+                self.selected_gold_type = values[4]
+                self.selected_gold_total_amount = values[5]
+            else:
+                self.selected_gold_status = False
+
+        if tab_type == TabGroupBySortByType.SORTBYTOTALAMOUNT:
+            treeview = event.widget
+            selected_items = treeview.selection()
+            if selected_items:
+                selected_item = selected_items[0]
+                values = treeview.item(selected_item, "values")
+
+                self.selected_gold_status = True
+                self.selected_gold_transaction_code = values[0]
+                self.selected_gold_transaction_date = values[1]
+                self.selected_gold_unit_price = values[2]
+                self.selected_gold_quantity = values[3]
+                self.selected_gold_type = values[4]
+
+                self.selected_gold_total_amount = None
+
+                for transaction in transactions:
+                    if isinstance(transaction, GoldTransaction):
+                        if str(transaction._id) == \
+                                str(self.selected_gold_transaction_code):
+                            formatted_total_amount = self.format_price_number(
+                                transaction._total_amount)
+                            self.selected_gold_total_amount = \
+                                formatted_total_amount
+                            break
+            else:
+                self.selected_gold_status = False
+
+    def on_currency_treeview_select(self, event, tab_type, transactions):
+        if tab_type == TabGroupBySortByType.GROUPBYDATE or \
+                tab_type == TabGroupBySortByType.SORTBYDATE:
+            treeview = event.widget
+            selected_items = treeview.selection()
+            if selected_items:
+                selected_item = selected_items[0]
+                values = treeview.item(selected_item, "values")
+
+                self.selected_currency_status = True
+                self.selected_currency_transaction_code = values[0]
+                self.selected_currency_quantity = values[1]
+                self.selected_currency_type = values[2]
+                self.selected_currency_exchange_rate = values[3]
+                self.selected_currency_total_amount = values[4]
+
+                self.selected_currency_transaction_date = None
+
+                for transaction in transactions:
+                    if isinstance(transaction, CurrencyTransaction):
+                        if str(transaction._id) == \
+                                str(self.selected_currency_transaction_code):
+                            day = transaction._day
+                            month = transaction._month
+                            year = transaction._year
+
+                            month_name = str(MonthLabel(month))
+
+                            formatted_date = f"{day} {month_name} {year}"
+
+                            self.selected_currency_transaction_date \
+                                = formatted_date
+                            break
+
+            else:
+                self.selected_currency_status = False
+
+        if tab_type == TabGroupBySortByType.GROUPBYCATEGORY:
+            treeview = event.widget
+            selected_items = treeview.selection()
+            if selected_items:
+                selected_item = selected_items[0]
+                values = treeview.item(selected_item, "values")
+
+                self.selected_currency_status = True
+                self.selected_currency_transaction_code = values[0]
+                self.selected_currency_transaction_date = values[1]
+                self.selected_currency_quantity = values[2]
+                self.selected_currency_type = values[3]
+                self.selected_currency_exchange_rate = values[4]
+                self.selected_currency_total_amount = values[5]
+            else:
+                self.selected_currency_status = False
+
+        if tab_type == TabGroupBySortByType.SORTBYTOTALAMOUNT:
+            treeview = event.widget
+            selected_items = treeview.selection()
+            if selected_items:
+                selected_item = selected_items[0]
+                values = treeview.item(selected_item, "values")
+
+                self.selected_currency_status = True
+                self.selected_currency_transaction_code = values[0]
+                self.selected_currency_transaction_date = values[1]
+                self.selected_currency_quantity = values[2]
+                self.selected_currency_type = values[3]
+                self.selected_currency_exchange_rate = values[4]
+
+                self.selected_currency_total_amount = None
+
+                for transaction in transactions:
+                    if isinstance(transaction, CurrencyTransaction):
+                        if str(transaction._id) == \
+                                str(self.selected_currency_transaction_code):
+                            formatted_total_amount = self.format_price_number(
+                                transaction._total_amount)
+                            self.selected_currency_total_amount = \
+                                formatted_total_amount
+                            break
+
+            else:
+                self.selected_currency_status = False
+
+    def open_view_details_gold_transaction_window(self):
+        if self.selected_gold_status:
+            if self.view_details_gold_transaction_window is None \
+                or not self.view_details_gold_transaction_window \
+                    .winfo_exists():
+                self.view_details_gold_transaction_window \
+                    = ViewDetailsGoldTransactionWindow(
+                        self)
+                self.view_details_gold_transaction_window.after(
+                    10, self.view_details_gold_transaction_window.lift)
+            else:
+                self.view_details_gold_transaction_window.focus()
+        else:
+            messagebox.showinfo(
+                "Notification",
+                "Please select a gold transaction to view details.")
+
+    def open_view_details_currency_transaction_window(self):
+        if self.selected_currency_status:
+            if self.view_details_currency_transaction_window is None \
+                or not self.view_details_currency_transaction_window \
+                    .winfo_exists():
+                self.view_details_currency_transaction_window \
+                    = ViewDetailsCurrencyTransactionWindow(
+                        self)
+                self.view_details_currency_transaction_window.after(
+                    10, self.view_details_currency_transaction_window.lift)
+            else:
+                self.view_details_currency_transaction_window.focus()
+        else:
+            messagebox.showinfo(
+                "Notification",
+                "Please select a currency transaction to view details.")
+
     def format_price_number(self, total_amount):
         if '.' in str(total_amount):
             integer_part, decimal_part = str(total_amount).split(".")
@@ -1434,6 +2025,307 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
     def hide_frame(self, frame):
         frame.pack_forget()
+
+
+class ViewDetailsGoldTransactionWindow(customtkinter.CTkToplevel):
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.title("View Details Transaction")
+        self.iconbitmap(default='./logo.ico')
+        self.minsize(400, 500)
+        self.configure(fg_color="#d9d9d9")
+        self.parent = parent
+
+        self.create_widget()
+
+        if platform.startswith("win"):
+            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+
+    def create_widget(self):
+        details_frame = customtkinter.CTkFrame(
+            master=self, fg_color="#ffffff", border_width=2,
+            border_color="#5B5B5B")
+        details_frame.pack(padx=20, pady=20, fill="both")
+
+        gold_transaction_label = customtkinter.CTkLabel(
+            details_frame, text="GOLD TRANSACTION",
+            font=("Arial", 20, "bold")
+        )
+        gold_transaction_label.pack(padx=20, pady=(20, 0), anchor="w")
+
+        gold_transaction_code = customtkinter.CTkLabel(
+            details_frame, text=f"Code: {
+                self.parent.selected_gold_transaction_code}"
+        )
+        gold_transaction_code.pack(padx=20, pady=(0, 5), anchor="w")
+
+        separator_style = ttk.Style()
+        separator_style.configure(
+            "Separator.TSeparator", background="#989DA1", borderwidth=1)
+
+        separator = ttk.Separator(
+            details_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(padx=20, pady=(0, 10), fill="x")
+
+        gold_unit_price_frame = customtkinter.CTkFrame(
+            details_frame, fg_color="transparent")
+        gold_unit_price_frame.pack(padx=20, pady=5, fill="x")
+
+        gold_unit_price_label = customtkinter.CTkLabel(
+            gold_unit_price_frame, text="Unit Price (VND/tael):"
+        )
+        gold_unit_price_label.grid(row=0, column=0, padx=0, pady=0,
+                                   sticky="w")
+
+        gold_unit_price_value = customtkinter.CTkLabel(
+            gold_unit_price_frame, font=("Arial", 14, "bold"), text=f"{
+                self.parent.selected_gold_unit_price}"
+        )
+        gold_unit_price_value.grid(row=0, column=1, padx=0, pady=0,
+                                   sticky="e")
+
+        gold_unit_price_frame.columnconfigure(0, weight=0)
+        gold_unit_price_frame.columnconfigure(1, weight=1)
+
+        gold_quantity_frame = customtkinter.CTkFrame(
+            details_frame, fg_color="transparent")
+        gold_quantity_frame.pack(padx=20, pady=5, fill="x")
+
+        gold_quantity_label = customtkinter.CTkLabel(
+            gold_quantity_frame, text="Quantity (tael):"
+        )
+        gold_quantity_label.grid(row=0, column=0, padx=0, pady=0,
+                                 sticky="w")
+
+        gold_quantity_value = customtkinter.CTkLabel(
+            gold_quantity_frame, font=("Arial", 14, "bold"), text=f"{
+                self.parent.selected_gold_quantity}",
+        )
+        gold_quantity_value.grid(row=0, column=1, padx=0, pady=0,
+                                 sticky="e")
+
+        gold_quantity_frame.columnconfigure(0, weight=0)
+        gold_quantity_frame.columnconfigure(1, weight=1)
+
+        gold_type_frame = customtkinter.CTkFrame(
+            details_frame, fg_color="transparent")
+        gold_type_frame.pack(padx=20, pady=5, fill="x")
+
+        gold_type_label = customtkinter.CTkLabel(
+            gold_type_frame, text="Gold Type:"
+        )
+        gold_type_label.grid(row=0, column=0, padx=0, pady=0,
+                             sticky="w")
+
+        gold_type_value = customtkinter.CTkLabel(
+            gold_type_frame, font=("Arial", 14, "bold"), text=f"{
+                self.parent.selected_gold_type}",
+        )
+        gold_type_value.grid(row=0, column=1, padx=0, pady=0,
+                             sticky="e")
+
+        gold_type_frame.columnconfigure(0, weight=0)
+        gold_type_frame.columnconfigure(1, weight=1)
+
+        gold_total_amount_frame = customtkinter.CTkFrame(
+            details_frame, fg_color="transparent")
+        gold_total_amount_frame.pack(padx=20, pady=5, fill="x")
+
+        gold_total_amount_label = customtkinter.CTkLabel(
+            gold_total_amount_frame, text="Total Amount (VND):"
+        )
+        gold_total_amount_label.grid(row=0, column=0, padx=0, pady=0,
+                                     sticky="w")
+
+        gold_total_amount_value = customtkinter.CTkLabel(
+            gold_total_amount_frame, font=("Arial", 14, "bold"), text=f"{
+                self.parent.selected_gold_total_amount}",
+        )
+        gold_total_amount_value.grid(row=0, column=1, padx=0, pady=0,
+                                     sticky="e")
+
+        gold_total_amount_frame.columnconfigure(0, weight=0)
+        gold_total_amount_frame.columnconfigure(1, weight=1)
+
+        gold_transaction_date_frame = customtkinter.CTkFrame(
+            details_frame, fg_color="transparent")
+        gold_transaction_date_frame.pack(padx=20, pady=5, fill="x")
+
+        gold_transaction_date_label = customtkinter.CTkLabel(
+            gold_transaction_date_frame, text="Transaction Date:"
+        )
+        gold_transaction_date_label.grid(row=0, column=0, padx=0, pady=0,
+                                         sticky="w")
+
+        gold_transaction_date_value = customtkinter.CTkLabel(
+            gold_transaction_date_frame, font=("Arial", 14, "bold"), text=f"{
+                self.parent.selected_gold_transaction_date}",
+        )
+        gold_transaction_date_value.grid(row=0, column=1, padx=0, pady=0,
+                                         sticky="e")
+
+        gold_transaction_date_frame.columnconfigure(0, weight=0)
+        gold_transaction_date_frame.columnconfigure(1, weight=1)
+
+        btn_close = customtkinter.CTkButton(
+            details_frame,
+            text="CLOSE",
+            fg_color="#d93547",
+            hover_color="dark red",
+            command=self.destroy
+        )
+        btn_close.pack(padx=20, pady=(100, 20), anchor="e")
+
+
+class ViewDetailsCurrencyTransactionWindow(customtkinter.CTkToplevel):
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.title("View Details Transaction")
+        self.iconbitmap(default='./logo.ico')
+        self.minsize(400, 500)
+        self.configure(fg_color="#d9d9d9")
+        self.parent = parent
+
+        self.create_widget()
+
+        if platform.startswith("win"):
+            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+
+    def create_widget(self):
+        details_frame = customtkinter.CTkFrame(
+            master=self, fg_color="#ffffff", border_width=2,
+            border_color="#5B5B5B")
+        details_frame.pack(padx=20, pady=20, fill="both")
+
+        currency_transaction_label = customtkinter.CTkLabel(
+            details_frame, text="CURRENCY TRANSACTION",
+            font=("Arial", 20, "bold")
+        )
+        currency_transaction_label.pack(padx=20, pady=(20, 0), anchor="w")
+
+        currency_transaction_code = customtkinter.CTkLabel(
+            details_frame, text=f"Code: {
+                self.parent.selected_currency_transaction_code}"
+        )
+        currency_transaction_code.pack(padx=20, pady=(0, 5), anchor="w")
+
+        separator_style = ttk.Style()
+        separator_style.configure(
+            "Separator.TSeparator", background="#989DA1", borderwidth=1)
+
+        separator = ttk.Separator(
+            details_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(padx=20, pady=(0, 10), fill="x")
+
+        currency_quantity_frame = customtkinter.CTkFrame(
+            details_frame, fg_color="transparent")
+        currency_quantity_frame.pack(padx=20, pady=5, fill="x")
+
+        currency_quantity_label = customtkinter.CTkLabel(
+            currency_quantity_frame, text="Quantity:"
+        )
+        currency_quantity_label.grid(row=0, column=0, padx=0, pady=0,
+                                     sticky="w")
+
+        currency_quantity_value = customtkinter.CTkLabel(
+            currency_quantity_frame, font=("Arial", 14, "bold"), text=f"{
+                self.parent.selected_currency_quantity}"
+        )
+        currency_quantity_value.grid(row=0, column=1, padx=0, pady=0,
+                                     sticky="e")
+
+        currency_quantity_frame.columnconfigure(0, weight=0)
+        currency_quantity_frame.columnconfigure(1, weight=1)
+
+        currency_type_frame = customtkinter.CTkFrame(
+            details_frame, fg_color="transparent")
+        currency_type_frame.pack(padx=20, pady=5, fill="x")
+
+        currency_type_label = customtkinter.CTkLabel(
+            currency_type_frame, text="Currency Type:"
+        )
+        currency_type_label.grid(row=0, column=0, padx=0, pady=0,
+                                 sticky="w")
+
+        currency_type_value = customtkinter.CTkLabel(
+            currency_type_frame, font=("Arial", 14, "bold"), text=f"{
+                self.parent.selected_currency_type}"
+        )
+        currency_type_value.grid(row=0, column=1, padx=0, pady=0,
+                                 sticky="e")
+
+        currency_type_frame.columnconfigure(0, weight=0)
+        currency_type_frame.columnconfigure(1, weight=1)
+
+        currency_exchange_rate_frame = customtkinter.CTkFrame(
+            details_frame, fg_color="transparent")
+        currency_exchange_rate_frame.pack(padx=20, pady=5, fill="x")
+
+        currency_exchange_rate_label = customtkinter.CTkLabel(
+            currency_exchange_rate_frame, text="Exchange Rate (VND):"
+        )
+        currency_exchange_rate_label.grid(row=0, column=0, padx=0, pady=0,
+                                          sticky="w")
+
+        currency_exchange_rate_value = customtkinter.CTkLabel(
+            currency_exchange_rate_frame, font=("Arial", 14, "bold"), text=f"{
+                self.parent.selected_currency_exchange_rate}"
+        )
+        currency_exchange_rate_value.grid(row=0, column=1, padx=0, pady=0,
+                                          sticky="e")
+
+        currency_exchange_rate_frame.columnconfigure(0, weight=0)
+        currency_exchange_rate_frame.columnconfigure(1, weight=1)
+
+        currency_total_amount_frame = customtkinter.CTkFrame(
+            details_frame, fg_color="transparent")
+        currency_total_amount_frame.pack(padx=20, pady=5, fill="x")
+
+        currency_total_amount_label = customtkinter.CTkLabel(
+            currency_total_amount_frame, text="Total Amount (VND):"
+        )
+        currency_total_amount_label.grid(row=0, column=0, padx=0, pady=0,
+                                         sticky="w")
+
+        currency_total_amount_value = customtkinter.CTkLabel(
+            currency_total_amount_frame, font=("Arial", 14, "bold"), text=f"{
+                self.parent.selected_currency_total_amount}"
+        )
+        currency_total_amount_value.grid(row=0, column=1, padx=0, pady=0,
+                                         sticky="e")
+
+        currency_total_amount_frame.columnconfigure(0, weight=0)
+        currency_total_amount_frame.columnconfigure(1, weight=1)
+
+        currency_transaction_date_frame = customtkinter.CTkFrame(
+            details_frame, fg_color="transparent")
+        currency_transaction_date_frame.pack(padx=20, pady=5, fill="x")
+
+        currency_transaction_date_label = customtkinter.CTkLabel(
+            currency_transaction_date_frame, text="Transaction Date:"
+        )
+        currency_transaction_date_label.grid(row=0, column=0, padx=0, pady=0,
+                                             sticky="w")
+
+        currency_transaction_date_value = customtkinter.CTkLabel(
+            currency_transaction_date_frame, font=("Arial", 14, "bold"),
+            text=f"{
+                self.parent.selected_currency_transaction_date}"
+        )
+        currency_transaction_date_value.grid(row=0, column=1, padx=0, pady=0,
+                                             sticky="e")
+
+        currency_transaction_date_frame.columnconfigure(0, weight=0)
+        currency_transaction_date_frame.columnconfigure(1, weight=1)
+
+        btn_close = customtkinter.CTkButton(
+            details_frame,
+            text="CLOSE",
+            fg_color="#d93547",
+            hover_color="dark red",
+            command=self.destroy
+        )
+        btn_close.pack(padx=20, pady=(100, 20), anchor="e")
 
 
 class FilterWindow(customtkinter.CTkToplevel):
