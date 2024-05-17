@@ -9,6 +9,8 @@ import datetime
 from datetime import timedelta
 from sys import platform
 import os
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
 class CurrencyType(Enum):
@@ -155,6 +157,8 @@ class TransactionApp(customtkinter.CTk):
         self.load_data_from_json()
         self.create_widget()
 
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
+
     def create_widget(self):
         self.header_frame = HeaderFrame(master=self)
         self.header_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
@@ -164,6 +168,13 @@ class TransactionApp(customtkinter.CTk):
                              pady=(0, 10), sticky="ew")
 
         self.grid_columnconfigure(0, weight=1)
+
+    def on_closing(self):
+        try:
+            self.quit()
+            self.destroy()
+        except Exception as e:
+            print(f"Error during closing: {e}")
 
     def load_data_from_json(self):
         try:
@@ -5087,24 +5098,92 @@ class TabReport(customtkinter.CTkTabview):
     def create_total_chart_frame(self, parent, transactions):
         total_chart_frame = customtkinter.CTkFrame(
             master=parent, fg_color="#ffffff",
-            border_width=1, border_color="#989DA1",
+            border_width=2, border_color="#989DA1",
             corner_radius=5)
 
+        frame_title_and_button = customtkinter.CTkFrame(
+            master=total_chart_frame, fg_color="transparent")
+        frame_title_and_button.pack(padx=10, pady=(20, 0), fill="x")
+
+        frame_title_and_button.columnconfigure(0, weight=0)
+        frame_title_and_button.columnconfigure(1, weight=1)
+
         total_chart_title = customtkinter.CTkLabel(
-            master=total_chart_frame,
-            text="Total (VND)",
+            master=frame_title_and_button,
+            text="Total",
             font=("Arial", 20, "bold"),
             text_color="black",
+        )
+        total_chart_title.grid(
+            row=0, column=0, sticky="w", padx=12, pady=0)
+
+        btn_details_report = customtkinter.CTkButton(
+            frame_title_and_button,
+            text="See Details",
+            fg_color="transparent",
+            hover_color="#dae6f2",
+            text_color="#5C8ECB",
+            font=("Arial", 14, "bold"),
+            width=30,
+        )
+        btn_details_report.grid(row=0, column=1, sticky="e", padx=12, pady=0)
+
+        total_amount_transaction = 0
+        gold_total_amount_transaction = 0
+        currency_total_amount_transaction = 0
+        total_amount_quantity_transaction = 0
+        gold_total_amount_quantity_transaction = 0
+        currency_total_amount_quantity_transaction = 0
+        for transaction in transactions:
+            total_amount_transaction += transaction._total_amount
+            total_amount_quantity_transaction += 1
+            if isinstance(transaction, GoldTransaction):
+                gold_total_amount_transaction += transaction._total_amount
+                gold_total_amount_quantity_transaction += 1
+            if isinstance(transaction, CurrencyTransaction):
+                currency_total_amount_transaction += transaction._total_amount
+                currency_total_amount_quantity_transaction += 1
+
+        formatted_total_amount = self.format_price_number(
+            total_amount_transaction)
+
+        total_value = customtkinter.CTkLabel(
+            master=total_chart_frame,
+            text=f"{formatted_total_amount} VND ({
+                total_amount_quantity_transaction})",
             anchor="w"
         )
-        total_chart_title.pack(padx=10, pady=5)
+        total_value.pack(padx=25, pady=0, fill="x")
+
+        gold_percentage = (gold_total_amount_quantity_transaction
+                           / total_amount_quantity_transaction) * 100 \
+            if total_amount_quantity_transaction != 0 else 0
+        currency_percentage = (currency_total_amount_quantity_transaction /
+                               total_amount_quantity_transaction) * 100 \
+            if total_amount_quantity_transaction != 0 else 0
+
+        piechart_values = [gold_percentage, currency_percentage]
+        piechart_labels = ["Gold", "Currency"]
+        piechart_colors = ["#f5d45f", "#2ea64d"]
+
+        fig, ax = plt.subplots()
+        ax.pie(piechart_values, labels=piechart_labels, autopct='%1.1f%%',
+               colors=piechart_colors)
+        ax.legend(title="Category", loc='center left',
+                  bbox_to_anchor=(-0.85, 0.5))
+
+        fig.set_size_inches(2, 2)
+
+        canvas = FigureCanvasTkAgg(fig, master=total_chart_frame)
+        canvas.draw()
+        canvas.get_tk_widget().pack(padx=5, pady=(0, 20), fill="x")
 
         return total_chart_frame
 
     def create_recent_transaction_frame(self, parent, transactions):
         recent_transaction_frame = customtkinter.CTkFrame(
             master=parent, fg_color="#ffffff",
-            border_width=1, border_color="#989DA1",
+            border_width=2, border_color="#989DA1",
             corner_radius=5)
 
         recent_transaction_title = customtkinter.CTkLabel(
@@ -5121,7 +5200,7 @@ class TabReport(customtkinter.CTkTabview):
     def create_statistics_chart_frame(self, parent, transactions):
         statistics_chart_frame = customtkinter.CTkFrame(
             master=parent, fg_color="#ffffff",
-            border_width=1, border_color="#989DA1",
+            border_width=2, border_color="#989DA1",
             corner_radius=5)
 
         statistics_chart_title = customtkinter.CTkLabel(
@@ -5135,7 +5214,21 @@ class TabReport(customtkinter.CTkTabview):
 
         return statistics_chart_frame
 
+    def format_price_number(self, total_amount):
+        if '.' in str(total_amount):
+            integer_part, decimal_part = str(total_amount).split(".")
+        else:
+            integer_part, decimal_part = str(total_amount), '00'
+        formatted_integer_part = "{:,.0f}".format(float(integer_part))
+        formatted_total_amount = "{}.{}".format(
+            formatted_integer_part, decimal_part)
+        return formatted_total_amount
+
 
 if __name__ == "__main__":
     app = TransactionApp()
-    app.mainloop()
+    try:
+        app.mainloop()
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        app.on_closing()
