@@ -64,13 +64,19 @@ class AbstractTransaction(ABC):
 
 
 class Transaction(AbstractTransaction):
+    def __init__(self, id, day, month, year, *args, isdeleted=False):
+        super().__init__(id, day, month, year, *args)
+        self._isdeleted = isdeleted
+
     def calculate_total_amount(self):
         return self._unit_price * self._quantity
 
 
 class GoldTransaction(Transaction):
-    def __init__(self, id, day, month, year, unit_price, quantity, gold_type):
-        super().__init__(id, day, month, year, unit_price, quantity)
+    def __init__(self, id, day, month, year, unit_price, quantity, gold_type,
+                 isdeleted=False):
+        super().__init__(id, day, month, year, unit_price, quantity,
+                         isdeleted=isdeleted)
         self._gold_type = gold_type
 
     def calculate_total_amount(self):
@@ -90,10 +96,10 @@ class ExchangeRate:
 
 class CurrencyTransaction(Transaction):
     def __init__(self, id, day, month, year, quantity,
-                 currency_type, exchange_rate):
+                 currency_type, exchange_rate, isdeleted=False):
         self._currency_type = currency_type
         self._exchange_rate = exchange_rate
-        super().__init__(id, day, month, year, quantity)
+        super().__init__(id, day, month, year, quantity, isdeleted=isdeleted)
 
     def calculate_total_amount(self):
         if self._currency_type == CurrencyType.VND:
@@ -167,6 +173,9 @@ class TransactionApp(customtkinter.CTk):
                 exchange_rates_data = data.get("exchange_rates", [])
 
                 for transaction_data in transactions_data:
+                    if transaction_data["isdeleted"]:
+                        continue
+
                     if transaction_data["type"] == "gold":
                         transaction = GoldTransaction(
                             transaction_data["id"],
@@ -175,7 +184,8 @@ class TransactionApp(customtkinter.CTk):
                             transaction_data["year"],
                             transaction_data["unit_price"],
                             transaction_data["quantity"],
-                            GoldType(transaction_data["gold_type"])
+                            GoldType(transaction_data["gold_type"]),
+                            isdeleted=transaction_data["isdeleted"]
                         )
                     elif transaction_data["type"] == "currency":
                         exchange_rate_data = transaction_data["exchange_rate"]
@@ -194,7 +204,8 @@ class TransactionApp(customtkinter.CTk):
                             transaction_data["year"],
                             transaction_data["quantity"],
                             CurrencyType(transaction_data["currency_type"]),
-                            exchange_rate
+                            exchange_rate,
+                            isdeleted=transaction_data["isdeleted"]
                         )
                     else:
                         continue
@@ -950,8 +961,11 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             width=30, height=30,
             fg_color="red",
             hover_color="dark red",
-            corner_radius=5)
+            corner_radius=5,
+            command=self.open_delete_gold_transaction_window)
         btn_delete.pack(side="left", padx=2, pady=0)
+
+        self.delete_gold_transaction_window = None
 
         frame_label_actions.columnconfigure(0, weight=0)
         frame_label_actions.columnconfigure(1, weight=1)
@@ -1041,8 +1055,11 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             width=30, height=30,
             fg_color="red",
             hover_color="dark red",
-            corner_radius=5)
+            corner_radius=5,
+            command=self.open_delete_currency_transaction_window)
         btn_delete.pack(side="left", padx=2, pady=0)
+
+        self.delete_currency_transaction_window = None
 
         frame_label_actions.columnconfigure(0, weight=0)
         frame_label_actions.columnconfigure(1, weight=1)
@@ -1283,8 +1300,11 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             width=30, height=30,
             fg_color="red",
             hover_color="dark red",
-            corner_radius=5)
+            corner_radius=5,
+            command=self.open_delete_gold_transaction_window)
         btn_delete.pack(side="left", padx=2, pady=0)
+
+        self.delete_gold_transaction_window = None
 
         frame_label_actions.columnconfigure(0, weight=0)
         frame_label_actions.columnconfigure(1, weight=1)
@@ -1376,8 +1396,11 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             width=30, height=30,
             fg_color="red",
             hover_color="dark red",
-            corner_radius=5)
+            corner_radius=5,
+            command=self.open_delete_currency_transaction_window)
         btn_delete.pack(side="left", padx=2, pady=0)
+
+        self.delete_currency_transaction_window = None
 
         frame_label_actions.columnconfigure(0, weight=0)
         frame_label_actions.columnconfigure(1, weight=1)
@@ -1660,8 +1683,11 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             width=30, height=30,
             fg_color="red",
             hover_color="dark red",
-            corner_radius=5)
+            corner_radius=5,
+            command=self.open_delete_gold_transaction_window)
         btn_delete.pack(side="left", padx=2, pady=0)
+
+        self.delete_gold_transaction_window = None
 
         frame_label_actions.columnconfigure(0, weight=0)
         frame_label_actions.columnconfigure(1, weight=1)
@@ -1755,8 +1781,11 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             width=30, height=30,
             fg_color="red",
             hover_color="dark red",
-            corner_radius=5)
+            corner_radius=5,
+            command=self.open_delete_currency_transaction_window)
         btn_delete.pack(side="left", padx=2, pady=0)
+
+        self.delete_currency_transaction_window = None
 
         frame_label_actions.columnconfigure(0, weight=0)
         frame_label_actions.columnconfigure(1, weight=1)
@@ -2063,6 +2092,40 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
             messagebox.showinfo(
                 "Notification",
                 "Please select a currency transaction to edit.")
+
+    def open_delete_gold_transaction_window(self):
+        if self.selected_gold_status:
+            if self.delete_gold_transaction_window is None \
+                or not self.delete_gold_transaction_window \
+                    .winfo_exists():
+                self.delete_gold_transaction_window \
+                    = DeleteGoldTransactionWindow(
+                        self)
+                self.delete_gold_transaction_window.after(
+                    10, self.delete_gold_transaction_window.lift)
+            else:
+                self.delete_gold_transaction_window.focus()
+        else:
+            messagebox.showinfo(
+                "Notification",
+                "Please select a gold transaction to delete.")
+
+    def open_delete_currency_transaction_window(self):
+        if self.selected_currency_status:
+            if self.delete_currency_transaction_window is None \
+                or not self.delete_currency_transaction_window \
+                    .winfo_exists():
+                self.delete_currency_transaction_window \
+                    = DeleteCurrencyTransactionWindow(
+                        self)
+                self.delete_currency_transaction_window.after(
+                    10, self.delete_currency_transaction_window.lift)
+            else:
+                self.delete_currency_transaction_window.focus()
+        else:
+            messagebox.showinfo(
+                "Notification",
+                "Please select a currency transaction to delete.")
 
     def format_price_number(self, total_amount):
         if '.' in str(total_amount):
@@ -3003,6 +3066,386 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
         formatted_total_amount = "{}.{}".format(
             formatted_integer_part, decimal_part)
         return formatted_total_amount
+
+
+class DeleteGoldTransactionWindow(customtkinter.CTkToplevel):
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.title("View Details Transaction")
+        self.iconbitmap(default='./logo.ico')
+        self.minsize(400, 500)
+        self.maxsize(400, 500)
+        self.configure(fg_color="#d9d9d9")
+        self.parent = parent
+
+        self.create_widget()
+
+        if platform.startswith("win"):
+            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+
+    def create_widget(self):
+        delete_frame = customtkinter.CTkFrame(
+            master=self, fg_color="#ffffff", border_width=2,
+            border_color="#5B5B5B")
+        delete_frame.pack(padx=20, pady=20, fill="both")
+
+        gold_transaction_label = customtkinter.CTkLabel(
+            delete_frame, text="GOLD TRANSACTION",
+            font=("Arial", 20, "bold")
+        )
+        gold_transaction_label.pack(padx=20, pady=(20, 0), anchor="w")
+
+        gold_transaction_code = customtkinter.CTkLabel(
+            delete_frame, text=f"Code: {
+                self.parent.selected_gold_transaction_code}"
+        )
+        gold_transaction_code.pack(padx=20, pady=(0, 5), anchor="w")
+
+        separator_style = ttk.Style()
+        separator_style.configure(
+            "Separator.TSeparator", background="#989DA1", borderwidth=1)
+
+        separator = ttk.Separator(
+            delete_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(padx=20, pady=(0, 10), fill="x")
+
+        gold_unit_price_frame = customtkinter.CTkFrame(
+            delete_frame, fg_color="transparent")
+        gold_unit_price_frame.pack(padx=20, pady=5, fill="x")
+
+        gold_unit_price_label = customtkinter.CTkLabel(
+            gold_unit_price_frame, text="Unit Price (VND/tael):"
+        )
+        gold_unit_price_label.grid(row=0, column=0, padx=0, pady=0,
+                                   sticky="w")
+
+        gold_unit_price_value = customtkinter.CTkLabel(
+            gold_unit_price_frame, font=("Arial", 14, "bold"), text=f"{
+                self.parent.selected_gold_unit_price}"
+        )
+        gold_unit_price_value.grid(row=0, column=1, padx=0, pady=0,
+                                   sticky="e")
+
+        gold_unit_price_frame.columnconfigure(0, weight=0)
+        gold_unit_price_frame.columnconfigure(1, weight=1)
+
+        gold_quantity_frame = customtkinter.CTkFrame(
+            delete_frame, fg_color="transparent")
+        gold_quantity_frame.pack(padx=20, pady=5, fill="x")
+
+        gold_quantity_label = customtkinter.CTkLabel(
+            gold_quantity_frame, text="Quantity (tael):"
+        )
+        gold_quantity_label.grid(row=0, column=0, padx=0, pady=0,
+                                 sticky="w")
+
+        gold_quantity_value = customtkinter.CTkLabel(
+            gold_quantity_frame, font=("Arial", 14, "bold"), text=f"{
+                self.parent.selected_gold_quantity}",
+        )
+        gold_quantity_value.grid(row=0, column=1, padx=0, pady=0,
+                                 sticky="e")
+
+        gold_quantity_frame.columnconfigure(0, weight=0)
+        gold_quantity_frame.columnconfigure(1, weight=1)
+
+        gold_type_frame = customtkinter.CTkFrame(
+            delete_frame, fg_color="transparent")
+        gold_type_frame.pack(padx=20, pady=5, fill="x")
+
+        gold_type_label = customtkinter.CTkLabel(
+            gold_type_frame, text="Gold Type:"
+        )
+        gold_type_label.grid(row=0, column=0, padx=0, pady=0,
+                             sticky="w")
+
+        gold_type_value = customtkinter.CTkLabel(
+            gold_type_frame, font=("Arial", 14, "bold"), text=f"{
+                self.parent.selected_gold_type}",
+        )
+        gold_type_value.grid(row=0, column=1, padx=0, pady=0,
+                             sticky="e")
+
+        gold_type_frame.columnconfigure(0, weight=0)
+        gold_type_frame.columnconfigure(1, weight=1)
+
+        gold_total_amount_frame = customtkinter.CTkFrame(
+            delete_frame, fg_color="transparent")
+        gold_total_amount_frame.pack(padx=20, pady=5, fill="x")
+
+        gold_total_amount_label = customtkinter.CTkLabel(
+            gold_total_amount_frame, text="Total Amount (VND):"
+        )
+        gold_total_amount_label.grid(row=0, column=0, padx=0, pady=0,
+                                     sticky="w")
+
+        gold_total_amount_value = customtkinter.CTkLabel(
+            gold_total_amount_frame, font=("Arial", 14, "bold"), text=f"{
+                self.parent.selected_gold_total_amount}",
+        )
+        gold_total_amount_value.grid(row=0, column=1, padx=0, pady=0,
+                                     sticky="e")
+
+        gold_total_amount_frame.columnconfigure(0, weight=0)
+        gold_total_amount_frame.columnconfigure(1, weight=1)
+
+        gold_transaction_date_frame = customtkinter.CTkFrame(
+            delete_frame, fg_color="transparent")
+        gold_transaction_date_frame.pack(padx=20, pady=5, fill="x")
+
+        gold_transaction_date_label = customtkinter.CTkLabel(
+            gold_transaction_date_frame, text="Transaction Date:"
+        )
+        gold_transaction_date_label.grid(row=0, column=0, padx=0, pady=0,
+                                         sticky="w")
+
+        gold_transaction_date_value = customtkinter.CTkLabel(
+            gold_transaction_date_frame, font=("Arial", 14, "bold"), text=f"{
+                self.parent.selected_gold_transaction_date}",
+        )
+        gold_transaction_date_value.grid(row=0, column=1, padx=0, pady=0,
+                                         sticky="e")
+
+        gold_transaction_date_frame.columnconfigure(0, weight=0)
+        gold_transaction_date_frame.columnconfigure(1, weight=1)
+
+        buttons_frame = customtkinter.CTkFrame(
+            delete_frame, fg_color="transparent")
+        buttons_frame.pack(padx=20, pady=(100, 5), anchor="w", fill="x")
+
+        button_confirm = customtkinter.CTkButton(
+            buttons_frame,
+            text="CONFIRM",
+            width=150,
+            command=self.gold_confirm_button_callback)
+        button_confirm.grid(row=0, column=0, sticky="ew", padx=(0, 10), pady=5)
+
+        button_cancel = customtkinter.CTkButton(
+            buttons_frame,
+            text="CANCEL",
+            width=150,
+            fg_color="red",
+            hover_color="dark red",
+            command=self.destroy)
+        button_cancel.grid(row=0, column=1, sticky="ew", padx=(10, 0), pady=5)
+
+    def gold_confirm_button_callback(self):
+        data_file = "data.json"
+        if os.path.exists(data_file):
+            with open(data_file, "r") as file:
+                data = json.load(file)
+        else:
+            data = {"transactions": []}
+
+        transaction_found = False
+        for transaction in data["transactions"]:
+            if transaction["id"] == self.parent.selected_gold_transaction_code:
+                transaction["isdeleted"] = True
+                transaction_found = True
+                break
+
+        if not transaction_found:
+            messagebox.showerror("Error", "Transaction ID not found.")
+            return
+
+        with open(data_file, "w") as file:
+            json.dump(data, file, indent=4)
+
+        messagebox \
+            .showinfo("Success", "Gold transaction deleted successfully! \
+                            \nPlease Refresh Data!")
+        self.destroy()
+
+
+class DeleteCurrencyTransactionWindow(customtkinter.CTkToplevel):
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.title("View Details Transaction")
+        self.iconbitmap(default='./logo.ico')
+        self.minsize(400, 500)
+        self.maxsize(400, 500)
+        self.configure(fg_color="#d9d9d9")
+        self.parent = parent
+
+        self.create_widget()
+
+        if platform.startswith("win"):
+            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+
+    def create_widget(self):
+        delete_frame = customtkinter.CTkFrame(
+            master=self, fg_color="#ffffff", border_width=2,
+            border_color="#5B5B5B")
+        delete_frame.pack(padx=20, pady=20, fill="both")
+
+        currency_transaction_label = customtkinter.CTkLabel(
+            delete_frame, text="CURRENCY TRANSACTION",
+            font=("Arial", 20, "bold")
+        )
+        currency_transaction_label.pack(padx=20, pady=(20, 0), anchor="w")
+
+        currency_transaction_code = customtkinter.CTkLabel(
+            delete_frame, text=f"Code: {
+                self.parent.selected_currency_transaction_code}"
+        )
+        currency_transaction_code.pack(padx=20, pady=(0, 5), anchor="w")
+
+        separator_style = ttk.Style()
+        separator_style.configure(
+            "Separator.TSeparator", background="#989DA1", borderwidth=1)
+
+        separator = ttk.Separator(
+            delete_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(padx=20, pady=(0, 10), fill="x")
+
+        currency_quantity_frame = customtkinter.CTkFrame(
+            delete_frame, fg_color="transparent")
+        currency_quantity_frame.pack(padx=20, pady=5, fill="x")
+
+        currency_quantity_label = customtkinter.CTkLabel(
+            currency_quantity_frame, text="Quantity:"
+        )
+        currency_quantity_label.grid(row=0, column=0, padx=0, pady=0,
+                                     sticky="w")
+
+        currency_quantity_value = customtkinter.CTkLabel(
+            currency_quantity_frame, font=("Arial", 14, "bold"), text=f"{
+                self.parent.selected_currency_quantity}"
+        )
+        currency_quantity_value.grid(row=0, column=1, padx=0, pady=0,
+                                     sticky="e")
+
+        currency_quantity_frame.columnconfigure(0, weight=0)
+        currency_quantity_frame.columnconfigure(1, weight=1)
+
+        currency_type_frame = customtkinter.CTkFrame(
+            delete_frame, fg_color="transparent")
+        currency_type_frame.pack(padx=20, pady=5, fill="x")
+
+        currency_type_label = customtkinter.CTkLabel(
+            currency_type_frame, text="Currency Type:"
+        )
+        currency_type_label.grid(row=0, column=0, padx=0, pady=0,
+                                 sticky="w")
+
+        currency_type_value = customtkinter.CTkLabel(
+            currency_type_frame, font=("Arial", 14, "bold"), text=f"{
+                self.parent.selected_currency_type}"
+        )
+        currency_type_value.grid(row=0, column=1, padx=0, pady=0,
+                                 sticky="e")
+
+        currency_type_frame.columnconfigure(0, weight=0)
+        currency_type_frame.columnconfigure(1, weight=1)
+
+        currency_exchange_rate_frame = customtkinter.CTkFrame(
+            delete_frame, fg_color="transparent")
+        currency_exchange_rate_frame.pack(padx=20, pady=5, fill="x")
+
+        currency_exchange_rate_label = customtkinter.CTkLabel(
+            currency_exchange_rate_frame, text="Exchange Rate (VND):"
+        )
+        currency_exchange_rate_label.grid(row=0, column=0, padx=0, pady=0,
+                                          sticky="w")
+
+        currency_exchange_rate_value = customtkinter.CTkLabel(
+            currency_exchange_rate_frame, font=("Arial", 14, "bold"), text=f"{
+                self.parent.selected_currency_exchange_rate}"
+        )
+        currency_exchange_rate_value.grid(row=0, column=1, padx=0, pady=0,
+                                          sticky="e")
+
+        currency_exchange_rate_frame.columnconfigure(0, weight=0)
+        currency_exchange_rate_frame.columnconfigure(1, weight=1)
+
+        currency_total_amount_frame = customtkinter.CTkFrame(
+            delete_frame, fg_color="transparent")
+        currency_total_amount_frame.pack(padx=20, pady=5, fill="x")
+
+        currency_total_amount_label = customtkinter.CTkLabel(
+            currency_total_amount_frame, text="Total Amount (VND):"
+        )
+        currency_total_amount_label.grid(row=0, column=0, padx=0, pady=0,
+                                         sticky="w")
+
+        currency_total_amount_value = customtkinter.CTkLabel(
+            currency_total_amount_frame, font=("Arial", 14, "bold"), text=f"{
+                self.parent.selected_currency_total_amount}"
+        )
+        currency_total_amount_value.grid(row=0, column=1, padx=0, pady=0,
+                                         sticky="e")
+
+        currency_total_amount_frame.columnconfigure(0, weight=0)
+        currency_total_amount_frame.columnconfigure(1, weight=1)
+
+        currency_transaction_date_frame = customtkinter.CTkFrame(
+            delete_frame, fg_color="transparent")
+        currency_transaction_date_frame.pack(padx=20, pady=5, fill="x")
+
+        currency_transaction_date_label = customtkinter.CTkLabel(
+            currency_transaction_date_frame, text="Transaction Date:"
+        )
+        currency_transaction_date_label.grid(row=0, column=0, padx=0, pady=0,
+                                             sticky="w")
+
+        currency_transaction_date_value = customtkinter.CTkLabel(
+            currency_transaction_date_frame, font=("Arial", 14, "bold"),
+            text=f"{
+                self.parent.selected_currency_transaction_date}"
+        )
+        currency_transaction_date_value.grid(row=0, column=1, padx=0, pady=0,
+                                             sticky="e")
+
+        currency_transaction_date_frame.columnconfigure(0, weight=0)
+        currency_transaction_date_frame.columnconfigure(1, weight=1)
+
+        buttons_frame = customtkinter.CTkFrame(delete_frame,
+                                               fg_color="transparent")
+        buttons_frame.pack(padx=20, pady=(100, 5), anchor="w", fill="x")
+
+        button_confirm = customtkinter.CTkButton(
+            buttons_frame,
+            text="CONFIRM",
+            width=150,
+            command=self.currency_confirm_button_callback)
+        button_confirm.grid(row=0, column=0, sticky="ew", padx=(0, 10), pady=5)
+
+        button_cancel = customtkinter.CTkButton(
+            buttons_frame,
+            text="CANCEL",
+            width=150,
+            fg_color="red",
+            hover_color="dark red",
+            command=self.destroy)
+        button_cancel.grid(row=0, column=1, sticky="ew", padx=(10, 0), pady=5)
+
+    def currency_confirm_button_callback(self):
+        data_file = "data.json"
+        if os.path.exists(data_file):
+            with open(data_file, "r") as file:
+                data = json.load(file)
+        else:
+            data = {"transactions": []}
+
+        transaction_found = False
+        for transaction in data["transactions"]:
+            if transaction["id"] == \
+                    self.parent.selected_currency_transaction_code:
+                transaction["isdeleted"] = True
+                transaction_found = True
+                break
+
+        if not transaction_found:
+            messagebox.showerror("Error", "Transaction ID not found.")
+            return
+
+        with open(data_file, "w") as file:
+            json.dump(data, file, indent=4)
+
+        messagebox \
+            .showinfo("Success", "Currency transaction deleted successfully! \
+                            \nPlease Refresh Data!")
+        self.destroy()
 
 
 class FilterWindow(customtkinter.CTkToplevel):
@@ -4197,7 +4640,8 @@ class AddTransactionTabView(customtkinter.CTkTabview):
             "unit_price": unit_price,
             "quantity": quantity,
             "type": "gold",
-            "gold_type": GoldType[self.gold_combobox_gold_type.get()].value
+            "gold_type": GoldType[self.gold_combobox_gold_type.get()].value,
+            "isdeleted": False
         }
 
         new_data_id = self.generate_gold_id(data["transactions"])
@@ -4428,7 +4872,8 @@ class AddTransactionTabView(customtkinter.CTkTabview):
             "quantity": quantity,
             "type": "currency",
             "currency_type": CurrencyType[currency_type].value,
-            "exchange_rate": exchange_rate
+            "exchange_rate": exchange_rate,
+            "isdeleted": False
         }
 
         new_data_id = self.generate_currency_id(data["transactions"])

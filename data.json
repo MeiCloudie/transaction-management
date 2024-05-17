@@ -8,7 +8,8 @@
       "unit_price": 85200000.0,
       "quantity": 2.0,
       "type": "gold",
-      "gold_type": 0
+      "gold_type": 0,
+      "isdeleted": false
     },
     {
       "id": "GLD002",
@@ -18,7 +19,8 @@
       "unit_price": 75500000.0,
       "quantity": 3.0,
       "type": "gold",
-      "gold_type": 1
+      "gold_type": 1,
+      "isdeleted": false
     },
     {
       "id": "GLD003",
@@ -28,7 +30,8 @@
       "unit_price": 84800000.0,
       "quantity": 3.0,
       "type": "gold",
-      "gold_type": 2
+      "gold_type": 2,
+      "isdeleted": false
     },
     {
       "id": "GLD004",
@@ -38,7 +41,8 @@
       "unit_price": 83200000.0,
       "quantity": 1.0,
       "type": "gold",
-      "gold_type": 0
+      "gold_type": 0,
+      "isdeleted": false
     },
     {
       "id": "GLD005",
@@ -48,7 +52,8 @@
       "unit_price": 74500000.0,
       "quantity": 1.0,
       "type": "gold",
-      "gold_type": 1
+      "gold_type": 1,
+      "isdeleted": false
     },
     {
       "id": "GLD006",
@@ -58,7 +63,8 @@
       "unit_price": 84800000.0,
       "quantity": 2.0,
       "type": "gold",
-      "gold_type": 2
+      "gold_type": 2,
+      "isdeleted": false
     },
     {
       "id": "CUR001",
@@ -75,7 +81,8 @@
         "effective_day": 1,
         "effective_month": 1,
         "effective_year": 2024
-      }
+      },
+      "isdeleted": false
     },
     {
       "id": "CUR002",
@@ -92,7 +99,8 @@
         "effective_day": 1,
         "effective_month": 1,
         "effective_year": 2024
-      }
+      },
+      "isdeleted": false
     },
     {
       "id": "CUR003",
@@ -109,7 +117,8 @@
         "effective_day": 1,
         "effective_month": 1,
         "effective_year": 2024
-      }
+      },
+      "isdeleted": false
     },
     {
       "id": "CUR004",
@@ -126,7 +135,8 @@
         "effective_day": 1,
         "effective_month": 1,
         "effective_year": 2024
-      }
+      },
+      "isdeleted": false
     },
     {
       "id": "CUR005",
@@ -143,7 +153,8 @@
         "effective_day": 1,
         "effective_month": 1,
         "effective_year": 2024
-      }
+      },
+      "isdeleted": false
     },
     {
       "id": "CUR006",
@@ -160,7 +171,8 @@
         "effective_day": 1,
         "effective_month": 1,
         "effective_year": 2024
-      }
+      },
+      "isdeleted": false
     }
   ],
   "exchange_rates": [
