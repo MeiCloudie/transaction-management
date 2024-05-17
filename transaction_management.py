@@ -1,4 +1,5 @@
 import json
+import tkinter
 from tkinter import ttk, messagebox
 import customtkinter
 from enum import Enum
@@ -2431,8 +2432,11 @@ class EditGoldTransactionWindow(customtkinter.CTkToplevel):
         )
         label_unit_price.pack(padx=20, pady=5, anchor="w")
 
+        default_value_gold_unit_price = \
+            tkinter.StringVar(value=self.parent.selected_gold_unit_price)
         self.gold_entry_unit_price = customtkinter.CTkEntry(
-            master=edit_frame, placeholder_text="Ex: 85,200,000.7")
+            master=edit_frame, placeholder_text="Ex: 85,200,000.7",
+            textvariable=default_value_gold_unit_price)
         self.gold_entry_unit_price.pack(padx=20, pady=0, anchor="w", fill="x")
 
         label_quantity = customtkinter.CTkLabel(
@@ -2443,8 +2447,11 @@ class EditGoldTransactionWindow(customtkinter.CTkToplevel):
         )
         label_quantity.pack(padx=20, pady=5, anchor="w")
 
+        default_value_gold_quantity = \
+            tkinter.StringVar(value=self.parent.selected_gold_quantity)
         self.gold_entry_quantity = customtkinter.CTkEntry(
-            master=edit_frame, placeholder_text="Ex: 10")
+            master=edit_frame, placeholder_text="Ex: 10",
+            textvariable=default_value_gold_quantity)
         self.gold_entry_quantity.pack(padx=20, pady=0, anchor="w", fill="x")
 
         label_gold_type = customtkinter.CTkLabel(
@@ -2460,7 +2467,7 @@ class EditGoldTransactionWindow(customtkinter.CTkToplevel):
                                       values=[
                                           "SJC", "PNJ", "DOJI"
                                       ])
-        self.gold_combobox_gold_type.set("SJC")
+        self.gold_combobox_gold_type.set(str(self.parent.selected_gold_type))
         self.gold_combobox_gold_type.pack(
             padx=20, pady=0, anchor="w", fill="x")
 
@@ -2478,8 +2485,22 @@ class EditGoldTransactionWindow(customtkinter.CTkToplevel):
         )
         date_frame.pack(padx=20, pady=(0, 5), anchor="w", fill="x")
 
+        # Chuỗi ngày tháng năm ban đầu
+        date_str = str(self.parent.selected_gold_transaction_date)
+
+        # Chuyển đổi chuỗi thành đối tượng datetime
+        date_obj = datetime.datetime.strptime(date_str, "%d %B %Y")
+
+        # Lấy các thành phần ngày, tháng, năm
+        day_obj = date_obj.day
+        month_obj = date_obj.month
+        year_obj = date_obj.year
+
+        default_value_gold_day = \
+            tkinter.StringVar(value=int(day_obj))
         self.gold_entry_day = customtkinter.CTkEntry(
-            master=date_frame, placeholder_text="Day", width=95)
+            master=date_frame, placeholder_text="Day", width=95,
+            textvariable=default_value_gold_day)
         self.gold_entry_day.grid(
             row=0, column=0, padx=(0, 5), pady=0, sticky="ew")
 
@@ -2488,8 +2509,11 @@ class EditGoldTransactionWindow(customtkinter.CTkToplevel):
         separator_day_month.grid(row=0, column=1,
                                  padx=3, pady=0, sticky="ew")
 
+        default_value_gold_month = \
+            tkinter.StringVar(value=int(month_obj))
         self.gold_entry_month = customtkinter.CTkEntry(
-            master=date_frame, placeholder_text="Month", width=95)
+            master=date_frame, placeholder_text="Month", width=95,
+            textvariable=default_value_gold_month)
         self.gold_entry_month.grid(row=0, column=2, padx=5, pady=0)
 
         separator_month_year = ttk.Separator(
@@ -2497,8 +2521,11 @@ class EditGoldTransactionWindow(customtkinter.CTkToplevel):
         separator_month_year.grid(
             row=0, column=3, padx=3, pady=0, sticky="ew")
 
+        default_value_gold_year = \
+            tkinter.StringVar(value=int(year_obj))
         self.gold_entry_year = customtkinter.CTkEntry(
-            master=date_frame, placeholder_text="Year", width=95)
+            master=date_frame, placeholder_text="Year", width=95,
+            textvariable=default_value_gold_year)
         self.gold_entry_year.grid(row=0, column=4, padx=(5, 0), pady=0)
 
         buttons_frame = customtkinter.CTkFrame(
