@@ -4208,7 +4208,8 @@ class AddTransactionTabView(customtkinter.CTkTabview):
             "unit_price": unit_price,
             "quantity": quantity,
             "type": "gold",
-            "gold_type": GoldType[self.gold_combobox_gold_type.get()].value
+            "gold_type": GoldType[self.gold_combobox_gold_type.get()].value,
+            "isdeleted": False
         }
 
         new_data_id = self.generate_gold_id(data["transactions"])
@@ -4439,7 +4440,8 @@ class AddTransactionTabView(customtkinter.CTkTabview):
             "quantity": quantity,
             "type": "currency",
             "currency_type": CurrencyType[currency_type].value,
-            "exchange_rate": exchange_rate
+            "exchange_rate": exchange_rate,
+            "isdeleted": False
         }
 
         new_data_id = self.generate_currency_id(data["transactions"])
