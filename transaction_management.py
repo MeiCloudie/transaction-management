@@ -64,13 +64,19 @@ class AbstractTransaction(ABC):
 
 
 class Transaction(AbstractTransaction):
+    def __init__(self, id, day, month, year, *args, isdeleted=False):
+        super().__init__(id, day, month, year, *args)
+        self._isdeleted = isdeleted
+
     def calculate_total_amount(self):
         return self._unit_price * self._quantity
 
 
 class GoldTransaction(Transaction):
-    def __init__(self, id, day, month, year, unit_price, quantity, gold_type):
-        super().__init__(id, day, month, year, unit_price, quantity)
+    def __init__(self, id, day, month, year, unit_price, quantity, gold_type,
+                 isdeleted=False):
+        super().__init__(id, day, month, year, unit_price, quantity,
+                         isdeleted=isdeleted)
         self._gold_type = gold_type
 
     def calculate_total_amount(self):
@@ -90,10 +96,10 @@ class ExchangeRate:
 
 class CurrencyTransaction(Transaction):
     def __init__(self, id, day, month, year, quantity,
-                 currency_type, exchange_rate):
+                 currency_type, exchange_rate, isdeleted=False):
         self._currency_type = currency_type
         self._exchange_rate = exchange_rate
-        super().__init__(id, day, month, year, quantity)
+        super().__init__(id, day, month, year, quantity, isdeleted=isdeleted)
 
     def calculate_total_amount(self):
         if self._currency_type == CurrencyType.VND:
@@ -167,6 +173,9 @@ class TransactionApp(customtkinter.CTk):
                 exchange_rates_data = data.get("exchange_rates", [])
 
                 for transaction_data in transactions_data:
+                    if transaction_data["isdeleted"]:
+                        continue
+
                     if transaction_data["type"] == "gold":
                         transaction = GoldTransaction(
                             transaction_data["id"],
@@ -175,7 +184,8 @@ class TransactionApp(customtkinter.CTk):
                             transaction_data["year"],
                             transaction_data["unit_price"],
                             transaction_data["quantity"],
-                            GoldType(transaction_data["gold_type"])
+                            GoldType(transaction_data["gold_type"]),
+                            isdeleted=transaction_data["isdeleted"]
                         )
                     elif transaction_data["type"] == "currency":
                         exchange_rate_data = transaction_data["exchange_rate"]
@@ -194,7 +204,8 @@ class TransactionApp(customtkinter.CTk):
                             transaction_data["year"],
                             transaction_data["quantity"],
                             CurrencyType(transaction_data["currency_type"]),
-                            exchange_rate
+                            exchange_rate,
+                            isdeleted=transaction_data["isdeleted"]
                         )
                     else:
                         continue
