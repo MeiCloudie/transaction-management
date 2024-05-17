@@ -3084,19 +3084,19 @@ class DeleteGoldTransactionWindow(customtkinter.CTkToplevel):
             self.after(200, lambda: self.iconbitmap("./logo.ico"))
 
     def create_widget(self):
-        details_frame = customtkinter.CTkFrame(
+        delete_frame = customtkinter.CTkFrame(
             master=self, fg_color="#ffffff", border_width=2,
             border_color="#5B5B5B")
-        details_frame.pack(padx=20, pady=20, fill="both")
+        delete_frame.pack(padx=20, pady=20, fill="both")
 
         gold_transaction_label = customtkinter.CTkLabel(
-            details_frame, text="GOLD TRANSACTION",
+            delete_frame, text="GOLD TRANSACTION",
             font=("Arial", 20, "bold")
         )
         gold_transaction_label.pack(padx=20, pady=(20, 0), anchor="w")
 
         gold_transaction_code = customtkinter.CTkLabel(
-            details_frame, text=f"Code: {
+            delete_frame, text=f"Code: {
                 self.parent.selected_gold_transaction_code}"
         )
         gold_transaction_code.pack(padx=20, pady=(0, 5), anchor="w")
@@ -3106,11 +3106,11 @@ class DeleteGoldTransactionWindow(customtkinter.CTkToplevel):
             "Separator.TSeparator", background="#989DA1", borderwidth=1)
 
         separator = ttk.Separator(
-            details_frame, orient="horizontal", style="Separator.TSeparator")
+            delete_frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(padx=20, pady=(0, 10), fill="x")
 
         gold_unit_price_frame = customtkinter.CTkFrame(
-            details_frame, fg_color="transparent")
+            delete_frame, fg_color="transparent")
         gold_unit_price_frame.pack(padx=20, pady=5, fill="x")
 
         gold_unit_price_label = customtkinter.CTkLabel(
@@ -3130,7 +3130,7 @@ class DeleteGoldTransactionWindow(customtkinter.CTkToplevel):
         gold_unit_price_frame.columnconfigure(1, weight=1)
 
         gold_quantity_frame = customtkinter.CTkFrame(
-            details_frame, fg_color="transparent")
+            delete_frame, fg_color="transparent")
         gold_quantity_frame.pack(padx=20, pady=5, fill="x")
 
         gold_quantity_label = customtkinter.CTkLabel(
@@ -3150,7 +3150,7 @@ class DeleteGoldTransactionWindow(customtkinter.CTkToplevel):
         gold_quantity_frame.columnconfigure(1, weight=1)
 
         gold_type_frame = customtkinter.CTkFrame(
-            details_frame, fg_color="transparent")
+            delete_frame, fg_color="transparent")
         gold_type_frame.pack(padx=20, pady=5, fill="x")
 
         gold_type_label = customtkinter.CTkLabel(
@@ -3170,7 +3170,7 @@ class DeleteGoldTransactionWindow(customtkinter.CTkToplevel):
         gold_type_frame.columnconfigure(1, weight=1)
 
         gold_total_amount_frame = customtkinter.CTkFrame(
-            details_frame, fg_color="transparent")
+            delete_frame, fg_color="transparent")
         gold_total_amount_frame.pack(padx=20, pady=5, fill="x")
 
         gold_total_amount_label = customtkinter.CTkLabel(
@@ -3190,7 +3190,7 @@ class DeleteGoldTransactionWindow(customtkinter.CTkToplevel):
         gold_total_amount_frame.columnconfigure(1, weight=1)
 
         gold_transaction_date_frame = customtkinter.CTkFrame(
-            details_frame, fg_color="transparent")
+            delete_frame, fg_color="transparent")
         gold_transaction_date_frame.pack(padx=20, pady=5, fill="x")
 
         gold_transaction_date_label = customtkinter.CTkLabel(
@@ -3209,14 +3209,52 @@ class DeleteGoldTransactionWindow(customtkinter.CTkToplevel):
         gold_transaction_date_frame.columnconfigure(0, weight=0)
         gold_transaction_date_frame.columnconfigure(1, weight=1)
 
-        btn_close = customtkinter.CTkButton(
-            details_frame,
-            text="CLOSE",
-            fg_color="#d93547",
+        buttons_frame = customtkinter.CTkFrame(
+            delete_frame, fg_color="transparent")
+        buttons_frame.pack(padx=20, pady=(100, 5), anchor="w", fill="x")
+
+        button_confirm = customtkinter.CTkButton(
+            buttons_frame,
+            text="CONFIRM",
+            width=150,
+            command=self.gold_confirm_button_callback)
+        button_confirm.grid(row=0, column=0, sticky="ew", padx=(0, 10), pady=5)
+
+        button_cancel = customtkinter.CTkButton(
+            buttons_frame,
+            text="CANCEL",
+            width=150,
+            fg_color="red",
             hover_color="dark red",
-            command=self.destroy
-        )
-        btn_close.pack(padx=20, pady=(100, 20), anchor="e")
+            command=self.destroy)
+        button_cancel.grid(row=0, column=1, sticky="ew", padx=(10, 0), pady=5)
+
+    def gold_confirm_button_callback(self):
+        data_file = "data.json"
+        if os.path.exists(data_file):
+            with open(data_file, "r") as file:
+                data = json.load(file)
+        else:
+            data = {"transactions": []}
+
+        transaction_found = False
+        for transaction in data["transactions"]:
+            if transaction["id"] == self.parent.selected_gold_transaction_code:
+                transaction["isdeleted"] = True
+                transaction_found = True
+                break
+
+        if not transaction_found:
+            messagebox.showerror("Error", "Transaction ID not found.")
+            return
+
+        with open(data_file, "w") as file:
+            json.dump(data, file, indent=4)
+
+        messagebox \
+            .showinfo("Success", "Gold transaction deleted successfully! \
+                            \nPlease Refresh Data!")
+        self.destroy()
 
 
 class DeleteCurrencyTransactionWindow(customtkinter.CTkToplevel):
