@@ -2660,6 +2660,16 @@ class EditGoldTransactionWindow(customtkinter.CTkToplevel):
 
         return True
 
+    def format_price_number(self, total_amount):
+        if '.' in str(total_amount):
+            integer_part, decimal_part = str(total_amount).split(".")
+        else:
+            integer_part, decimal_part = str(total_amount), '00'
+        formatted_integer_part = "{:,.0f}".format(float(integer_part))
+        formatted_total_amount = "{}.{}".format(
+            formatted_integer_part, decimal_part)
+        return formatted_total_amount
+
 
 class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
     def __init__(self, parent, *args, **kwargs):
@@ -2905,8 +2915,12 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
             self.focus()
             return
 
-        with open("data.json", "r") as file:
-            data = json.load(file)
+        data_file = "data.json"
+        if os.path.exists(data_file):
+            with open(data_file, "r") as file:
+                data = json.load(file)
+        else:
+            data = {"transactions": []}
 
         exchange_rates = data["exchange_rates"]
 
@@ -2923,29 +2937,62 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
             self.focus()
             return
 
-        new_data = {
-            "id": "",
-            "day": day,
-            "month": month,
-            "year": year,
-            "quantity": quantity,
-            "type": "currency",
-            "currency_type": CurrencyType[currency_type].value,
-            "exchange_rate": exchange_rate
-        }
+        transaction_found = False
+        for transaction in data["transactions"]:
+            if transaction["id"] == \
+                    self.parent.selected_currency_transaction_code:
+                transaction["day"] = day
+                transaction["month"] = month
+                transaction["year"] = year
+                transaction["quantity"] = quantity
+                transaction["exchange_rate"] = exchange_rate
+                transaction["currency_type"] = \
+                    CurrencyType[currency_type].value
+                transaction_found = True
+                break
 
-        new_data_id = self.generate_currency_id(data["transactions"])
-        new_data["id"] = new_data_id
+        if not transaction_found:
+            messagebox.showerror("Error", "Transaction ID not found.")
+            return
 
-        data["transactions"].append(new_data)
-
-        with open("data.json", "w") as file:
+        with open(data_file, "w") as file:
             json.dump(data, file, indent=4)
 
-        messagebox.showinfo("Success",
-                            "Currency transaction added successfully. \
-                            Please Refresh Data!")
-        self.focus()
+        messagebox \
+            .showinfo("Success", "Currency transaction updated successfully! \
+                            \nPlease Refresh Data!")
+        self.destroy()
+
+    def validate_and_convert_input(self, input_str):
+        try:
+            input_str = input_str.replace(",", "")
+            return float(input_str)
+        except ValueError:
+            return None
+
+    def validate_date(self, day, month, year):
+        try:
+            day = int(day)
+            month = int(month)
+            year = int(year)
+        except ValueError:
+            return False
+
+        if month < 1 or month > 12:
+            return False
+
+        if day < 1 or day > 31:
+            return False
+
+        if year < 1500:
+            return False
+
+        try:
+            datetime.datetime(year, month, day)
+        except ValueError:
+            return False
+
+        return True
 
     def format_price_number(self, total_amount):
         if '.' in str(total_amount):
