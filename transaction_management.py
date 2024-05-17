@@ -5021,10 +5021,33 @@ class TabReport(customtkinter.CTkTabview):
         self.set("MONTH")
         self.configure(corner_radius=5)
 
+        self.all_transactions = \
+            self.master.master.master.transaction_list.get_transactions()
+
         self.create_tab_report_widgets()
 
     def create_tab_report_widgets(self):
-        pass
+        now = datetime.datetime.now()
+        current_year = now.year
+        current_month = now.month
+        current_week = now.isocalendar()[1]
+
+        transactions_this_month = [
+            txn for txn in self.all_transactions
+            if txn._year == current_year and txn._month == current_month
+        ]
+
+        transactions_this_week = [
+            txn for txn in self.all_transactions
+            if txn._year ==
+            current_year and datetime.date(txn._year,
+                                           txn._month,
+                                           txn._day).isocalendar()[1]
+            == current_week
+        ]
+
+        print("Transactions This Month:", transactions_this_month)
+        print("Transactions This Week:", transactions_this_week)
 
 
 if __name__ == "__main__":
