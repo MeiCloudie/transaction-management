@@ -2485,13 +2485,10 @@ class EditGoldTransactionWindow(customtkinter.CTkToplevel):
         )
         date_frame.pack(padx=20, pady=(0, 5), anchor="w", fill="x")
 
-        # Chuỗi ngày tháng năm ban đầu
         date_str = str(self.parent.selected_gold_transaction_date)
 
-        # Chuyển đổi chuỗi thành đối tượng datetime
         date_obj = datetime.datetime.strptime(date_str, "%d %B %Y")
 
-        # Lấy các thành phần ngày, tháng, năm
         day_obj = date_obj.day
         month_obj = date_obj.month
         year_obj = date_obj.year
@@ -2680,8 +2677,11 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
         )
         label_quantity.pack(padx=20, pady=5, anchor="w")
 
+        default_value_currency_quantity = \
+            tkinter.StringVar(value=self.parent.selected_currency_quantity)
         self.currency_entry_quantity = customtkinter.CTkEntry(
-            master=edit_frame, placeholder_text="Ex: 50")
+            master=edit_frame, placeholder_text="Ex: 50",
+            textvariable=default_value_currency_quantity)
         self.currency_entry_quantity.pack(
             padx=20, pady=0, anchor="w", fill="x")
 
@@ -2700,7 +2700,8 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
                                       ],
                                       command=self.
                                       combobox_currency_type_callback)
-        self.currency_combobox_currency_type.set("VND")
+        self.currency_combobox_currency_type.set(
+            str(self.parent.selected_currency_type))
         self.currency_combobox_currency_type.pack(
             padx=20, pady=0, anchor="w", fill="x")
 
@@ -2717,7 +2718,7 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
         self.currency_entry_exchange_rate.pack(padx=20, pady=0, anchor="w",
                                                fill="x")
         self.currency_entry_exchange_rate.insert(
-            0, str(self.exchange_rates[0]["rate"]))
+            0, str(self.parent.selected_currency_exchange_rate))
         self.currency_entry_exchange_rate.configure(state="readonly")
 
         label_transaction_date = customtkinter.CTkLabel(
@@ -2734,8 +2735,19 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
         )
         date_frame.pack(padx=20, pady=(0, 5), anchor="w", fill="x")
 
+        date_str = str(self.parent.selected_currency_transaction_date)
+
+        date_obj = datetime.datetime.strptime(date_str, "%d %B %Y")
+
+        day_obj = date_obj.day
+        month_obj = date_obj.month
+        year_obj = date_obj.year
+
+        default_value_currency_day = \
+            tkinter.StringVar(value=int(day_obj))
         self.currency_entry_day = customtkinter.CTkEntry(
-            master=date_frame, placeholder_text="Day", width=95)
+            master=date_frame, placeholder_text="Day", width=95,
+            textvariable=default_value_currency_day)
         self.currency_entry_day.grid(row=0, column=0, padx=(0, 5), pady=0,
                                      sticky="ew")
 
@@ -2744,8 +2756,11 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
         separator_day_month.grid(row=0, column=1,
                                  padx=3, pady=0, sticky="ew")
 
+        default_value_currency_month = \
+            tkinter.StringVar(value=int(month_obj))
         self.currency_entry_month = customtkinter.CTkEntry(
-            master=date_frame, placeholder_text="Month", width=95)
+            master=date_frame, placeholder_text="Month", width=95,
+            textvariable=default_value_currency_month)
         self.currency_entry_month.grid(row=0, column=2, padx=5, pady=0)
 
         separator_month_year = ttk.Separator(
@@ -2753,8 +2768,11 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
         separator_month_year.grid(
             row=0, column=3, padx=3, pady=0, sticky="ew")
 
+        default_value_currency_year = \
+            tkinter.StringVar(value=int(year_obj))
         self.currency_entry_year = customtkinter.CTkEntry(
-            master=date_frame, placeholder_text="Year", width=95)
+            master=date_frame, placeholder_text="Year", width=95,
+            textvariable=default_value_currency_year)
         self.currency_entry_year.grid(row=0, column=4, padx=(5, 0), pady=0)
 
         buttons_frame = customtkinter.CTkFrame(edit_frame,
