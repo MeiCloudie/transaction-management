@@ -5049,6 +5049,92 @@ class TabReport(customtkinter.CTkTabview):
         print("Transactions This Month:", transactions_this_month)
         print("Transactions This Week:", transactions_this_week)
 
+        # Month
+        frame_month_1 = customtkinter.CTkFrame(
+            master=self.tab_month,
+            fg_color="transparent",
+        )
+        frame_month_1.pack(padx=5, pady=5, fill="x")
+
+        frame_month_1.grid_columnconfigure(0, weight=1)
+        frame_month_1.grid_columnconfigure(1, weight=2)
+        frame_month_1.grid_columnconfigure(2, weight=2)
+
+        month_total_chart = \
+            self.create_total_chart_frame(frame_month_1,
+                                          transactions_this_month)
+        month_total_chart.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+
+        month_recent_transaction = \
+            self.create_recent_transaction_frame(frame_month_1,
+                                                 transactions_this_month)
+        month_recent_transaction.grid(row=0, column=1, columnspan=2,
+                                      padx=5, pady=5, sticky="ew")
+
+        frame_month_2 = customtkinter.CTkFrame(
+            master=self.tab_month,
+            fg_color="transparent",
+        )
+        frame_month_2.pack(padx=5, pady=(0, 5), fill="x")
+
+        month_statistics_chart = \
+            self.create_statistics_chart_frame(frame_month_2,
+                                               transactions_this_month)
+        month_statistics_chart.pack(padx=5, pady=5, fill="x")
+
+        # Week
+
+    def create_total_chart_frame(self, parent, transactions):
+        total_chart_frame = customtkinter.CTkFrame(
+            master=parent, fg_color="#ffffff",
+            border_width=1, border_color="#989DA1",
+            corner_radius=5)
+
+        total_chart_title = customtkinter.CTkLabel(
+            master=total_chart_frame,
+            text="Total (VND)",
+            font=("Arial", 20, "bold"),
+            text_color="black",
+            anchor="w"
+        )
+        total_chart_title.pack(padx=10, pady=5)
+
+        return total_chart_frame
+
+    def create_recent_transaction_frame(self, parent, transactions):
+        recent_transaction_frame = customtkinter.CTkFrame(
+            master=parent, fg_color="#ffffff",
+            border_width=1, border_color="#989DA1",
+            corner_radius=5)
+
+        recent_transaction_title = customtkinter.CTkLabel(
+            master=recent_transaction_frame,
+            text="Recent Transaction",
+            font=("Arial", 20, "bold"),
+            text_color="black",
+            anchor="w"
+        )
+        recent_transaction_title.pack(padx=10, pady=5)
+
+        return recent_transaction_frame
+
+    def create_statistics_chart_frame(self, parent, transactions):
+        statistics_chart_frame = customtkinter.CTkFrame(
+            master=parent, fg_color="#ffffff",
+            border_width=1, border_color="#989DA1",
+            corner_radius=5)
+
+        statistics_chart_title = customtkinter.CTkLabel(
+            master=statistics_chart_frame,
+            text="Statistics",
+            font=("Arial", 20, "bold"),
+            text_color="black",
+            anchor="w"
+        )
+        statistics_chart_title.pack(padx=10, pady=5)
+
+        return statistics_chart_frame
+
 
 if __name__ == "__main__":
     app = TransactionApp()
