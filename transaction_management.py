@@ -2909,6 +2909,16 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
                             Please Refresh Data!")
         self.focus()
 
+    def format_price_number(self, total_amount):
+        if '.' in str(total_amount):
+            integer_part, decimal_part = str(total_amount).split(".")
+        else:
+            integer_part, decimal_part = str(total_amount), '00'
+        formatted_integer_part = "{:,.0f}".format(float(integer_part))
+        formatted_total_amount = "{}.{}".format(
+            formatted_integer_part, decimal_part)
+        return formatted_total_amount
+
 
 class FilterWindow(customtkinter.CTkToplevel):
     def __init__(self, *args, **kwargs):
