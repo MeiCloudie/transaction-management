@@ -2085,6 +2085,7 @@ class ViewDetailsGoldTransactionWindow(customtkinter.CTkToplevel):
         self.title("View Details Transaction")
         self.iconbitmap(default='./logo.ico')
         self.minsize(400, 500)
+        self.maxsize(400, 500)
         self.configure(fg_color="#d9d9d9")
         self.parent = parent
 
@@ -2235,6 +2236,7 @@ class ViewDetailsCurrencyTransactionWindow(customtkinter.CTkToplevel):
         self.title("View Details Transaction")
         self.iconbitmap(default='./logo.ico')
         self.minsize(400, 500)
+        self.maxsize(400, 500)
         self.configure(fg_color="#d9d9d9")
         self.parent = parent
 
@@ -2386,6 +2388,7 @@ class EditGoldTransactionWindow(customtkinter.CTkToplevel):
         self.title("Edit Transaction")
         self.iconbitmap(default='./logo.ico')
         self.minsize(400, 500)
+        self.maxsize(400, 500)
         self.configure(fg_color="#d9d9d9")
         self.parent = parent
 
@@ -2602,6 +2605,7 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
         self.title("Edit Transaction")
         self.iconbitmap(default='./logo.ico')
         self.minsize(400, 500)
+        self.maxsize(400, 500)
         self.configure(fg_color="#d9d9d9")
         self.parent = parent
 
