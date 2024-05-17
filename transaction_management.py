@@ -8,6 +8,7 @@ from PIL import Image
 import datetime
 from datetime import timedelta
 from sys import platform
+import os
 
 
 class CurrencyType(Enum):
@@ -2596,31 +2597,68 @@ class EditGoldTransactionWindow(customtkinter.CTkToplevel):
             self.focus()
             return
 
-        with open("data.json", "r") as file:
-            data = json.load(file)
+        data_file = "data.json"
+        if os.path.exists(data_file):
+            with open(data_file, "r") as file:
+                data = json.load(file)
+        else:
+            data = {"transactions": []}
 
-        new_data = {
-            "id": "",
-            "day": day,
-            "month": month,
-            "year": year,
-            "unit_price": unit_price,
-            "quantity": quantity,
-            "type": "gold",
-            "gold_type": GoldType[self.gold_combobox_gold_type.get()].value
-        }
+        transaction_found = False
+        for transaction in data["transactions"]:
+            if transaction["id"] == self.parent.selected_gold_transaction_code:
+                transaction["day"] = day
+                transaction["month"] = month
+                transaction["year"] = year
+                transaction["unit_price"] = unit_price
+                transaction["quantity"] = quantity
+                transaction["gold_type"] = \
+                    GoldType[self.gold_combobox_gold_type.get()].value
+                transaction_found = True
+                break
 
-        new_data_id = self.generate_gold_id(data["transactions"])
-        new_data["id"] = new_data_id
+        if not transaction_found:
+            messagebox.showerror("Error", "Transaction ID not found.")
+            return
 
-        data["transactions"].append(new_data)
-
-        with open("data.json", "w") as file:
+        with open(data_file, "w") as file:
             json.dump(data, file, indent=4)
 
-        messagebox.showinfo("Success", "Gold transaction added successfully. \
+        messagebox \
+            .showinfo("Success", "Gold transaction updated successfully! \
                             \nPlease Refresh Data!")
-        self.focus()
+        self.destroy()
+
+    def validate_and_convert_input(self, input_str):
+        try:
+            input_str = input_str.replace(",", "")
+            return float(input_str)
+        except ValueError:
+            return None
+
+    def validate_date(self, day, month, year):
+        try:
+            day = int(day)
+            month = int(month)
+            year = int(year)
+        except ValueError:
+            return False
+
+        if month < 1 or month > 12:
+            return False
+
+        if day < 1 or day > 31:
+            return False
+
+        if year < 1500:
+            return False
+
+        try:
+            datetime.datetime(year, month, day)
+        except ValueError:
+            return False
+
+        return True
 
 
 class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
