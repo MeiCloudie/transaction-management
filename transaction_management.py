@@ -302,8 +302,11 @@ class HeaderFrame(customtkinter.CTkFrame):
             self.buttons_frame, text="REPORT", text_color="#1f6aa5",
             border_width=1,
             border_color="#1f6aa5", fg_color="white",
-            hover_color="light blue")
+            hover_color="light blue",
+            command=self.open_report_window)
         self.btn_report.pack(side="right", padx=5, pady=5)
+
+        self.report_window = None
 
         self.columnconfigure(0, weight=0)
         self.columnconfigure(1, weight=1)
@@ -332,6 +335,14 @@ class HeaderFrame(customtkinter.CTkFrame):
                                               self.add_transaction_window.lift)
         else:
             self.add_transaction_window.focus()
+
+    def open_report_window(self):
+        if self.report_window is None or not \
+                self.report_window.winfo_exists():
+            self.report_window = ReportWindow(self)
+            self.report_window.after(10, self.report_window.lift)
+        else:
+            self.report_window.focus()
 
 
 class TabFilter(customtkinter.CTkTabview):
@@ -4444,6 +4455,7 @@ class AddTransactionWindow(customtkinter.CTkToplevel):
         self.title("Add Transaction")
         self.iconbitmap(default='./logo.ico')
         self.minsize(400, 500)
+        self.maxsize(400, 500)
         self.configure(fg_color="#d9d9d9")
 
         self.create_widget()
@@ -4943,6 +4955,23 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         formatted_total_amount = "{}.{}".format(
             formatted_integer_part, decimal_part)
         return formatted_total_amount
+
+
+class ReportWindow(customtkinter.CTkToplevel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.title("Report")
+        self.iconbitmap(default='./logo.ico')
+        self.minsize(1600, 900)
+        self.configure(fg_color="#eaeaea")
+
+        self.create_widget()
+
+        if platform.startswith("win"):
+            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+
+    def create_widget(self):
+        pass
 
 
 if __name__ == "__main__":
