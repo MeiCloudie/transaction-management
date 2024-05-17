@@ -4974,7 +4974,9 @@ class ReportWindow(customtkinter.CTkToplevel):
         self.header_frame = HeaderFrameForReportWindow(master=self)
         self.header_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
-        # TabReport
+        self.tab_report = TabReport(master=self)
+        self.tab_report.grid(row=1, column=0, padx=10,
+                             pady=(0, 10), sticky="ew")
 
         self.grid_columnconfigure(0, weight=1)
 
@@ -5005,6 +5007,24 @@ class HeaderFrameForReportWindow(customtkinter.CTkFrame):
 
         self.columnconfigure(0, weight=0)
         self.columnconfigure(1, weight=1)
+
+
+class TabReport(customtkinter.CTkTabview):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
+        self.configure(fg_color="#dbdbdb", bg_color="#eaeaea",
+                       border_width=1, border_color="#989DA1")
+
+        self.tab_week = self.add("WEEK")
+        self.tab_month = self.add("MONTH")
+
+        self.set("MONTH")
+        self.configure(corner_radius=5)
+
+        self.create_tab_report_widgets()
+
+    def create_tab_report_widgets(self):
+        pass
 
 
 if __name__ == "__main__":
