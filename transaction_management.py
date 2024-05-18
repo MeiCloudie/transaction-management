@@ -5069,7 +5069,6 @@ class TabReport(customtkinter.CTkTabview):
 
         frame_month_1.grid_columnconfigure(0, weight=1)
         frame_month_1.grid_columnconfigure(1, weight=2)
-        frame_month_1.grid_columnconfigure(2, weight=2)
 
         month_total_chart = \
             self.create_total_chart_frame(frame_month_1,
@@ -5193,7 +5192,37 @@ class TabReport(customtkinter.CTkTabview):
             text_color="black",
             anchor="w"
         )
-        recent_transaction_title.pack(padx=10, pady=5)
+        recent_transaction_title.pack(padx=20, pady=(20, 5), fill="x")
+
+        gold_transaction_title = customtkinter.CTkLabel(
+            master=recent_transaction_frame,
+            text="GOLD TRANSACTION",
+            font=("Arial", 16, "bold"),
+            text_color="black",
+            anchor="w"
+        )
+        gold_transaction_title.pack(padx=20, pady=0, fill="x")
+
+        gold_treeview = \
+            self.create_gold_transaction_treeview(recent_transaction_frame)
+        self.populate_treeview_with_gold_transactions(
+            gold_treeview, transactions)
+        gold_treeview.pack(padx=20, pady=5, fill="x")
+
+        currency_transaction_title = customtkinter.CTkLabel(
+            master=recent_transaction_frame,
+            text="CURRENCY TRANSACTION",
+            font=("Arial", 16, "bold"),
+            text_color="black",
+            anchor="w"
+        )
+        currency_transaction_title.pack(padx=20, pady=0, fill="x")
+
+        currency_treeview = \
+            self.create_currency_transaction_treeview(recent_transaction_frame)
+        self.populate_treeview_with_currency_transactions(
+            currency_treeview, transactions)
+        currency_treeview.pack(padx=20, pady=(5, 20), fill="x")
 
         return recent_transaction_frame
 
@@ -5213,6 +5242,114 @@ class TabReport(customtkinter.CTkTabview):
         statistics_chart_title.pack(padx=10, pady=5)
 
         return statistics_chart_frame
+
+    def create_gold_transaction_treeview(self, frame):
+        treeview_style = ttk.Style()
+        treeview_style.configure(
+            "Treeview.Heading", font=("Arial", 10, "bold"))
+        treeview_style.configure("Treeview", rowheight=25)
+
+        treeview = ttk.Treeview(frame, columns=(
+            "Transaction Code",
+            "Transaction Date",
+            "Unit Price (VND/tael)",
+            "Quantity (tael)", "Gold Type", "Total Amount (VND)"
+        ), show="headings", height=2)
+
+        treeview.heading("Transaction Code",
+                         text="Transaction Code", anchor="w")
+        treeview.heading("Transaction Date",
+                         text="Transaction Date", anchor="w")
+        treeview.heading("Unit Price (VND/tael)",
+                         text="Unit Price (VND/tael)", anchor="w")
+        treeview.heading("Quantity (tael)", text="Quantity (tael)", anchor="w")
+        treeview.heading("Gold Type", text="Gold Type", anchor="w")
+        treeview.heading("Total Amount (VND)",
+                         text="Total Amount (VND)", anchor="w")
+
+        treeview.column("Transaction Code", width=100)
+        treeview.column("Transaction Date", width=100)
+        treeview.column("Unit Price (VND/tael)", width=100)
+        treeview.column("Quantity (tael)", width=100)
+        treeview.column("Gold Type", width=100)
+        treeview.column("Total Amount (VND)", width=100)
+
+        return treeview
+
+    def create_currency_transaction_treeview(self, frame):
+        treeview_style = ttk.Style()
+        treeview_style.configure(
+            "Treeview.Heading", font=("Arial", 10, "bold"))
+        treeview_style.configure("Treeview", rowheight=25)
+
+        treeview = ttk.Treeview(frame, columns=(
+            "Transaction Code",
+            "Transaction Date",
+            "Quantity",
+            "Currency Type", "Exchange Rate (VND)", "Total Amount (VND)"
+        ), show="headings", height=2)
+
+        treeview.heading("Transaction Code",
+                         text="Transaction Code", anchor="w")
+        treeview.heading("Transaction Date",
+                         text="Transaction Date", anchor="w")
+        treeview.heading("Quantity", text="Quantity", anchor="w")
+        treeview.heading("Currency Type", text="Currency Type", anchor="w")
+        treeview.heading("Exchange Rate (VND)",
+                         text="Exchange Rate (VND)", anchor="w")
+        treeview.heading("Total Amount (VND)",
+                         text="Total Amount (VND)", anchor="w")
+
+        treeview.column("Transaction Code", width=100)
+        treeview.column("Transaction Date", width=100)
+        treeview.column("Quantity", width=100)
+        treeview.column("Currency Type", width=100)
+        treeview.column("Exchange Rate (VND)", width=100)
+        treeview.column("Total Amount (VND)", width=100)
+
+        return treeview
+
+    def populate_treeview_with_gold_transactions(self, treeview,
+                                                 transactions):
+        for transaction in transactions:
+            if isinstance(transaction, GoldTransaction):
+                transaction_date = "{} {} {}".format(
+                    transaction._day, MonthLabel(transaction._month),
+                    transaction._year)
+                formatted_unit_price = self.format_price_number(
+                    transaction._unit_price)
+                formatted_total_amount = self.format_price_number(
+                    transaction._total_amount)
+                treeview.insert("", "end", values=(
+                    transaction._id,
+                    transaction_date,
+                    formatted_unit_price,
+                    transaction._quantity,
+                    transaction._gold_type.name,
+                    formatted_total_amount
+                ))
+
+    def populate_treeview_with_currency_transactions(self, treeview,
+                                                     transactions):
+        for transaction in transactions:
+            if isinstance(transaction, CurrencyTransaction):
+                transaction_date = "{} {} {}".format(
+                    transaction._day, MonthLabel(transaction._month),
+                    transaction._year)
+                formatted_quantity = self.format_price_number(
+                    transaction._quantity)
+                formatted_exchange_rate = self.format_price_number(
+                    transaction._exchange_rate._rate)
+                formatted_total_amount = self.format_price_number(
+                    transaction._total_amount)
+                treeview.insert("", "end", values=(
+                    transaction._id,
+                    transaction_date,
+                    formatted_quantity,
+                    transaction._currency_type.name,
+                    formatted_exchange_rate,
+                    formatted_total_amount
+                ))
 
     def format_price_number(self, total_amount):
         if '.' in str(total_amount):
