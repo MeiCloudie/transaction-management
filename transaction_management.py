@@ -5232,14 +5232,45 @@ class TabReport(customtkinter.CTkTabview):
             border_width=2, border_color="#989DA1",
             corner_radius=5)
 
+        frame_title_and_button = customtkinter.CTkFrame(
+            master=statistics_chart_frame, fg_color="transparent")
+        frame_title_and_button.pack(padx=10, pady=(20, 0), fill="x")
+
+        frame_title_and_button.columnconfigure(0, weight=0)
+        frame_title_and_button.columnconfigure(1, weight=1)
+
         statistics_chart_title = customtkinter.CTkLabel(
-            master=statistics_chart_frame,
+            master=frame_title_and_button,
             text="Statistics",
             font=("Arial", 20, "bold"),
             text_color="black",
+        )
+        statistics_chart_title.grid(
+            row=0, column=0, sticky="w", padx=12, pady=0)
+
+        btn_statistics_report = customtkinter.CTkButton(
+            frame_title_and_button,
+            text="See Details",
+            fg_color="transparent",
+            hover_color="#dae6f2",
+            text_color="#5C8ECB",
+            font=("Arial", 14, "bold"),
+            width=30,
+        )
+        btn_statistics_report.grid(row=0, column=1,
+                                   sticky="e", padx=12, pady=0)
+
+        now = datetime.datetime.now()
+        current_year = now.year
+        current_month = now.month
+        month_name = str(MonthLabel(current_month))
+
+        statistics_value = customtkinter.CTkLabel(
+            master=statistics_chart_frame,
+            text=f"{month_name} {current_year}",
             anchor="w"
         )
-        statistics_chart_title.pack(padx=10, pady=5)
+        statistics_value.pack(padx=25, pady=0, fill="x")
 
         return statistics_chart_frame
 
