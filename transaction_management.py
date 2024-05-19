@@ -5079,7 +5079,8 @@ class TabReport(customtkinter.CTkTabview):
 
         month_total_chart = \
             self.create_total_chart_frame(frame_month_1,
-                                          transactions_this_month)
+                                          transactions_this_month,
+                                          btn_details_status=True)
         month_total_chart.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
         month_recent_transaction = \
@@ -5102,7 +5103,8 @@ class TabReport(customtkinter.CTkTabview):
 
         # Week
 
-    def create_total_chart_frame(self, parent, transactions):
+    def create_total_chart_frame(self, parent, transactions,
+                                 btn_details_status):
         total_chart_frame = customtkinter.CTkFrame(
             master=parent, fg_color="#ffffff",
             border_width=2, border_color="#989DA1",
@@ -5124,17 +5126,19 @@ class TabReport(customtkinter.CTkTabview):
         total_chart_title.grid(
             row=0, column=0, sticky="w", padx=12, pady=0)
 
-        btn_details_report = customtkinter.CTkButton(
-            frame_title_and_button,
-            text="See Details",
-            fg_color="transparent",
-            hover_color="#dae6f2",
-            text_color="#5C8ECB",
-            font=("Arial", 14, "bold"),
-            width=30,
-            command=self.open_total_details_window
-        )
-        btn_details_report.grid(row=0, column=1, sticky="e", padx=12, pady=0)
+        if btn_details_status:
+            btn_details_report = customtkinter.CTkButton(
+                frame_title_and_button,
+                text="See Details",
+                fg_color="transparent",
+                hover_color="#dae6f2",
+                text_color="#5C8ECB",
+                font=("Arial", 14, "bold"),
+                width=30,
+                command=self.open_total_details_window
+            )
+            btn_details_report.grid(
+                row=0, column=1, sticky="e", padx=12, pady=0)
 
         self.total_details_window = None
 
