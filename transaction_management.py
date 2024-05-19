@@ -5132,8 +5132,11 @@ class TabReport(customtkinter.CTkTabview):
             text_color="#5C8ECB",
             font=("Arial", 14, "bold"),
             width=30,
+            command=self.open_total_details_window
         )
         btn_details_report.grid(row=0, column=1, sticky="e", padx=12, pady=0)
+
+        self.total_details_window = None
 
         if not transactions:
             no_data_label = customtkinter.CTkLabel(
@@ -5506,6 +5509,37 @@ class TabReport(customtkinter.CTkTabview):
         formatted_total_amount = "{}.{}".format(
             formatted_integer_part, decimal_part)
         return formatted_total_amount
+
+    def open_total_details_window(self):
+        if self.total_details_window is None \
+            or not self.total_details_window \
+                .winfo_exists():
+            self.total_details_window \
+                = TotalDetailsWindow(
+                    self)
+            self.total_details_window.after(
+                10, self.total_details_window.lift)
+        else:
+            self.total_details_window.focus()
+
+
+class TotalDetailsWindow(customtkinter.CTkToplevel):
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.title("Total Details")
+        self.iconbitmap(default='./logo.ico')
+        self.minsize(400, 500)
+        self.maxsize(400, 500)
+        self.configure(fg_color="#d9d9d9")
+        self.parent = parent
+
+        self.create_widget()
+
+        if platform.startswith("win"):
+            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+
+    def create_widget(self):
+        pass
 
 
 if __name__ == "__main__":
