@@ -5096,7 +5096,8 @@ class TabReport(customtkinter.CTkTabview):
 
         month_statistics_chart = \
             self.create_statistics_chart_frame(frame_month_2,
-                                               transactions_this_month)
+                                               transactions_this_month,
+                                               self.tab_month)
         month_statistics_chart.pack(padx=5, pady=(2, 5), fill="x")
 
         # Week
@@ -5243,7 +5244,7 @@ class TabReport(customtkinter.CTkTabview):
 
         return recent_transaction_frame
 
-    def create_statistics_chart_frame(self, parent, transactions):
+    def create_statistics_chart_frame(self, parent, transactions, tab_type):
         statistics_chart_frame = customtkinter.CTkFrame(
             master=parent, fg_color="#ffffff",
             border_width=2, border_color="#989DA1",
@@ -5300,11 +5301,12 @@ class TabReport(customtkinter.CTkTabview):
 
             return statistics_chart_frame
 
-        weeks = self.get_weeks_of_month(current_year, current_month)
-        totals = self.get_total_amount_per_week(transactions, weeks)
+        if tab_type == self.tab_month:
+            weeks = self.get_weeks_of_month(current_year, current_month)
+            totals = self.get_total_amount_per_week(transactions, weeks)
 
-        self.plot_bar_chart_for_this_month(statistics_chart_frame,
-                                           weeks, totals)
+            self.plot_bar_chart_for_this_month(statistics_chart_frame,
+                                               weeks, totals)
 
         return statistics_chart_frame
 
