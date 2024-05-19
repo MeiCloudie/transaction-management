@@ -11,6 +11,8 @@ from sys import platform
 import os
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.ticker import MaxNLocator
+import math
 
 
 class CurrencyType(Enum):
@@ -4973,7 +4975,7 @@ class ReportWindow(customtkinter.CTkToplevel):
         super().__init__(*args, **kwargs)
         self.title("Report")
         self.iconbitmap(default='./logo.ico')
-        self.minsize(1600, 900)
+        self.minsize(1700, 990)
         self.configure(fg_color="#eaeaea")
 
         self.create_widget()
@@ -5061,8 +5063,13 @@ class TabReport(customtkinter.CTkTabview):
         print("Transactions This Week:", transactions_this_week)
 
         # Month
+        month_scroll_frame = customtkinter.CTkScrollableFrame(
+            self.tab_month, fg_color="transparent",
+            height=850)
+        month_scroll_frame.pack(padx=0, pady=0, fill="x")
+
         frame_month_1 = customtkinter.CTkFrame(
-            master=self.tab_month,
+            master=month_scroll_frame,
             fg_color="transparent",
         )
         frame_month_1.pack(padx=5, pady=5, fill="x")
@@ -5082,7 +5089,7 @@ class TabReport(customtkinter.CTkTabview):
                                       padx=5, pady=5, sticky="ew")
 
         frame_month_2 = customtkinter.CTkFrame(
-            master=self.tab_month,
+            master=month_scroll_frame,
             fg_color="transparent",
         )
         frame_month_2.pack(padx=5, pady=(0, 5), fill="x")
@@ -5090,7 +5097,7 @@ class TabReport(customtkinter.CTkTabview):
         month_statistics_chart = \
             self.create_statistics_chart_frame(frame_month_2,
                                                transactions_this_month)
-        month_statistics_chart.pack(padx=5, pady=5, fill="x")
+        month_statistics_chart.pack(padx=5, pady=(2, 5), fill="x")
 
         # Week
 
@@ -5126,6 +5133,16 @@ class TabReport(customtkinter.CTkTabview):
             width=30,
         )
         btn_details_report.grid(row=0, column=1, sticky="e", padx=12, pady=0)
+
+        if not transactions:
+            no_data_label = customtkinter.CTkLabel(
+                master=total_chart_frame,
+                text="No data available this month!",
+                font=("Arial", 20, "bold")
+            )
+            no_data_label.pack(padx=25, pady=110, fill="x")
+
+            return total_chart_frame
 
         total_amount_transaction = 0
         gold_total_amount_transaction = 0
@@ -5268,11 +5285,106 @@ class TabReport(customtkinter.CTkTabview):
         statistics_value = customtkinter.CTkLabel(
             master=statistics_chart_frame,
             text=f"{month_name} {current_year}",
+            font=("Arial", 14),
             anchor="w"
         )
-        statistics_value.pack(padx=25, pady=0, fill="x")
+        statistics_value.pack(padx=22, pady=0, fill="x")
+
+        if not transactions:
+            no_data_label = customtkinter.CTkLabel(
+                master=statistics_chart_frame,
+                text="No data available this month!",
+                font=("Arial", 20, "bold")
+            )
+            no_data_label.pack(padx=25, pady=110, fill="x")
+
+            return statistics_chart_frame
+
+        weeks = self.get_weeks_of_month(current_year, current_month)
+        totals = self.get_total_amount_per_week(transactions, weeks)
+
+        self.plot_bar_chart(statistics_chart_frame, weeks, totals)
 
         return statistics_chart_frame
+
+    def get_weeks_of_month(self, year, month):
+        weeks = []
+        first_day_of_month = datetime.date(year, month, 1)
+        first_day_of_week = first_day_of_month - \
+            datetime.timedelta(days=first_day_of_month.weekday())
+
+        i = 0
+        while True:
+            start_of_week = first_day_of_week + datetime.timedelta(weeks=i)
+            end_of_week = start_of_week + datetime.timedelta(days=6)
+
+            if start_of_week.month != month:
+                start_of_week = datetime.date(year, month, 1)
+            if end_of_week.month != month:
+                last_day_of_month = datetime.date(year, month + 1, 1) \
+                    - datetime.timedelta(days=1) \
+                    if month < 12 else datetime.date(year, 12, 31)
+                end_of_week = last_day_of_month
+
+            weeks.append((start_of_week, end_of_week))
+            i += 1
+
+            if end_of_week == datetime.date(year, month, 1) \
+                + datetime.timedelta(days=(datetime.date(year, month + 1, 1)
+                                           - datetime.date(
+                                               year, month, 1)).days - 1):
+                break
+
+        return weeks
+
+    def plot_bar_chart(self, parent, weeks, totals):
+        week_labels = \
+            [f"Week {i+1}\n{start.strftime('%d/%m/%Y')} - {end.strftime(
+                '%d/%m/%Y')}" for i, (start, end) in enumerate(weeks)]
+
+        fig, ax = plt.subplots()
+
+        ax.bar(week_labels, totals)
+
+        ax.set_xlabel('Weeks')
+        ax.set_ylabel('Total Amount (VND)')
+        ax.set_title('Weekly Total Amount for Current Month')
+
+        max_total = max(totals, default=0)
+
+        if max_total > 0:
+            max_ticks = min(5, max(2, int(max_total // 1_000_000) + 1))
+        else:
+            max_ticks = 2
+
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
+
+        ax.yaxis.set_major_formatter(
+            lambda x, pos: f'{x:,.0f}' if x < 1_000_000
+            else f'{int(x // 1_000_000)}M'
+        )
+
+        fig.subplots_adjust(bottom=0.2)
+
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.draw()
+        canvas.get_tk_widget().pack(padx=5, pady=(0, 2), fill="x")
+
+    def get_total_amount_per_week(self, transactions, weeks):
+        totals = []
+        for start, end in weeks:
+            total = sum(transaction._total_amount
+                        for transaction in transactions
+                        if datetime.date(transaction._year, transaction._month,
+                                         transaction._day) >= start and
+                        datetime.date(transaction._year, transaction._month,
+                                      transaction._day) <= end)
+
+            totals.append(total if not math.isnan(total) else 0)
+
+        while len(totals) < 4:
+            totals.append(0)
+        return totals
 
     def create_gold_transaction_treeview(self, frame):
         treeview_style = ttk.Style()
