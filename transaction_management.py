@@ -5303,7 +5303,8 @@ class TabReport(customtkinter.CTkTabview):
         weeks = self.get_weeks_of_month(current_year, current_month)
         totals = self.get_total_amount_per_week(transactions, weeks)
 
-        self.plot_bar_chart(statistics_chart_frame, weeks, totals)
+        self.plot_bar_chart_for_this_month(statistics_chart_frame,
+                                           weeks, totals)
 
         return statistics_chart_frame
 
@@ -5337,7 +5338,7 @@ class TabReport(customtkinter.CTkTabview):
 
         return weeks
 
-    def plot_bar_chart(self, parent, weeks, totals):
+    def plot_bar_chart_for_this_month(self, parent, weeks, totals):
         week_labels = \
             [f"Week {i+1}\n{start.strftime('%d/%m/%Y')} - {end.strftime(
                 '%d/%m/%Y')}" for i, (start, end) in enumerate(weeks)]
