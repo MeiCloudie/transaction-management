@@ -5358,6 +5358,10 @@ class TabReport(customtkinter.CTkTabview):
             self.plot_bar_chart_for_this_month(statistics_chart_frame,
                                                weeks, totals)
 
+        elif tab_type == self.tab_week:
+            self.plot_bar_chart_for_this_week(statistics_chart_frame,
+                                              transactions)
+
         return statistics_chart_frame
 
     def get_weeks_of_month(self, year, month):
@@ -5417,11 +5421,64 @@ class TabReport(customtkinter.CTkTabview):
             else f'{int(x // 1_000_000)}M'
         )
 
+        for i, v in enumerate(totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount, ha='center', va='bottom')
+
         fig.subplots_adjust(bottom=0.2)
 
         canvas = FigureCanvasTkAgg(fig, master=parent)
         canvas.draw()
         canvas.get_tk_widget().pack(padx=5, pady=(0, 2), fill="x")
+
+    def plot_bar_chart_for_this_week(self, parent, transactions):
+        days = ["Monday", "Tuesday", "Wednesday",
+                "Thursday", "Friday", "Saturday", "Sunday"]
+        now = datetime.datetime.now()
+        start_of_week = now - datetime.timedelta(days=now.weekday())
+        date_labels = [(start_of_week + datetime.timedelta(days=i)
+                        ).strftime("%A\n%d/%m/%Y") for i in range(7)]
+
+        totals = {day: 0 for day in days}
+
+        for transaction in transactions:
+            transaction_date = datetime.date(
+                transaction._year, transaction._month, transaction._day)
+            day_of_week = transaction_date.strftime('%A')
+            if day_of_week in totals:
+                totals[day_of_week] += transaction._total_amount
+
+        total_amounts = [totals[day] for day in days]
+
+        fig, ax = plt.subplots()
+        ax.bar(date_labels, total_amounts)
+        ax.set_xlabel('Days of the Week')
+        ax.set_ylabel('Total Amount (VND)')
+        ax.set_title('Total Amounts for Each Day of the Week')
+
+        max_total = max(total_amounts, default=0)
+
+        if max_total > 0:
+            max_ticks = min(5, max(2, int(max_total // 1_000_000) + 1))
+        else:
+            max_ticks = 2
+
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
+
+        ax.yaxis.set_major_formatter(
+            lambda x, pos: f'{x:,.0f}' if x < 1_000_000
+            else f'{int(x // 1_000_000)}M'
+        )
+
+        for i, v in enumerate(total_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount, ha='center', va='bottom')
+
+        fig.subplots_adjust(bottom=0.2)
+
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.draw()
+        canvas.get_tk_widget().pack(padx=5, pady=(0, 20), fill="x")
 
     def get_total_amount_per_week(self, transactions, weeks):
         totals = []
