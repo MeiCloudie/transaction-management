@@ -5060,9 +5060,6 @@ class TabReport(customtkinter.CTkTabview):
             == current_week
         ]
 
-        print("Transactions This Month:", transactions_this_month)
-        print("Transactions This Week:", transactions_this_week)
-
         # Month
         month_scroll_frame = customtkinter.CTkScrollableFrame(
             self.tab_month, fg_color="transparent",
@@ -5104,6 +5101,44 @@ class TabReport(customtkinter.CTkTabview):
         month_statistics_chart.pack(padx=5, pady=(2, 5), fill="x")
 
         # Week
+        week_scroll_frame = customtkinter.CTkScrollableFrame(
+            self.tab_week, fg_color="transparent",
+            height=850)
+        week_scroll_frame.pack(padx=0, pady=0, fill="x")
+
+        frame_week_1 = customtkinter.CTkFrame(
+            master=week_scroll_frame,
+            fg_color="transparent",
+        )
+        frame_week_1.pack(padx=5, pady=5, fill="x")
+
+        frame_week_1.grid_columnconfigure(0, weight=1)
+        frame_week_1.grid_columnconfigure(1, weight=2)
+
+        week_total_chart = \
+            self.create_total_chart_frame(frame_week_1,
+                                          transactions_this_week,
+                                          btn_details_status=True)
+        week_total_chart.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+
+        week_recent_transaction = \
+            self.create_recent_transaction_frame(frame_week_1,
+                                                 transactions_this_week)
+        week_recent_transaction.grid(row=0, column=1, columnspan=2,
+                                     padx=5, pady=5, sticky="ew")
+
+        frame_week_2 = customtkinter.CTkFrame(
+            master=week_scroll_frame,
+            fg_color="transparent",
+        )
+        frame_week_2.pack(padx=5, pady=(0, 5), fill="x")
+
+        week_statistics_chart = \
+            self.create_statistics_chart_frame(frame_week_2,
+                                               transactions_this_week,
+                                               self.tab_week,
+                                               btn_details_status=True)
+        week_statistics_chart.pack(padx=5, pady=(2, 5), fill="x")
 
     def create_total_chart_frame(self, parent, transactions,
                                  btn_details_status):
@@ -5276,7 +5311,7 @@ class TabReport(customtkinter.CTkTabview):
         statistics_chart_title.grid(
             row=0, column=0, sticky="w", padx=12, pady=0)
 
-        if btn_details_status:
+        if btn_details_status and tab_type == self.tab_month:
             btn_statistics_report = customtkinter.CTkButton(
                 frame_title_and_button,
                 text="See Details",
@@ -5292,6 +5327,23 @@ class TabReport(customtkinter.CTkTabview):
                                        sticky="e", padx=12, pady=0)
 
         self.statistics_details_month_window = None
+
+        if btn_details_status and tab_type == self.tab_week:
+            btn_statistics_report = customtkinter.CTkButton(
+                frame_title_and_button,
+                text="See Details",
+                fg_color="transparent",
+                hover_color="#dae6f2",
+                text_color="#5C8ECB",
+                font=("Arial", 14, "bold"),
+                width=30,
+                command=lambda: self.open_statistics_details_week_window(
+                    transactions)
+            )
+            btn_statistics_report.grid(row=0, column=1,
+                                       sticky="e", padx=12, pady=0)
+
+        self.statistics_details_week_window = None
 
         now = datetime.datetime.now()
         current_year = now.year
@@ -5322,6 +5374,10 @@ class TabReport(customtkinter.CTkTabview):
 
             self.plot_bar_chart_for_this_month(statistics_chart_frame,
                                                weeks, totals)
+
+        elif tab_type == self.tab_week:
+            self.plot_bar_chart_for_this_week(statistics_chart_frame,
+                                              transactions)
 
         return statistics_chart_frame
 
@@ -5382,11 +5438,64 @@ class TabReport(customtkinter.CTkTabview):
             else f'{int(x // 1_000_000)}M'
         )
 
+        for i, v in enumerate(totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount, ha='center', va='bottom')
+
         fig.subplots_adjust(bottom=0.2)
 
         canvas = FigureCanvasTkAgg(fig, master=parent)
         canvas.draw()
         canvas.get_tk_widget().pack(padx=5, pady=(0, 2), fill="x")
+
+    def plot_bar_chart_for_this_week(self, parent, transactions):
+        days = ["Monday", "Tuesday", "Wednesday",
+                "Thursday", "Friday", "Saturday", "Sunday"]
+        now = datetime.datetime.now()
+        start_of_week = now - datetime.timedelta(days=now.weekday())
+        date_labels = [(start_of_week + datetime.timedelta(days=i)
+                        ).strftime("%A\n%d/%m/%Y") for i in range(7)]
+
+        totals = {day: 0 for day in days}
+
+        for transaction in transactions:
+            transaction_date = datetime.date(
+                transaction._year, transaction._month, transaction._day)
+            day_of_week = transaction_date.strftime('%A')
+            if day_of_week in totals:
+                totals[day_of_week] += transaction._total_amount
+
+        total_amounts = [totals[day] for day in days]
+
+        fig, ax = plt.subplots()
+        ax.bar(date_labels, total_amounts)
+        ax.set_xlabel('Days of the Week')
+        ax.set_ylabel('Total Amount (VND)')
+        ax.set_title('Total Amounts for Each Day of the Week')
+
+        max_total = max(total_amounts, default=0)
+
+        if max_total > 0:
+            max_ticks = min(5, max(2, int(max_total // 1_000_000) + 1))
+        else:
+            max_ticks = 2
+
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
+
+        ax.yaxis.set_major_formatter(
+            lambda x, pos: f'{x:,.0f}' if x < 1_000_000
+            else f'{int(x // 1_000_000)}M'
+        )
+
+        for i, v in enumerate(total_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount, ha='center', va='bottom')
+
+        fig.subplots_adjust(bottom=0.2)
+
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.draw()
+        canvas.get_tk_widget().pack(padx=5, pady=(0, 20), fill="x")
 
     def get_total_amount_per_week(self, transactions, weeks):
         totals = []
@@ -5545,6 +5654,18 @@ class TabReport(customtkinter.CTkTabview):
                 10, self.statistics_details_month_window.lift)
         else:
             self.statistics_details_month_window.focus()
+
+    def open_statistics_details_week_window(self, transactions):
+        if self.statistics_details_week_window is None \
+            or not self.statistics_details_week_window \
+                .winfo_exists():
+            self.statistics_details_week_window \
+                = StatisticsDetailsWeekWindow(
+                    self, transactions=transactions)
+            self.statistics_details_week_window.after(
+                10, self.statistics_details_week_window.lift)
+        else:
+            self.statistics_details_week_window.focus()
 
 
 class TotalDetailsWindow(customtkinter.CTkToplevel):
@@ -5839,6 +5960,188 @@ class StatisticsDetailsMonthWindow(customtkinter.CTkToplevel):
                                  end)
             week_totals.append((gold_total, currency_total))
         return week_totals
+
+
+class StatisticsDetailsWeekWindow(customtkinter.CTkToplevel):
+    def __init__(self, parent, transactions, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.title("Statistics Details")
+        self.iconbitmap(default='./logo.ico')
+        self.minsize(1400, 900)
+        self.maxsize(1400, 900)
+        self.configure(fg_color="#d9d9d9")
+        self.parent = parent
+        self.transactions = transactions
+
+        self.create_widget()
+
+        if platform.startswith("win"):
+            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+
+    def create_widget(self):
+        self.frame_scroll = customtkinter.CTkScrollableFrame(
+            self, fg_color="transparent",
+            height=860)
+        self.frame_scroll.pack(padx=5, pady=0, fill="both")
+
+        month_statistics_chart = \
+            self.parent.create_statistics_chart_frame(self.frame_scroll,
+                                                      self.transactions,
+                                                      self.parent.tab_week,
+                                                      btn_details_status=False)
+        month_statistics_chart.grid(row=0, column=0, columnspan=2,
+                                    padx=10, pady=10, sticky="ew")
+
+        self.frame_scroll.grid_columnconfigure(0, weight=1)
+        self.frame_scroll.grid_columnconfigure(1, weight=2)
+
+        self.create_date_frame()
+
+    def create_date_frame(self):
+        date_statistics_chart = self.parent.create_statistics_chart_frame(
+            self.frame_scroll, self.transactions, self.parent.tab_week,
+            btn_details_status=False)
+        date_statistics_chart.grid(row=0, column=0, columnspan=2,
+                                   padx=10, pady=10, sticky="ew")
+
+        current_date = datetime.datetime.now().date()
+
+        start_of_week = current_date - \
+            datetime.timedelta(days=current_date.weekday())
+        end_of_week = start_of_week + datetime.timedelta(days=6)
+
+        transactions_this_week = [
+            txn for txn in self.transactions
+            if start_of_week <=
+            datetime.date(txn._year, txn._month, txn._day) <= end_of_week
+        ]
+
+        gold_daily_totals, currency_daily_totals = self.calculate_daily_totals(
+            transactions_this_week)
+
+        for i, ((gold_date, gold_total), (currency_date, currency_total)) \
+                in enumerate(zip(gold_daily_totals.items(),
+                                 currency_daily_totals.items())):
+            row = (i // 2) + 1
+            column = i % 2
+            self.create_day_frame(
+                self.frame_scroll, gold_date, gold_total,
+                currency_total, row, column)
+
+    def create_day_frame(self, parent, gold_date, gold_total,
+                         currency_total, row, column):
+        formatted_date = gold_date.strftime("%A %d/%m/%Y")
+
+        frame_day = customtkinter.CTkFrame(
+            parent,
+            fg_color="#ffffff",
+            border_width=2,
+            border_color="#989DA1"
+        )
+        frame_day.grid(row=row, column=column,
+                       padx=10, pady=10, sticky="ew")
+
+        day_label = customtkinter.CTkLabel(
+            master=frame_day,
+            text=formatted_date,
+            font=("Arial", 20, "bold"),
+            text_color="black",
+            anchor="w"
+        )
+        day_label.pack(padx=20, pady=(20, 5), fill="x")
+
+        formatted_gold_total = self.format_price_number(gold_total)
+        formatted_currency_total = self.format_price_number(currency_total)
+
+        frame_gold = customtkinter.CTkFrame(
+            master=frame_day, fg_color="transparent")
+        frame_gold.pack(padx=40, pady=5, fill="x")
+
+        frame_gold.columnconfigure(0, weight=0)
+        frame_gold.columnconfigure(1, weight=1)
+
+        gold_label = customtkinter.CTkLabel(
+            master=frame_gold,
+            text="GOLD TRANSACTION:",
+            font=("Arial", 16, "bold"),
+            text_color="black",
+            anchor="w"
+        )
+        gold_label.grid(row=0, column=0, sticky="w", padx=0, pady=0)
+
+        gold_total_amount_value = customtkinter.CTkLabel(
+            master=frame_gold,
+            text=f"{formatted_gold_total} VND",
+            font=("Arial", 14),
+            text_color="black",
+            anchor="w"
+        )
+        gold_total_amount_value.grid(
+            row=0, column=1, sticky="e", padx=0, pady=0)
+
+        frame_currency = customtkinter.CTkFrame(
+            master=frame_day, fg_color="transparent")
+        frame_currency.pack(padx=40, pady=(5, 20), fill="x")
+
+        frame_currency.columnconfigure(0, weight=0)
+        frame_currency.columnconfigure(1, weight=1)
+
+        currency_label = customtkinter.CTkLabel(
+            master=frame_currency,
+            text="CURRENCY TRANSACTION:",
+            font=("Arial", 16, "bold"),
+            text_color="black",
+            anchor="w"
+        )
+        currency_label.grid(row=0, column=0, sticky="w", padx=0, pady=0)
+
+        currency_total_amount_value = customtkinter.CTkLabel(
+            master=frame_currency,
+            text=f"{formatted_currency_total} VND",
+            font=("Arial", 14),
+            text_color="black",
+            anchor="w"
+        )
+        currency_total_amount_value.grid(
+            row=0, column=1, sticky="e", padx=0, pady=0)
+
+    def calculate_daily_totals(self, transactions):
+        gold_daily_totals = {}
+        currency_daily_totals = {}
+
+        current_date = datetime.datetime.now().date()
+
+        start_of_week = current_date - \
+            datetime.timedelta(days=current_date.weekday())
+        end_of_week = start_of_week + datetime.timedelta(days=6)
+
+        for i in range(7):
+            date = start_of_week + datetime.timedelta(days=i)
+            gold_daily_totals[date] = 0
+            currency_daily_totals[date] = 0
+
+        for transaction in transactions:
+            transaction_date = datetime.date(
+                transaction._year, transaction._month, transaction._day)
+            if start_of_week <= transaction_date <= end_of_week:
+                if isinstance(transaction, GoldTransaction):
+                    gold_daily_totals[transaction_date] += \
+                        transaction._total_amount
+                elif isinstance(transaction, CurrencyTransaction):
+                    currency_daily_totals[transaction_date] += \
+                        transaction._total_amount
+
+        return gold_daily_totals, currency_daily_totals
+
+    def format_price_number(self, total_amount):
+        if '.' in str(total_amount):
+            integer_part, decimal_part = str(total_amount).split(".")
+        else:
+            integer_part, decimal_part = str(total_amount), '00'
+        formatted_integer_part = "{:,.0f}".format(float(integer_part))
+        formatted_total_amount = "{}.{}".format(
+            formatted_integer_part, decimal_part)
+        return formatted_total_amount
 
 
 if __name__ == "__main__":
