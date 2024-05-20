@@ -5060,9 +5060,6 @@ class TabReport(customtkinter.CTkTabview):
             == current_week
         ]
 
-        print("Transactions This Month:", transactions_this_month)
-        print("Transactions This Week:", transactions_this_week)
-
         # Month
         month_scroll_frame = customtkinter.CTkScrollableFrame(
             self.tab_month, fg_color="transparent",
@@ -5104,6 +5101,44 @@ class TabReport(customtkinter.CTkTabview):
         month_statistics_chart.pack(padx=5, pady=(2, 5), fill="x")
 
         # Week
+        week_scroll_frame = customtkinter.CTkScrollableFrame(
+            self.tab_week, fg_color="transparent",
+            height=850)
+        week_scroll_frame.pack(padx=0, pady=0, fill="x")
+
+        frame_week_1 = customtkinter.CTkFrame(
+            master=week_scroll_frame,
+            fg_color="transparent",
+        )
+        frame_week_1.pack(padx=5, pady=5, fill="x")
+
+        frame_week_1.grid_columnconfigure(0, weight=1)
+        frame_week_1.grid_columnconfigure(1, weight=2)
+
+        week_total_chart = \
+            self.create_total_chart_frame(frame_week_1,
+                                          transactions_this_week,
+                                          btn_details_status=True)
+        week_total_chart.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+
+        week_recent_transaction = \
+            self.create_recent_transaction_frame(frame_week_1,
+                                                 transactions_this_week)
+        week_recent_transaction.grid(row=0, column=1, columnspan=2,
+                                     padx=5, pady=5, sticky="ew")
+
+        frame_week_2 = customtkinter.CTkFrame(
+            master=week_scroll_frame,
+            fg_color="transparent",
+        )
+        frame_week_2.pack(padx=5, pady=(0, 5), fill="x")
+
+        week_statistics_chart = \
+            self.create_statistics_chart_frame(frame_week_2,
+                                               transactions_this_week,
+                                               self.tab_week,
+                                               btn_details_status=True)
+        week_statistics_chart.pack(padx=5, pady=(2, 5), fill="x")
 
     def create_total_chart_frame(self, parent, transactions,
                                  btn_details_status):
