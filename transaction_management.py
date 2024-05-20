@@ -5693,7 +5693,8 @@ class StatisticsDetailsMonthWindow(customtkinter.CTkToplevel):
         super().__init__(parent, *args, **kwargs)
         self.title("Statistics Details")
         self.iconbitmap(default='./logo.ico')
-        self.minsize(1400, 800)
+        self.minsize(1400, 900)
+        self.maxsize(1400, 900)
         self.configure(fg_color="#d9d9d9")
         self.parent = parent
         self.transactions = transactions
@@ -5706,7 +5707,7 @@ class StatisticsDetailsMonthWindow(customtkinter.CTkToplevel):
     def create_widget(self):
         frame_scroll = customtkinter.CTkScrollableFrame(
             self, fg_color="transparent",
-            height=750)
+            height=860)
         frame_scroll.pack(padx=5, pady=0, fill="both")
 
         month_statistics_chart = \
@@ -5720,27 +5721,35 @@ class StatisticsDetailsMonthWindow(customtkinter.CTkToplevel):
         frame_scroll.grid_columnconfigure(0, weight=1)
         frame_scroll.grid_columnconfigure(1, weight=2)
 
-        total_amount_transaction = 0
-        gold_total_amount_transaction = 0
-        currency_total_amount_transaction = 0
-        for transaction in self.transactions:
-            total_amount_transaction += transaction._total_amount
-            if isinstance(transaction, GoldTransaction):
-                gold_total_amount_transaction += transaction._total_amount
-            if isinstance(transaction, CurrencyTransaction):
-                currency_total_amount_transaction += transaction._total_amount
+        weeks = self.parent.get_weeks_of_month(datetime.datetime.now().year,
+                                               datetime.datetime.now().month)
+        week_totals = self.calculate_weekly_totals(weeks)
 
-        frame_week_1 = customtkinter.CTkFrame(
-            frame_scroll,
+        for i, (week, totals) in enumerate(zip(weeks, week_totals)):
+            row = (i // 2) + 1
+            column = i % 2
+            self.create_week_frame(frame_scroll, i + 1, week, totals,
+                                   row, column)
+
+    def create_week_frame(self, parent, week_number, week_dates,
+                          totals, row, column):
+        start_date, end_date = week_dates
+        gold_total, currency_total = totals
+        week_label_text = f"Week {week_number} ({start_date.strftime(
+            '%d/%m/%Y')} - {end_date.strftime('%d/%m/%Y')})"
+
+        frame_week = customtkinter.CTkFrame(
+            parent,
             fg_color="#ffffff",
             border_width=2,
             border_color="#989DA1"
         )
-        frame_week_1.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
+        frame_week.grid(row=row, column=column,
+                        padx=10, pady=10, sticky="ew")
 
         week_label = customtkinter.CTkLabel(
-            master=frame_week_1,
-            text="Week 1",
+            master=frame_week,
+            text=week_label_text,
             font=("Arial", 20, "bold"),
             text_color="black",
             anchor="w"
@@ -5748,7 +5757,7 @@ class StatisticsDetailsMonthWindow(customtkinter.CTkToplevel):
         week_label.pack(padx=20, pady=(20, 5), fill="x")
 
         frame_gold = customtkinter.CTkFrame(
-            master=frame_week_1, fg_color="transparent")
+            master=frame_week, fg_color="transparent")
         frame_gold.pack(padx=40, pady=5, fill="x")
 
         frame_gold.columnconfigure(0, weight=0)
@@ -5765,8 +5774,7 @@ class StatisticsDetailsMonthWindow(customtkinter.CTkToplevel):
 
         gold_total_amount_value = customtkinter.CTkLabel(
             master=frame_gold,
-            text=f"{self.format_price_number(
-                gold_total_amount_transaction)} VND",
+            text=f"{self.format_price_number(gold_total)} VND",
             font=("Arial", 14),
             text_color="black",
             anchor="w"
@@ -5775,7 +5783,7 @@ class StatisticsDetailsMonthWindow(customtkinter.CTkToplevel):
             row=0, column=1, sticky="e", padx=0, pady=0)
 
         frame_currency = customtkinter.CTkFrame(
-            master=frame_week_1, fg_color="transparent")
+            master=frame_week, fg_color="transparent")
         frame_currency.pack(padx=40, pady=(5, 20), fill="x")
 
         frame_currency.columnconfigure(0, weight=0)
@@ -5792,8 +5800,7 @@ class StatisticsDetailsMonthWindow(customtkinter.CTkToplevel):
 
         currency_total_amount_value = customtkinter.CTkLabel(
             master=frame_currency,
-            text=f"{self.format_price_number(
-                currency_total_amount_transaction)} VND",
+            text=f"{self.format_price_number(currency_total)} VND",
             font=("Arial", 14),
             text_color="black",
             anchor="w"
@@ -5810,6 +5817,28 @@ class StatisticsDetailsMonthWindow(customtkinter.CTkToplevel):
         formatted_total_amount = "{}.{}".format(
             formatted_integer_part, decimal_part)
         return formatted_total_amount
+
+    def calculate_weekly_totals(self, weeks):
+        week_totals = []
+        for start, end in weeks:
+            gold_total = sum(transaction._total_amount
+                             for transaction in self.transactions
+                             if isinstance(transaction, GoldTransaction)
+                             and start <= datetime.date(transaction._year,
+                                                        transaction._month,
+                                                        transaction._day) <=
+                             end)
+            currency_total = sum(transaction._total_amount
+                                 for transaction in self.transactions
+                                 if isinstance(transaction,
+                                               CurrencyTransaction)
+                                 and
+                                 start <= datetime.date(transaction._year,
+                                                        transaction._month,
+                                                        transaction._day) <=
+                                 end)
+            week_totals.append((gold_total, currency_total))
+        return week_totals
 
 
 if __name__ == "__main__":
