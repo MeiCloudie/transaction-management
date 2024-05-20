@@ -172,11 +172,12 @@ class TransactionApp(customtkinter.CTk):
         self.grid_columnconfigure(0, weight=1)
 
     def on_closing(self):
-        try:
-            self.quit()
-            self.destroy()
-        except Exception as e:
-            print(f"Error during closing: {e}")
+        if messagebox.askokcancel("Quit", "Do you want to quit?"):
+            try:
+                self.quit()
+                self.destroy()
+            except Exception as e:
+                print(f"Error during closing: {e}")
 
     def load_data_from_json(self):
         try:
