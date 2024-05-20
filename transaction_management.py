@@ -5099,7 +5099,8 @@ class TabReport(customtkinter.CTkTabview):
         month_statistics_chart = \
             self.create_statistics_chart_frame(frame_month_2,
                                                transactions_this_month,
-                                               self.tab_month)
+                                               self.tab_month,
+                                               btn_details_status=True)
         month_statistics_chart.pack(padx=5, pady=(2, 5), fill="x")
 
         # Week
@@ -5252,7 +5253,8 @@ class TabReport(customtkinter.CTkTabview):
 
         return recent_transaction_frame
 
-    def create_statistics_chart_frame(self, parent, transactions, tab_type):
+    def create_statistics_chart_frame(self, parent, transactions,
+                                      tab_type, btn_details_status):
         statistics_chart_frame = customtkinter.CTkFrame(
             master=parent, fg_color="#ffffff",
             border_width=2, border_color="#989DA1",
@@ -5274,17 +5276,22 @@ class TabReport(customtkinter.CTkTabview):
         statistics_chart_title.grid(
             row=0, column=0, sticky="w", padx=12, pady=0)
 
-        btn_statistics_report = customtkinter.CTkButton(
-            frame_title_and_button,
-            text="See Details",
-            fg_color="transparent",
-            hover_color="#dae6f2",
-            text_color="#5C8ECB",
-            font=("Arial", 14, "bold"),
-            width=30,
-        )
-        btn_statistics_report.grid(row=0, column=1,
-                                   sticky="e", padx=12, pady=0)
+        if btn_details_status:
+            btn_statistics_report = customtkinter.CTkButton(
+                frame_title_and_button,
+                text="See Details",
+                fg_color="transparent",
+                hover_color="#dae6f2",
+                text_color="#5C8ECB",
+                font=("Arial", 14, "bold"),
+                width=30,
+                command=lambda: self.open_statistics_details_month_window(
+                    transactions)
+            )
+            btn_statistics_report.grid(row=0, column=1,
+                                       sticky="e", padx=12, pady=0)
+
+        self.statistics_details_month_window = None
 
         now = datetime.datetime.now()
         current_year = now.year
@@ -5527,6 +5534,18 @@ class TabReport(customtkinter.CTkTabview):
         else:
             self.total_details_window.focus()
 
+    def open_statistics_details_month_window(self, transactions):
+        if self.statistics_details_month_window is None \
+            or not self.statistics_details_month_window \
+                .winfo_exists():
+            self.statistics_details_month_window \
+                = StatisticsDetailsMonthWindow(
+                    self, transactions=transactions)
+            self.statistics_details_month_window.after(
+                10, self.statistics_details_month_window.lift)
+        else:
+            self.statistics_details_month_window.focus()
+
 
 class TotalDetailsWindow(customtkinter.CTkToplevel):
     def __init__(self, parent, transactions, *args, **kwargs):
@@ -5657,6 +5676,130 @@ class TotalDetailsWindow(customtkinter.CTkToplevel):
         )
         currency_total_amount_value.grid(
             row=0, column=1, sticky="e", padx=5, pady=0)
+
+    def format_price_number(self, total_amount):
+        if '.' in str(total_amount):
+            integer_part, decimal_part = str(total_amount).split(".")
+        else:
+            integer_part, decimal_part = str(total_amount), '00'
+        formatted_integer_part = "{:,.0f}".format(float(integer_part))
+        formatted_total_amount = "{}.{}".format(
+            formatted_integer_part, decimal_part)
+        return formatted_total_amount
+
+
+class StatisticsDetailsMonthWindow(customtkinter.CTkToplevel):
+    def __init__(self, parent, transactions, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.title("Statistics Details")
+        self.iconbitmap(default='./logo.ico')
+        self.minsize(1400, 800)
+        self.configure(fg_color="#d9d9d9")
+        self.parent = parent
+        self.transactions = transactions
+
+        self.create_widget()
+
+        if platform.startswith("win"):
+            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+
+    def create_widget(self):
+        frame_scroll = customtkinter.CTkScrollableFrame(
+            self, fg_color="transparent",
+            height=750)
+        frame_scroll.pack(padx=5, pady=0, fill="both")
+
+        month_statistics_chart = \
+            self.parent.create_statistics_chart_frame(frame_scroll,
+                                                      self.transactions,
+                                                      self.parent.tab_month,
+                                                      btn_details_status=False)
+        month_statistics_chart.grid(row=0, column=0, columnspan=2,
+                                    padx=10, pady=10, sticky="ew")
+
+        frame_scroll.grid_columnconfigure(0, weight=1)
+        frame_scroll.grid_columnconfigure(1, weight=2)
+
+        total_amount_transaction = 0
+        gold_total_amount_transaction = 0
+        currency_total_amount_transaction = 0
+        for transaction in self.transactions:
+            total_amount_transaction += transaction._total_amount
+            if isinstance(transaction, GoldTransaction):
+                gold_total_amount_transaction += transaction._total_amount
+            if isinstance(transaction, CurrencyTransaction):
+                currency_total_amount_transaction += transaction._total_amount
+
+        frame_week_1 = customtkinter.CTkFrame(
+            frame_scroll,
+            fg_color="#ffffff",
+            border_width=2,
+            border_color="#989DA1"
+        )
+        frame_week_1.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
+
+        week_label = customtkinter.CTkLabel(
+            master=frame_week_1,
+            text="Week 1",
+            font=("Arial", 20, "bold"),
+            text_color="black",
+            anchor="w"
+        )
+        week_label.pack(padx=20, pady=(20, 5), fill="x")
+
+        frame_gold = customtkinter.CTkFrame(
+            master=frame_week_1, fg_color="transparent")
+        frame_gold.pack(padx=40, pady=5, fill="x")
+
+        frame_gold.columnconfigure(0, weight=0)
+        frame_gold.columnconfigure(1, weight=1)
+
+        gold_label = customtkinter.CTkLabel(
+            master=frame_gold,
+            text="GOLD TRANSACTION:",
+            font=("Arial", 16, "bold"),
+            text_color="black",
+            anchor="w"
+        )
+        gold_label.grid(row=0, column=0, sticky="w", padx=0, pady=0)
+
+        gold_total_amount_value = customtkinter.CTkLabel(
+            master=frame_gold,
+            text=f"{self.format_price_number(
+                gold_total_amount_transaction)} VND",
+            font=("Arial", 14),
+            text_color="black",
+            anchor="w"
+        )
+        gold_total_amount_value.grid(
+            row=0, column=1, sticky="e", padx=0, pady=0)
+
+        frame_currency = customtkinter.CTkFrame(
+            master=frame_week_1, fg_color="transparent")
+        frame_currency.pack(padx=40, pady=(5, 20), fill="x")
+
+        frame_currency.columnconfigure(0, weight=0)
+        frame_currency.columnconfigure(1, weight=1)
+
+        currency_label = customtkinter.CTkLabel(
+            master=frame_currency,
+            text="CURRENCY TRANSACTION:",
+            font=("Arial", 16, "bold"),
+            text_color="black",
+            anchor="w"
+        )
+        currency_label.grid(row=0, column=0, sticky="w", padx=0, pady=0)
+
+        currency_total_amount_value = customtkinter.CTkLabel(
+            master=frame_currency,
+            text=f"{self.format_price_number(
+                currency_total_amount_transaction)} VND",
+            font=("Arial", 14),
+            text_color="black",
+            anchor="w"
+        )
+        currency_total_amount_value.grid(
+            row=0, column=1, sticky="e", padx=0, pady=0)
 
     def format_price_number(self, total_amount):
         if '.' in str(total_amount):
