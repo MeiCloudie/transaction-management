@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.ticker import MaxNLocator
 import math
+import pandas as pd
+# import numpy as np
 
 
 class CurrencyType(Enum):
@@ -146,6 +148,114 @@ class TransactionList:
 customtkinter.set_appearance_mode("light")
 customtkinter.set_default_color_theme("dark-blue")
 
+# Dữ liệu cho transactions
+transactions_data = [
+    {
+        "id": "GLD001", "day": 2, "month": 5, "year": 2024,
+        "unit_price": 85200000.0, "quantity": 2.0, "type": "gold",
+        "gold_type": 0, "isdeleted": False, "exchange_rate_id": None,
+        "currency_type": None, "exchange_rate": None, "effective_day": None,
+        "effective_month": None, "effective_year": None
+    },
+    {
+        "id": "GLD002", "day": 2, "month": 5, "year": 2024,
+        "unit_price": 75500000.0, "quantity": 3.0, "type": "gold",
+        "gold_type": 1, "isdeleted": False, "exchange_rate_id": None,
+        "currency_type": None, "exchange_rate": None, "effective_day": None,
+        "effective_month": None, "effective_year": None
+    },
+    {
+        "id": "GLD003", "day": 22, "month": 4, "year": 2024,
+        "unit_price": 84800000.0, "quantity": 3.0, "type": "gold",
+        "gold_type": 2, "isdeleted": False, "exchange_rate_id": None,
+        "currency_type": None, "exchange_rate": None, "effective_day": None,
+        "effective_month": None, "effective_year": None
+    },
+    {
+        "id": "GLD004", "day": 15, "month": 6, "year": 2024,
+        "unit_price": 83200000.0, "quantity": 1.0, "type": "gold",
+        "gold_type": 0, "isdeleted": False, "exchange_rate_id": None,
+        "currency_type": None, "exchange_rate": None, "effective_day": None,
+        "effective_month": None, "effective_year": None
+    },
+    {
+        "id": "GLD005", "day": 19, "month": 2, "year": 2024,
+        "unit_price": 74500000.0, "quantity": 1.0, "type": "gold",
+        "gold_type": 1, "isdeleted": False, "exchange_rate_id": None,
+        "currency_type": None, "exchange_rate": None, "effective_day": None,
+        "effective_month": None, "effective_year": None
+    },
+    {
+        "id": "GLD006", "day": 25, "month": 4, "year": 2024,
+        "unit_price": 84800000.0, "quantity": 2.0, "type": "gold",
+        "gold_type": 2, "isdeleted": False, "exchange_rate_id": None,
+        "currency_type": None, "exchange_rate": None, "effective_day": None,
+        "effective_month": None, "effective_year": None
+    },
+    {
+        "id": "CUR001", "day": 2, "month": 5, "year": 2024, "quantity": 50.0,
+        "type": "currency", "currency_type": 1, "exchange_rate_id": 2,
+        "exchange_rate": 25137.0, "effective_day": 1, "effective_month": 1,
+        "effective_year": 2024, "isdeleted": False
+    },
+    {
+        "id": "CUR002", "day": 28, "month": 4, "year": 2024, "quantity": 500.0,
+        "type": "currency", "currency_type": 2, "exchange_rate_id": 3,
+        "exchange_rate": 26777.56, "effective_day": 1, "effective_month": 1,
+        "effective_year": 2024, "isdeleted": False
+    },
+    {
+        "id": "CUR003", "day": 12, "month": 4, "year": 2024,
+        "quantity": 500000.0, "type": "currency", "currency_type": 0,
+        "exchange_rate_id": 1, "exchange_rate": 1.0, "effective_day": 1,
+        "effective_month": 1, "effective_year": 2024, "isdeleted": False
+    },
+    {
+        "id": "CUR004", "day": 25, "month": 4, "year": 2024, "quantity": 70.0,
+        "type": "currency", "currency_type": 1, "exchange_rate_id": 2,
+        "exchange_rate": 25137.0, "effective_day": 1, "effective_month": 1,
+        "effective_year": 2024, "isdeleted": False
+    },
+    {
+        "id": "CUR005", "day": 11, "month": 4, "year": 2024, "quantity": 200.0,
+        "type": "currency", "currency_type": 2, "exchange_rate_id": 3,
+        "exchange_rate": 26777.56, "effective_day": 1, "effective_month": 1,
+        "effective_year": 2024, "isdeleted": False
+    },
+    {
+        "id": "CUR006", "day": 15, "month": 6, "year": 2024,
+        "quantity": 90000000.0, "type": "currency", "currency_type": 0,
+        "exchange_rate_id": 1, "exchange_rate": 1.0, "effective_day": 1,
+        "effective_month": 1, "effective_year": 2024, "isdeleted": False
+    }
+]
+
+# Dữ liệu cho exchange_rates
+exchange_rates_data = [
+    {
+        "id": 1, "currency_type": 0, "rate": 1.0, "effective_day": 1,
+        "effective_month": 1, "effective_year": 2024
+    },
+    {
+        "id": 2, "currency_type": 1, "rate": 25137.0, "effective_day": 1,
+        "effective_month": 1, "effective_year": 2024
+    },
+    {
+        "id": 3, "currency_type": 2, "rate": 26777.56, "effective_day": 1,
+        "effective_month": 1, "effective_year": 2024
+    }
+]
+
+# Chuyển đổi dữ liệu thành DataFrame
+df_transactions = pd.DataFrame(transactions_data)
+df_exchange_rates = pd.DataFrame(exchange_rates_data)
+
+# Ghi dữ liệu vào file Excel
+with pd.ExcelWriter("data.xlsx") as writer:
+    df_transactions.to_excel(writer, sheet_name="transactions", index=False)
+    df_exchange_rates.to_excel(
+        writer, sheet_name="exchange_rates", index=False)
+
 
 class TransactionApp(customtkinter.CTk):
     def __init__(self):
@@ -156,7 +266,7 @@ class TransactionApp(customtkinter.CTk):
         self.minsize(1720, 960)
 
         self.transaction_list = TransactionList()
-        self.load_data_from_json()
+        self.load_data_from_excel()
         self.create_widget()
 
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -166,8 +276,8 @@ class TransactionApp(customtkinter.CTk):
         self.header_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
         self.tab_filter = TabFilter(master=self)
-        self.tab_filter.grid(row=1, column=0, padx=10,
-                             pady=(0, 10), sticky="ew")
+        self.tab_filter.grid(row=1, column=0, padx=10, pady=(0, 10),
+                             sticky="ew")
 
         self.grid_columnconfigure(0, weight=1)
 
@@ -179,74 +289,76 @@ class TransactionApp(customtkinter.CTk):
             except Exception as e:
                 print(f"Error during closing: {e}")
 
-    def load_data_from_json(self):
+    def load_data_from_excel(self):
         try:
-            with open("data.json", "r") as json_file:
-                data = json.load(json_file)
-                transactions_data = data.get("transactions", [])
-                exchange_rates_data = data.get("exchange_rates", [])
+            # Read the Excel file
+            df_transactions = pd.read_excel("data.xlsx",
+                                            sheet_name="transactions")
+            df_exchange_rates = pd.read_excel("data.xlsx",
+                                              sheet_name="exchange_rates")
 
-                for transaction_data in transactions_data:
-                    if transaction_data["isdeleted"]:
-                        continue
+            # Process transactions
+            for _, row in df_transactions.iterrows():
+                if row['isdeleted']:
+                    continue
 
-                    if transaction_data["type"] == "gold":
-                        transaction = GoldTransaction(
-                            transaction_data["id"],
-                            transaction_data["day"],
-                            transaction_data["month"],
-                            transaction_data["year"],
-                            transaction_data["unit_price"],
-                            transaction_data["quantity"],
-                            GoldType(transaction_data["gold_type"]),
-                            isdeleted=transaction_data["isdeleted"]
-                        )
-                    elif transaction_data["type"] == "currency":
-                        exchange_rate_data = transaction_data["exchange_rate"]
-                        exchange_rate = ExchangeRate(
-                            exchange_rate_data["id"],
-                            CurrencyType(exchange_rate_data["currency_type"]),
-                            exchange_rate_data["rate"],
-                            exchange_rate_data["effective_day"],
-                            exchange_rate_data["effective_month"],
-                            exchange_rate_data["effective_year"]
-                        )
-                        transaction = CurrencyTransaction(
-                            transaction_data["id"],
-                            transaction_data["day"],
-                            transaction_data["month"],
-                            transaction_data["year"],
-                            transaction_data["quantity"],
-                            CurrencyType(transaction_data["currency_type"]),
-                            exchange_rate,
-                            isdeleted=transaction_data["isdeleted"]
-                        )
-                    else:
-                        continue
-
-                    self.transaction_list.add_transaction(transaction)
-
-                for exchange_rate_data in exchange_rates_data:
-                    _ = ExchangeRate(
-                        exchange_rate_data["id"],
-                        CurrencyType(exchange_rate_data["currency_type"]),
-                        exchange_rate_data["rate"],
-                        exchange_rate_data["effective_day"],
-                        exchange_rate_data["effective_month"],
-                        exchange_rate_data["effective_year"]
+                if row['type'] == "gold":
+                    transaction = GoldTransaction(
+                        row['id'],
+                        row['day'],
+                        row['month'],
+                        row['year'],
+                        row['unit_price'],
+                        row['quantity'],
+                        GoldType(row['gold_type']),
+                        isdeleted=row['isdeleted']
                     )
+                elif row['type'] == "currency":
+                    exchange_rate = ExchangeRate(
+                        row['exchange_rate_id'],
+                        CurrencyType(row['currency_type']),
+                        row['exchange_rate'],
+                        row['effective_day'],
+                        row['effective_month'],
+                        row['effective_year']
+                    )
+                    transaction = CurrencyTransaction(
+                        row['id'],
+                        row['day'],
+                        row['month'],
+                        row['year'],
+                        row['quantity'],
+                        CurrencyType(row['currency_type']),
+                        exchange_rate,
+                        isdeleted=row['isdeleted']
+                    )
+                else:
+                    continue
+
+                self.transaction_list.add_transaction(transaction)
+
+            # Process exchange rates
+            for _, row in df_exchange_rates.iterrows():
+                _ = ExchangeRate(
+                    row['id'],
+                    CurrencyType(row['currency_type']),
+                    row['rate'],
+                    row['effective_day'],
+                    row['effective_month'],
+                    row['effective_year']
+                )
 
         except FileNotFoundError:
             messagebox.showerror("Error", "Data file not found.")
-        except json.JSONDecodeError:
-            messagebox.showerror("Error", "Invalid JSON format in data file.")
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred: {e}")
 
-    def refresh_data_from_json(self):
+    def refresh_data_from_excel(self):
         messagebox.showinfo("Refreshing Data",
                             "Refreshing data. Please wait...")
 
         self.transaction_list.clear()
-        self.load_data_from_json()
+        self.load_data_from_excel()
 
         if self.header_frame is not None:
             self.header_frame.destroy()
@@ -302,7 +414,7 @@ class HeaderFrame(customtkinter.CTkFrame):
             fg_color="green",
             hover_color="dark green",
             width=30, height=30)
-        self.btn_refresh.configure(command=self.master.refresh_data_from_json)
+        # self.btn_refresh.configure(command=self.master.refresh_data_from_json)
         self.btn_refresh.pack(side="right", padx=5, pady=5)
 
         self.btn_add_transaction = customtkinter.CTkButton(
