@@ -414,7 +414,7 @@ class HeaderFrame(customtkinter.CTkFrame):
             fg_color="green",
             hover_color="dark green",
             width=30, height=30)
-        # self.btn_refresh.configure(command=self.master.refresh_data_from_json)
+        self.btn_refresh.configure(command=self.master.refresh_data_from_excel)
         self.btn_refresh.pack(side="right", padx=5, pady=5)
 
         self.btn_add_transaction = customtkinter.CTkButton(
