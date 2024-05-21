@@ -1,4 +1,4 @@
-# Transaction Management Project - Desktop Application
+# Transaction Management Project - Desktop Application [VERSION 1]
 
 ## Business Analysis
 
