@@ -12,9 +12,9 @@ import os
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.ticker import MaxNLocator
-import math
+# import math
 import pandas as pd
-# import numpy as np
+import numpy as np
 
 
 class CurrencyType(Enum):
@@ -5386,21 +5386,40 @@ class TabReport(customtkinter.CTkTabview):
 
             return total_chart_frame
 
-        total_amount_transaction = 0
-        gold_total_amount_transaction = 0
-        currency_total_amount_transaction = 0
-        total_amount_quantity_transaction = 0
-        gold_total_amount_quantity_transaction = 0
-        currency_total_amount_quantity_transaction = 0
-        for transaction in transactions:
-            total_amount_transaction += transaction._total_amount
-            total_amount_quantity_transaction += 1
-            if isinstance(transaction, GoldTransaction):
-                gold_total_amount_transaction += transaction._total_amount
-                gold_total_amount_quantity_transaction += 1
-            if isinstance(transaction, CurrencyTransaction):
-                currency_total_amount_transaction += transaction._total_amount
-                currency_total_amount_quantity_transaction += 1
+        # total_amount_transaction = 0
+        # gold_total_amount_transaction = 0
+        # currency_total_amount_transaction = 0
+        # total_amount_quantity_transaction = 0
+        # gold_total_amount_quantity_transaction = 0
+        # currency_total_amount_quantity_transaction = 0
+        # for transaction in transactions:
+        #     total_amount_transaction += transaction._total_amount
+        #     total_amount_quantity_transaction += 1
+        #     if isinstance(transaction, GoldTransaction):
+        #         gold_total_amount_transaction += transaction._total_amount
+        #         gold_total_amount_quantity_transaction += 1
+        #     if isinstance(transaction, CurrencyTransaction):
+        #         currency_total_amount_transaction += \
+        #             transaction._total_amount
+        #         currency_total_amount_quantity_transaction += 1
+
+        total_amounts = np.array([txn._total_amount for txn in transactions])
+        total_amount_transaction = np.sum(total_amounts)
+        total_amount_quantity_transaction = len(transactions)
+
+        gold_transactions = [
+            txn for txn in transactions if isinstance(txn, GoldTransaction)]
+        currency_transactions = [
+            txn for txn in transactions if isinstance(txn,
+                                                      CurrencyTransaction)]
+
+        # gold_total_amount_transaction = np.sum(
+        #     [txn._total_amount for txn in gold_transactions])
+        # currency_total_amount_transaction = np.sum(
+        #     [txn._total_amount for txn in currency_transactions])
+
+        gold_total_amount_quantity_transaction = len(gold_transactions)
+        currency_total_amount_quantity_transaction = len(currency_transactions)
 
         formatted_total_amount = self.format_price_number(
             total_amount_transaction)
@@ -5695,20 +5714,18 @@ class TabReport(customtkinter.CTkTabview):
         canvas.get_tk_widget().pack(padx=5, pady=(0, 20), fill="x")
 
     def get_total_amount_per_week(self, transactions, weeks):
-        totals = []
-        for start, end in weeks:
-            total = sum(transaction._total_amount
-                        for transaction in transactions
-                        if datetime.date(transaction._year, transaction._month,
-                                         transaction._day) >= start and
-                        datetime.date(transaction._year, transaction._month,
-                                      transaction._day) <= end)
+        totals = np.zeros(len(weeks))
+        transaction_dates = np.array(
+            [datetime.date(txn._year, txn._month, txn._day)
+             for txn in transactions])
+        transaction_amounts = np.array(
+            [txn._total_amount for txn in transactions])
 
-            totals.append(total if not math.isnan(total) else 0)
+        for i, (start, end) in enumerate(weeks):
+            mask = (transaction_dates >= start) & (transaction_dates <= end)
+            totals[i] = np.sum(transaction_amounts[mask])
 
-        while len(totals) < 4:
-            totals.append(0)
-        return totals
+        return totals.tolist()
 
     def create_gold_transaction_treeview(self, frame):
         treeview_style = ttk.Style()
