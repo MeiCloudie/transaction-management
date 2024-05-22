@@ -145,10 +145,8 @@ class TransactionList:
         self._transactions = []
 
 
-customtkinter.set_appearance_mode("light")
-customtkinter.set_default_color_theme("dark-blue")
-
-# Dữ liệu cho transactions
+# Initialize data
+# transactions
 transactions_data = [
     {
         "id": "GLD001", "day": 2, "month": 5, "year": 2024,
@@ -230,7 +228,7 @@ transactions_data = [
     }
 ]
 
-# Dữ liệu cho exchange_rates
+# exchange_rates
 exchange_rates_data = [
     {
         "id": 1, "currency_type": 0, "rate": 1.0, "effective_day": 1,
@@ -246,15 +244,18 @@ exchange_rates_data = [
     }
 ]
 
-# Chuyển đổi dữ liệu thành DataFrame
 df_transactions = pd.DataFrame(transactions_data)
 df_exchange_rates = pd.DataFrame(exchange_rates_data)
 
-# Ghi dữ liệu vào file Excel
-with pd.ExcelWriter("data.xlsx") as writer:
-    df_transactions.to_excel(writer, sheet_name="transactions", index=False)
-    df_exchange_rates.to_excel(
-        writer, sheet_name="exchange_rates", index=False)
+# Write file for testing
+# with pd.ExcelWriter("data.xlsx") as writer:
+#     df_transactions.to_excel(writer, sheet_name="transactions", index=False)
+#     df_exchange_rates.to_excel(
+#         writer, sheet_name="exchange_rates", index=False)
+
+# Theme
+customtkinter.set_appearance_mode("light")
+customtkinter.set_default_color_theme("dark-blue")
 
 
 class TransactionApp(customtkinter.CTk):
@@ -291,13 +292,14 @@ class TransactionApp(customtkinter.CTk):
 
     def load_data_from_excel(self):
         try:
-            # Read the Excel file
             df_transactions = pd.read_excel("data.xlsx",
                                             sheet_name="transactions")
             df_exchange_rates = pd.read_excel("data.xlsx",
                                               sheet_name="exchange_rates")
 
-            # Process transactions
+            if not self.check_data_validity(df_transactions):
+                return
+
             for _, row in df_transactions.iterrows():
                 if row['isdeleted']:
                     continue
@@ -337,7 +339,6 @@ class TransactionApp(customtkinter.CTk):
 
                 self.transaction_list.add_transaction(transaction)
 
-            # Process exchange rates
             for _, row in df_exchange_rates.iterrows():
                 _ = ExchangeRate(
                     row['id'],
@@ -366,6 +367,89 @@ class TransactionApp(customtkinter.CTk):
             self.tab_filter.destroy()
 
         self.create_widget()
+
+    def convert_to_int(self, value, field_name, row_index):
+        try:
+            return int(value)
+        except ValueError:
+            messagebox.showerror("Data Error", f"Invalid '{
+                field_name}' at row {row_index + 1}")
+            return None
+
+    def convert_to_float(self, value, field_name, row_index):
+        try:
+            return float(value)
+        except ValueError:
+            messagebox.showerror("Data Error", f"Invalid '{
+                field_name}' at row {row_index + 1}")
+            return None
+
+    def check_data_validity(self, df):
+        for idx, row in df.iterrows():
+            if pd.isna(row['id']) or not isinstance(row['id'], str):
+                messagebox.showerror("Data Error", f"Invalid 'id' at row {
+                    idx + 1}")
+                return False
+
+            day = self.convert_to_int(row['day'], 'day', idx)
+            month = self.convert_to_int(row['month'], 'month', idx)
+            year = self.convert_to_int(row['year'], 'year', idx)
+            if day is None or month is None or year is None:
+                return False
+
+            if not (1 <= day <= 31):
+                messagebox.showerror(
+                    "Data Error", f"Invalid 'day' at row {idx + 1}")
+                return False
+            if not (1 <= month <= 12):
+                messagebox.showerror(
+                    "Data Error", f"Invalid 'month' at row {idx + 1}")
+                return False
+
+            if row['type'] == "gold":
+                unit_price = self.convert_to_float(
+                    row['unit_price'], 'unit_price', idx)
+                quantity = self.convert_to_float(row['quantity'], 'quantity',
+                                                 idx)
+                gold_type = self.convert_to_int(row['gold_type'], 'gold_type',
+                                                idx)
+                if unit_price is None or quantity is None or gold_type is None:
+                    return False
+            elif row['type'] == "currency":
+                quantity = self.convert_to_float(row['quantity'], 'quantity',
+                                                 idx)
+                currency_type = self.convert_to_int(
+                    row['currency_type'], 'currency_type', idx)
+                exchange_rate_id = self.convert_to_int(
+                    row['exchange_rate_id'], 'exchange_rate_id', idx)
+                exchange_rate = self.convert_to_float(
+                    row['exchange_rate'], 'exchange_rate', idx)
+                effective_day = self.convert_to_int(
+                    row['effective_day'], 'effective_day', idx)
+                effective_month = self.convert_to_int(
+                    row['effective_month'], 'effective_month', idx)
+                effective_year = self.convert_to_int(
+                    row['effective_year'], 'effective_year', idx)
+                if quantity is None or currency_type is None or \
+                        exchange_rate_id is None or exchange_rate is \
+                        None or effective_day is None or effective_month is \
+                        None or effective_year is None:
+                    return False
+                if not (1 <= effective_day <= 31):
+                    messagebox.showerror(
+                        "Data Error", f"Invalid 'effective_day' at row {
+                            idx + 1}")
+                    return False
+                if not (1 <= effective_month <= 12):
+                    messagebox.showerror(
+                        "Data Error", f"Invalid 'effective_month' at row {
+                            idx + 1}")
+                    return False
+            else:
+                messagebox.showerror(
+                    "Data Error", f"Invalid 'type' at row {idx + 1}")
+                return False
+        return True
 
 
 class HeaderFrame(customtkinter.CTkFrame):
