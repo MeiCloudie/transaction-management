@@ -5674,29 +5674,50 @@ class TabReport(customtkinter.CTkTabview):
         return weeks
 
     def plot_bar_chart_for_this_month(self, parent, weeks, totals):
-        week_labels = \
-            [f"Week {i+1}\n{start.strftime('%d/%m/%Y')} - {end.strftime(
-                '%d/%m/%Y')}" for i, (start, end) in enumerate(weeks)]
+        week_labels = [
+            f"Week {i+1}\n{start.strftime('%d/%m/%Y')
+                           } - {end.strftime('%d/%m/%Y')}"
+            for i, (start, end) in enumerate(weeks)
+        ]
+
+        gold_totals = [0] * len(weeks)
+        currency_totals = [0] * len(weeks)
+        for i, (start, end) in enumerate(weeks):
+            for txn in self.all_transactions:
+                txn_date = datetime.date(txn._year, txn._month, txn._day)
+                if start <= txn_date <= end:
+                    if isinstance(txn, GoldTransaction):
+                        gold_totals[i] += txn._total_amount
+                    elif isinstance(txn, CurrencyTransaction):
+                        currency_totals[i] += txn._total_amount
 
         fig, ax = plt.subplots()
+        bar_width = 0.2
+        x = np.arange(len(weeks))
 
-        ax.bar(week_labels, totals)
+        ax.bar(x - bar_width, gold_totals,
+               width=bar_width, label='Gold', color='#f5d45f')
+        ax.bar(x, currency_totals, width=bar_width,
+               label='Currency', color='#2ea64d')
+        ax.bar(x + bar_width, totals, width=bar_width,
+               label='Total')
 
         ax.set_xlabel('Weeks')
         ax.set_ylabel('Total Amount (VND)')
         ax.set_title('Weekly Total Amount for Current Month')
+        ax.set_xticks(x)
+        ax.set_xticklabels(week_labels, ha='center')
 
         ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
 
         max_total = max(totals, default=0)
-
         if max_total > 0:
             max_ticks = min(5, max(2, int(max_total // 1_000_000) + 1))
         else:
             max_ticks = 2
 
         ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
-
         ax.yaxis.set_major_formatter(
             lambda x, pos: f'{x:,.0f}' if x < 1_000_000
             else f'{int(x // 1_000_000)}M'
