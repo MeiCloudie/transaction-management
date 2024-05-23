@@ -5783,6 +5783,8 @@ class TabReport(customtkinter.CTkTabview):
                         ).strftime("%A\n%d/%m/%Y") for i in range(7)]
 
         totals = {day: 0 for day in days}
+        gold_totals = {day: 0 for day in days}
+        currency_totals = {day: 0 for day in days}
 
         for transaction in transactions:
             transaction_date = datetime.date(
@@ -5790,34 +5792,50 @@ class TabReport(customtkinter.CTkTabview):
             day_of_week = transaction_date.strftime('%A')
             if day_of_week in totals:
                 totals[day_of_week] += transaction._total_amount
+                if isinstance(transaction, GoldTransaction):
+                    gold_totals[day_of_week] += transaction._total_amount
+                elif isinstance(transaction, CurrencyTransaction):
+                    currency_totals[day_of_week] += transaction._total_amount
 
         total_amounts = [totals[day] for day in days]
+        gold_amounts = [gold_totals[day] for day in days]
+        currency_amounts = [currency_totals[day] for day in days]
 
         fig, ax = plt.subplots()
-        ax.bar(date_labels, total_amounts)
+        bar_width = 0.2
+        x = np.arange(len(days))
+
+        ax.bar(x - bar_width, gold_amounts, width=bar_width, label='Gold',
+               color='#f5d45f')
+        ax.bar(
+            x, currency_amounts, width=bar_width, label='Currency',
+            color='#2ea64d')
+        ax.bar(x + bar_width, total_amounts, width=bar_width, label='Total')
+
         ax.set_xlabel('Days of the Week')
         ax.set_ylabel('Total Amount (VND)')
         ax.set_title('Total Amounts for Each Day of the Week')
+        ax.set_xticks(x)
+        ax.set_xticklabels(date_labels, ha='center')
 
         ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
 
         max_total = max(total_amounts, default=0)
-
         if max_total > 0:
             max_ticks = min(5, max(2, int(max_total // 1_000_000) + 1))
         else:
             max_ticks = 2
 
         ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
-
         ax.yaxis.set_major_formatter(
-            lambda x, pos: f'{x:,.0f}' if x < 1_000_000
-            else f'{int(x // 1_000_000)}M'
-        )
+            lambda x, pos: f'{x:,.0f}'
+            if x < 1_000_000 else f'{int(x // 1_000_000)}M')
 
         for i, v in enumerate(total_amounts):
             formatted_amount = self.format_price_number(v)
-            ax.text(i, v + 0.01, formatted_amount, ha='center', va='bottom')
+            ax.text(i + bar_width, v + 0.01, formatted_amount,
+                    ha='center', va='bottom')
 
         fig.subplots_adjust(bottom=0.2)
 
