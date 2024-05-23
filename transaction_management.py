@@ -279,9 +279,9 @@ class TransactionApp(customtkinter.CTk):
             master=self, initial_theme=self.current_theme)
         self.header_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
-        # self.tab_filter = TabFilter(master=self)
-        # self.tab_filter.grid(row=1, column=0, padx=10, pady=(0, 10),
-        #                      sticky="ew")
+        self.tab_filter = TabFilter(master=self)
+        self.tab_filter.grid(row=1, column=0, padx=10, pady=(0, 10),
+                             sticky="ew")
 
         self.grid_columnconfigure(0, weight=1)
 
@@ -5872,14 +5872,17 @@ class TabReport(customtkinter.CTkTabview):
         canvas.get_tk_widget().pack(padx=5, pady=(0, 20), fill="x")
 
     def plot_markers_chart_for_this_week(self, parent, transactions):
-        days = ["Monday", "Tuesday", "Wednesday",
-                "Thursday", "Friday", "Saturday", "Sunday"]
+        days = ["Monday", "Tuesday", "Wednesday", "Thursday",
+                "Friday", "Saturday", "Sunday"]
         now = datetime.datetime.now()
         start_of_week = now - datetime.timedelta(days=now.weekday())
-        date_labels = [(start_of_week + datetime.timedelta(days=i)
-                        ).strftime("%A\n%d/%m/%Y") for i in range(7)]
+        date_labels = [(start_of_week
+                        + datetime.timedelta(days=i)).strftime("%A\n%d/%m/%Y")
+                       for i in range(7)]
 
         totals = {day: 0 for day in days}
+        gold_totals = {day: 0 for day in days}
+        currency_totals = {day: 0 for day in days}
 
         for transaction in transactions:
             transaction_date = datetime.date(
@@ -5887,18 +5890,30 @@ class TabReport(customtkinter.CTkTabview):
             day_of_week = transaction_date.strftime('%A')
             if day_of_week in totals:
                 totals[day_of_week] += transaction._total_amount
+                if isinstance(transaction, GoldTransaction):
+                    gold_totals[day_of_week] += transaction._total_amount
+                elif isinstance(transaction, CurrencyTransaction):
+                    currency_totals[day_of_week] += transaction._total_amount
 
         total_amounts = [totals[day] for day in days]
+        gold_amounts = [gold_totals[day] for day in days]
+        currency_amounts = [currency_totals[day] for day in days]
 
         fig, ax = plt.subplots()
 
-        ax.plot(date_labels, total_amounts, marker='o', linestyle='-')
+        ax.plot(date_labels, gold_amounts, marker='o',
+                linestyle='-', label='Gold', color='#f5d45f')
+        ax.plot(date_labels, currency_amounts, marker='o',
+                linestyle='-', label='Currency', color='#2ea64d')
+        ax.plot(date_labels, total_amounts, marker='o',
+                linestyle='-', label='Total')
 
         ax.set_xlabel('Days of the Week')
         ax.set_ylabel('Total Amount (VND)')
         ax.set_title('Total Amounts for Each Day of the Week')
 
         ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
 
         max_total = max(total_amounts, default=0)
 
@@ -5910,13 +5925,24 @@ class TabReport(customtkinter.CTkTabview):
         ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
 
         ax.yaxis.set_major_formatter(
-            lambda x, pos: f'{x:,.0f}' if x < 1_000_000 else f'{
-                int(x // 1_000_000)}M'
+            lambda x, pos: f'{x:,.0f}'
+            if x < 1_000_000 else f'{int(x // 1_000_000)}M'
         )
 
         for i, v in enumerate(total_amounts):
             formatted_amount = self.format_price_number(v)
-            ax.text(i, v + 0.01, formatted_amount, ha='center', va='bottom')
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom')
+
+        for i, v in enumerate(gold_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#f5d45f')
+
+        for i, v in enumerate(currency_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#2ea64d')
 
         fig.subplots_adjust(bottom=0.2)
 
