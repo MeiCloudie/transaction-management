@@ -5489,9 +5489,9 @@ class TabReport(customtkinter.CTkTabview):
         ax.pie(piechart_values, labels=piechart_labels, autopct='%1.1f%%',
                colors=piechart_colors)
         ax.legend(title="Category", loc='center left',
-                  bbox_to_anchor=(-0.85, 0.5))
+                  bbox_to_anchor=(-0.55, 0.5))
 
-        fig.set_size_inches(2, 2)
+        fig.set_size_inches(3, 3)
 
         canvas = FigureCanvasTkAgg(fig, master=total_chart_frame)
         canvas.draw()
@@ -5882,7 +5882,7 @@ class TabReport(customtkinter.CTkTabview):
             "Transaction Date",
             "Unit Price (VND/tael)",
             "Quantity (tael)", "Gold Type", "Total Amount (VND)"
-        ), show="headings", height=2)
+        ), show="headings", height=4)
 
         treeview.heading("Transaction Code",
                          text="Transaction Code", anchor="w")
@@ -5915,7 +5915,7 @@ class TabReport(customtkinter.CTkTabview):
             "Transaction Date",
             "Quantity",
             "Currency Type", "Exchange Rate (VND)", "Total Amount (VND)"
-        ), show="headings", height=2)
+        ), show="headings", height=4)
 
         treeview.heading("Transaction Code",
                          text="Transaction Code", anchor="w")
@@ -6031,8 +6031,7 @@ class TotalDetailsWindow(customtkinter.CTkToplevel):
         super().__init__(parent, *args, **kwargs)
         self.title("Total Details")
         self.iconbitmap(default='./logo.ico')
-        self.minsize(500, 600)
-        self.maxsize(500, 600)
+        self.minsize(700, 600)
         self.configure(fg_color="#d9d9d9")
         self.parent = parent
         self.transactions = transactions
@@ -6173,7 +6172,6 @@ class StatisticsDetailsMonthWindow(customtkinter.CTkToplevel):
         self.title("Statistics Details")
         self.iconbitmap(default='./logo.ico')
         self.minsize(1400, 900)
-        self.maxsize(1400, 900)
         self.configure(fg_color="#d9d9d9")
         self.parent = parent
         self.transactions = transactions
@@ -6186,7 +6184,7 @@ class StatisticsDetailsMonthWindow(customtkinter.CTkToplevel):
     def create_widget(self):
         frame_scroll = customtkinter.CTkScrollableFrame(
             self, fg_color="transparent",
-            height=860)
+            height=1000)
         frame_scroll.pack(padx=5, pady=0, fill="both")
 
         month_statistics_chart = \
