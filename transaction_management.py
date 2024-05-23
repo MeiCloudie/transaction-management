@@ -266,6 +266,8 @@ class TransactionApp(customtkinter.CTk):
         self.iconbitmap(icon_path)
         self.minsize(1720, 960)
 
+        self.current_theme = "Dark-Blue"
+
         self.transaction_list = TransactionList()
         self.load_data_from_excel()
         self.create_widget()
@@ -273,7 +275,8 @@ class TransactionApp(customtkinter.CTk):
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def create_widget(self):
-        self.header_frame = HeaderFrame(master=self)
+        self.header_frame = HeaderFrame(
+            master=self, initial_theme=self.current_theme)
         self.header_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
         self.tab_filter = TabFilter(master=self)
@@ -451,10 +454,11 @@ class TransactionApp(customtkinter.CTk):
                 return False
         return True
 
-    def update_theme(self):
+    def update_theme(self, new_theme):
         update_message = messagebox.showinfo(
             "Updating Theme", "Updating theme. Please wait a moment...")
 
+        self.current_theme = new_theme
         self.header_frame.destroy()
         self.tab_filter.destroy()
 
@@ -465,7 +469,7 @@ class TransactionApp(customtkinter.CTk):
 
 
 class HeaderFrame(customtkinter.CTkFrame):
-    def __init__(self, master, **kwargs):
+    def __init__(self, master, initial_theme="Dark-Blue", **kwargs):
         super().__init__(master, **kwargs)
         self.configure(fg_color="#dbdbdb", bg_color="#f2f2f2")
         self.refresh_icon = customtkinter.CTkImage(
@@ -539,7 +543,7 @@ class HeaderFrame(customtkinter.CTkFrame):
                           values=[
                               "Dark-Blue", "Blue", "Green"],
                           command=self.option_menu_theme_callback)
-        self.optionmenu_theme.set("Dark-Blue")
+        self.optionmenu_theme.set(initial_theme)
         self.optionmenu_theme.pack(side="right", padx=5, pady=5)
 
         theme_label = customtkinter.CTkLabel(
@@ -557,7 +561,7 @@ class HeaderFrame(customtkinter.CTkFrame):
             customtkinter.set_default_color_theme("blue")
         elif choice == "Green":
             customtkinter.set_default_color_theme("green")
-        self.master.update_theme()
+        self.master.update_theme(choice)
 
     def open_filter_window(self):
         if self.filter_window is None or not \
