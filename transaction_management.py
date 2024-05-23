@@ -279,9 +279,9 @@ class TransactionApp(customtkinter.CTk):
             master=self, initial_theme=self.current_theme)
         self.header_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
-        self.tab_filter = TabFilter(master=self)
-        self.tab_filter.grid(row=1, column=0, padx=10, pady=(0, 10),
-                             sticky="ew")
+        # self.tab_filter = TabFilter(master=self)
+        # self.tab_filter.grid(row=1, column=0, padx=10, pady=(0, 10),
+        #                      sticky="ew")
 
         self.grid_columnconfigure(0, weight=1)
 
@@ -5740,15 +5740,32 @@ class TabReport(customtkinter.CTkTabview):
             for i, (start, end) in enumerate(weeks)
         ]
 
+        gold_totals = [0] * len(weeks)
+        currency_totals = [0] * len(weeks)
+        for i, (start, end) in enumerate(weeks):
+            for txn in self.all_transactions:
+                txn_date = datetime.date(txn._year, txn._month, txn._day)
+                if start <= txn_date <= end:
+                    if isinstance(txn, GoldTransaction):
+                        gold_totals[i] += txn._total_amount
+                    elif isinstance(txn, CurrencyTransaction):
+                        currency_totals[i] += txn._total_amount
+
         fig, ax = plt.subplots()
 
-        ax.plot(week_labels, totals, marker='o', linestyle='-')
+        ax.plot(week_labels, gold_totals, marker='o', linestyle='-',
+                label='Gold', color='#f5d45f')
+        ax.plot(week_labels, currency_totals, marker='o', linestyle='-',
+                label='Currency', color='#2ea64d')
+        ax.plot(week_labels, totals, marker='o', linestyle='-',
+                label='Total')
 
         ax.set_xlabel('Weeks')
         ax.set_ylabel('Total Amount (VND)')
         ax.set_title('Weekly Total Amount for Current Month')
 
         ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
 
         max_total = max(totals, default=0)
 
@@ -5760,13 +5777,24 @@ class TabReport(customtkinter.CTkTabview):
         ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
 
         ax.yaxis.set_major_formatter(
-            lambda x, pos: f'{x:,.0f}' if x < 1_000_000 else f'{
-                int(x // 1_000_000)}M'
+            lambda x, pos: f'{x:,.0f}'
+            if x < 1_000_000 else f'{int(x // 1_000_000)}M'
         )
 
         for i, v in enumerate(totals):
             formatted_amount = self.format_price_number(v)
-            ax.text(i, v + 0.01, formatted_amount, ha='center', va='bottom')
+            ax.text(i, v + 0.01, formatted_amount, ha='center',
+                    va='bottom')
+
+        for i, v in enumerate(gold_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount, ha='center', va='bottom',
+                    color='#f5d45f')
+
+        for i, v in enumerate(currency_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount, ha='center', va='bottom',
+                    color='#2ea64d')
 
         fig.subplots_adjust(bottom=0.2)
 
