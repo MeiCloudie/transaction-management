@@ -451,6 +451,18 @@ class TransactionApp(customtkinter.CTk):
                 return False
         return True
 
+    def update_theme(self):
+        update_message = messagebox.showinfo(
+            "Updating Theme", "Updating theme. Please wait a moment...")
+
+        self.header_frame.destroy()
+        self.tab_filter.destroy()
+
+        self.create_widget()
+
+        if update_message:
+            self.focus()
+
 
 class HeaderFrame(customtkinter.CTkFrame):
     def __init__(self, master, **kwargs):
@@ -518,8 +530,34 @@ class HeaderFrame(customtkinter.CTkFrame):
 
         self.report_window = None
 
+        self.vertical_separator = customtkinter.CTkFrame(
+            self.buttons_frame, width=2, height=30, fg_color="grey")
+        self.vertical_separator.pack(side="right", padx=5, pady=5, fill="y")
+
+        self.optionmenu_theme = customtkinter. \
+            CTkOptionMenu(self.buttons_frame,
+                          values=[
+                              "Dark-Blue", "Blue", "Green"],
+                          command=self.option_menu_theme_callback)
+        self.optionmenu_theme.set("Dark-Blue")
+        self.optionmenu_theme.pack(side="right", padx=5, pady=5)
+
+        theme_label = customtkinter.CTkLabel(
+            self.buttons_frame, text="Theme: ", text_color="black",
+            font=("Arial", 14, "bold"))
+        theme_label.pack(side="right", padx=0, pady=5)
+
         self.columnconfigure(0, weight=0)
         self.columnconfigure(1, weight=1)
+
+    def option_menu_theme_callback(self, choice):
+        if choice == "Dark-Blue":
+            customtkinter.set_default_color_theme("dark-blue")
+        elif choice == "Blue":
+            customtkinter.set_default_color_theme("blue")
+        elif choice == "Green":
+            customtkinter.set_default_color_theme("green")
+        self.master.update_theme()
 
     def open_filter_window(self):
         if self.filter_window is None or not \
