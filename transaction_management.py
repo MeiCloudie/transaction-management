@@ -3510,7 +3510,7 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
 class DeleteGoldTransactionWindow(customtkinter.CTkToplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
-        self.title("View Details Transaction")
+        self.title("Delete Transaction")
         self.iconbitmap(default='./logo.ico')
         self.minsize(400, 500)
         self.maxsize(400, 500)
@@ -3709,7 +3709,7 @@ class DeleteGoldTransactionWindow(customtkinter.CTkToplevel):
 class DeleteCurrencyTransactionWindow(customtkinter.CTkToplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
-        self.title("View Details Transaction")
+        self.title("Delete Transaction")
         self.iconbitmap(default='./logo.ico')
         self.minsize(400, 500)
         self.maxsize(400, 500)
