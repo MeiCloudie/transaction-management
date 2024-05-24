@@ -5648,6 +5648,14 @@ class TabReport(customtkinter.CTkTabview):
                                               transactions)
             self.plot_markers_chart_for_this_week(statistics_chart_frame,
                                                   transactions)
+            self.plot_gold_bar_chart_for_this_week(statistics_chart_frame,
+                                                   transactions)
+            self.plot_gold_markers_chart_for_this_week(statistics_chart_frame,
+                                                       transactions)
+            self.plot_currency_bar_chart_for_this_week(statistics_chart_frame,
+                                                       transactions)
+            self.plot_currency_markers_chart_for_this_week(
+                statistics_chart_frame, transactions)
 
         return statistics_chart_frame
 
@@ -6285,6 +6293,339 @@ class TabReport(customtkinter.CTkTabview):
             formatted_amount = self.format_price_number(v)
             ax.text(i, v + 0.01, formatted_amount,
                     ha='center', va='bottom', color='#2ea64d')
+
+        fig.subplots_adjust(bottom=0.2)
+
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.draw()
+        canvas.get_tk_widget().pack(padx=5, pady=(0, 20), fill="x")
+
+    def plot_gold_bar_chart_for_this_week(self, parent, transactions):
+        days = ["Monday", "Tuesday", "Wednesday", "Thursday",
+                "Friday", "Saturday", "Sunday"]
+        now = datetime.datetime.now()
+        start_of_week = now - datetime.timedelta(days=now.weekday())
+        date_labels = [(start_of_week
+                        + datetime.timedelta(days=i)).strftime("%A\n%d/%m/%Y")
+                       for i in range(7)]
+
+        sjc_totals = {day: 0 for day in days}
+        pnj_totals = {day: 0 for day in days}
+        doji_totals = {day: 0 for day in days}
+
+        for transaction in transactions:
+            if isinstance(transaction, GoldTransaction):
+                transaction_date = datetime.date(transaction._year,
+                                                 transaction._month,
+                                                 transaction._day)
+                day_of_week = transaction_date.strftime('%A')
+                if day_of_week in sjc_totals:
+                    if transaction._gold_type == GoldType.SJC:
+                        sjc_totals[day_of_week] += transaction._total_amount
+                    elif transaction._gold_type == GoldType.PNJ:
+                        pnj_totals[day_of_week] += transaction._total_amount
+                    elif transaction._gold_type == GoldType.DOJI:
+                        doji_totals[day_of_week] += transaction._total_amount
+
+        sjc_amounts = [sjc_totals[day] for day in days]
+        pnj_amounts = [pnj_totals[day] for day in days]
+        doji_amounts = [doji_totals[day] for day in days]
+
+        fig, ax = plt.subplots()
+        bar_width = 0.2
+        x = np.arange(len(days))
+
+        ax.bar(x - bar_width, sjc_amounts, width=bar_width,
+               label='SJC', color='#f5d45f')
+        ax.bar(x, pnj_amounts, width=bar_width,
+               label='PNJ', color='#df760b')
+        ax.bar(x + bar_width, doji_amounts, width=bar_width,
+               label='DOJI', color='#743c08')
+
+        ax.set_xlabel('Days of the Week')
+        ax.set_ylabel('Total Amount (VND)')
+        ax.set_title('Gold Transactions by Type for Current Week')
+        ax.set_xticks(x)
+        ax.set_xticklabels(date_labels, ha='center')
+
+        ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
+
+        max_sjc = max(sjc_amounts, default=0)
+        max_pnj = max(pnj_amounts, default=0)
+        max_doji = max(doji_amounts, default=0)
+        max_total = max(max_sjc, max_pnj, max_doji)
+
+        if max_total > 0:
+            max_ticks = min(5, max(2, int(max_total // 1_000_000) + 1))
+        else:
+            max_ticks = 2
+
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
+        ax.yaxis.set_major_formatter(lambda x, pos: f'{x:,.0f}'
+                                     if x < 1_000_000
+                                     else f'{int(x // 1_000_000)}M')
+
+        for i, v in enumerate(sjc_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i - bar_width, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#f5d45f')
+
+        for i, v in enumerate(pnj_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount, ha='center',
+                    va='bottom', color='#df760b')
+
+        for i, v in enumerate(doji_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i + bar_width, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#743c08')
+
+        fig.subplots_adjust(bottom=0.2)
+
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.draw()
+        canvas.get_tk_widget().pack(padx=5, pady=(0, 20), fill="x")
+
+    def plot_gold_markers_chart_for_this_week(self, parent, transactions):
+        days = ["Monday", "Tuesday", "Wednesday",
+                "Thursday", "Friday", "Saturday", "Sunday"]
+        now = datetime.datetime.now()
+        start_of_week = now - datetime.timedelta(days=now.weekday())
+        date_labels = [(start_of_week + datetime.timedelta(days=i)
+                        ).strftime("%A\n%d/%m/%Y") for i in range(7)]
+
+        sjc_totals = {day: 0 for day in days}
+        pnj_totals = {day: 0 for day in days}
+        doji_totals = {day: 0 for day in days}
+
+        for transaction in transactions:
+            if isinstance(transaction, GoldTransaction):
+                transaction_date = datetime.date(
+                    transaction._year, transaction._month, transaction._day)
+                day_of_week = transaction_date.strftime('%A')
+                if day_of_week in sjc_totals:
+                    if transaction._gold_type == GoldType.SJC:
+                        sjc_totals[day_of_week] += transaction._total_amount
+                    elif transaction._gold_type == GoldType.PNJ:
+                        pnj_totals[day_of_week] += transaction._total_amount
+                    elif transaction._gold_type == GoldType.DOJI:
+                        doji_totals[day_of_week] += transaction._total_amount
+
+        sjc_amounts = [sjc_totals[day] for day in days]
+        pnj_amounts = [pnj_totals[day] for day in days]
+        doji_amounts = [doji_totals[day] for day in days]
+
+        fig, ax = plt.subplots()
+
+        ax.plot(date_labels, sjc_amounts, marker='o',
+                linestyle='-', label='SJC', color='#f5d45f')
+        ax.plot(date_labels, pnj_amounts, marker='o',
+                linestyle='-', label='PNJ', color='#df760b')
+        ax.plot(date_labels, doji_amounts, marker='o',
+                linestyle='-', label='DOJI', color='#743c08')
+
+        ax.set_xlabel('Days of the Week')
+        ax.set_ylabel('Total Amount (VND)')
+        ax.set_title('Gold Transactions by Type for Current Week')
+
+        ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
+
+        max_sjc = max(sjc_amounts, default=0)
+        max_pnj = max(pnj_amounts, default=0)
+        max_doji = max(doji_amounts, default=0)
+        max_total = max(max_sjc, max_pnj, max_doji)
+
+        if max_total > 0:
+            max_ticks = min(5, max(2, int(max_total // 1_000_000) + 1))
+        else:
+            max_ticks = 2
+
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
+        ax.yaxis.set_major_formatter(
+            lambda x, pos: f'{x:,.0f}'
+            if x < 1_000_000 else f'{int(x // 1_000_000)}M')
+
+        for i, v in enumerate(sjc_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#f5d45f')
+
+        for i, v in enumerate(pnj_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#df760b')
+
+        for i, v in enumerate(doji_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#743c08')
+
+        fig.subplots_adjust(bottom=0.2)
+
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.draw()
+        canvas.get_tk_widget().pack(padx=5, pady=(0, 20), fill="x")
+
+    def plot_currency_bar_chart_for_this_week(self, parent, transactions):
+        days = ["Monday", "Tuesday", "Wednesday",
+                "Thursday", "Friday", "Saturday", "Sunday"]
+        now = datetime.datetime.now()
+        start_of_week = now - datetime.timedelta(days=now.weekday())
+        date_labels = [(start_of_week + datetime.timedelta(days=i)
+                        ).strftime("%A\n%d/%m/%Y") for i in range(7)]
+
+        vnd_totals = {day: 0 for day in days}
+        usd_totals = {day: 0 for day in days}
+        eur_totals = {day: 0 for day in days}
+
+        for transaction in transactions:
+            if isinstance(transaction, CurrencyTransaction):
+                transaction_date = datetime.date(
+                    transaction._year, transaction._month, transaction._day)
+                day_of_week = transaction_date.strftime('%A')
+                if day_of_week in vnd_totals:
+                    if transaction._currency_type == CurrencyType.VND:
+                        vnd_totals[day_of_week] += transaction._total_amount
+                    elif transaction._currency_type == CurrencyType.USD:
+                        usd_totals[day_of_week] += transaction._total_amount
+                    elif transaction._currency_type == CurrencyType.EUR:
+                        eur_totals[day_of_week] += transaction._total_amount
+
+        vnd_amounts = [vnd_totals[day] for day in days]
+        usd_amounts = [usd_totals[day] for day in days]
+        eur_amounts = [eur_totals[day] for day in days]
+
+        fig, ax = plt.subplots()
+        bar_width = 0.2
+        x = np.arange(len(days))
+
+        ax.bar(x - bar_width, vnd_amounts, width=bar_width,
+               label='VND', color='#006769')
+        ax.bar(x, usd_amounts, width=bar_width, label='USD', color='#2ea64d')
+        ax.bar(x + bar_width, eur_amounts, width=bar_width,
+               label='EUR', color='#9dde8b')
+
+        ax.set_xlabel('Days of the Week')
+        ax.set_ylabel('Total Amount (VND)')
+        ax.set_title('Currency Transactions by Type for Current Week')
+        ax.set_xticks(x)
+        ax.set_xticklabels(date_labels, ha='center')
+
+        ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
+
+        max_vnd = max(vnd_amounts, default=0)
+        max_usd = max(usd_amounts, default=0)
+        max_eur = max(eur_amounts, default=0)
+        max_total = max(max_vnd, max_usd, max_eur)
+
+        if max_total > 0:
+            max_ticks = min(5, max(2, int(max_total // 1_000_000) + 1))
+        else:
+            max_ticks = 2
+
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
+        ax.yaxis.set_major_formatter(
+            lambda x, pos: f'{x:,.0f}'
+            if x < 1_000_000 else f'{int(x // 1_000_000)}M')
+
+        for i, v in enumerate(vnd_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i - bar_width, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#006769')
+
+        for i, v in enumerate(usd_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#2ea64d')
+
+        for i, v in enumerate(eur_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i + bar_width, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#9dde8b')
+
+        fig.subplots_adjust(bottom=0.2)
+
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.draw()
+        canvas.get_tk_widget().pack(padx=5, pady=(0, 20), fill="x")
+
+    def plot_currency_markers_chart_for_this_week(self, parent, transactions):
+        days = ["Monday", "Tuesday", "Wednesday",
+                "Thursday", "Friday", "Saturday", "Sunday"]
+        now = datetime.datetime.now()
+        start_of_week = now - datetime.timedelta(days=now.weekday())
+        date_labels = [(start_of_week + datetime.timedelta(days=i)
+                        ).strftime("%A\n%d/%m/%Y") for i in range(7)]
+
+        vnd_totals = {day: 0 for day in days}
+        usd_totals = {day: 0 for day in days}
+        eur_totals = {day: 0 for day in days}
+
+        for transaction in transactions:
+            if isinstance(transaction, CurrencyTransaction):
+                transaction_date = datetime.date(
+                    transaction._year, transaction._month, transaction._day)
+                day_of_week = transaction_date.strftime('%A')
+                if day_of_week in vnd_totals:
+                    if transaction._currency_type == CurrencyType.VND:
+                        vnd_totals[day_of_week] += transaction._total_amount
+                    elif transaction._currency_type == CurrencyType.USD:
+                        usd_totals[day_of_week] += transaction._total_amount
+                    elif transaction._currency_type == CurrencyType.EUR:
+                        eur_totals[day_of_week] += transaction._total_amount
+
+        vnd_amounts = [vnd_totals[day] for day in days]
+        usd_amounts = [usd_totals[day] for day in days]
+        eur_amounts = [eur_totals[day] for day in days]
+
+        fig, ax = plt.subplots()
+
+        ax.plot(date_labels, vnd_amounts, marker='o',
+                linestyle='-', label='VND', color='#006769')
+        ax.plot(date_labels, usd_amounts, marker='o',
+                linestyle='-', label='USD', color='#2ea64d')
+        ax.plot(date_labels, eur_amounts, marker='o',
+                linestyle='-', label='EUR', color='#9dde8b')
+
+        ax.set_xlabel('Days of the Week')
+        ax.set_ylabel('Total Amount (VND)')
+        ax.set_title('Currency Transactions by Type for Current Week')
+
+        ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
+
+        max_vnd = max(vnd_amounts, default=0)
+        max_usd = max(usd_amounts, default=0)
+        max_eur = max(eur_amounts, default=0)
+        max_total = max(max_vnd, max_usd, max_eur)
+
+        if max_total > 0:
+            max_ticks = min(5, max(2, int(max_total // 1_000_000) + 1))
+        else:
+            max_ticks = 2
+
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
+        ax.yaxis.set_major_formatter(
+            lambda x, pos: f'{x:,.0f}'
+            if x < 1_000_000 else f'{int(x // 1_000_000)}M')
+
+        for i, v in enumerate(vnd_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#006769')
+
+        for i, v in enumerate(usd_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#2ea64d')
+
+        for i, v in enumerate(eur_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#9dde8b')
 
         fig.subplots_adjust(bottom=0.2)
 
