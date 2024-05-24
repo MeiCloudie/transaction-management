@@ -1,4 +1,4 @@
-import json
+# import json
 import tkinter
 from tkinter import ttk, messagebox
 import customtkinter
@@ -8,7 +8,7 @@ from PIL import Image
 import datetime
 from datetime import timedelta
 from sys import platform
-import os
+# import os
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.ticker import MaxNLocator
@@ -3518,31 +3518,41 @@ class DeleteGoldTransactionWindow(customtkinter.CTkToplevel):
         button_cancel.grid(row=0, column=1, sticky="ew", padx=(10, 0), pady=5)
 
     def gold_confirm_button_callback(self):
-        data_file = "data.json"
-        if os.path.exists(data_file):
-            with open(data_file, "r") as file:
-                data = json.load(file)
-        else:
-            data = {"transactions": []}
+        try:
+            df_transactions = pd.read_excel(
+                "data.xlsx", sheet_name="transactions")
+            df_exchange_rates = pd.read_excel(
+                "data.xlsx", sheet_name="exchange_rates")
 
-        transaction_found = False
-        for transaction in data["transactions"]:
-            if transaction["id"] == self.parent.selected_gold_transaction_code:
-                transaction["isdeleted"] = True
-                transaction_found = True
-                break
+            transaction_found = False
+            for idx, transaction in df_transactions.iterrows():
+                if transaction[
+                    "id"
+                ] == self.parent.selected_gold_transaction_code:
+                    df_transactions.at[idx, "isdeleted"] = True
+                    transaction_found = True
+                    break
 
-        if not transaction_found:
-            messagebox.showerror("Error", "Transaction ID not found.")
-            return
+            if not transaction_found:
+                messagebox.showerror("Error", "Transaction ID not found.")
+                return
 
-        with open(data_file, "w") as file:
-            json.dump(data, file, indent=4)
+            with pd.ExcelWriter("data.xlsx", engine="openpyxl", mode="a",
+                                if_sheet_exists="replace") as writer:
+                df_transactions.to_excel(
+                    writer, sheet_name="transactions", index=False)
+                df_exchange_rates.to_excel(
+                    writer, sheet_name="exchange_rates", index=False)
 
-        messagebox \
-            .showinfo("Success", "Gold transaction deleted successfully! \
-                            \nPlease Refresh Data!")
-        self.destroy()
+            messagebox.showinfo(
+                "Success",
+                "Gold transaction deleted successfully! Please Refresh Data!")
+            self.destroy()
+
+        except Exception as e:
+            messagebox.showerror(
+                "Error", f"An error occurred while writing to Excel: {e}")
+            self.focus()
 
 
 class DeleteCurrencyTransactionWindow(customtkinter.CTkToplevel):
@@ -3708,32 +3718,42 @@ class DeleteCurrencyTransactionWindow(customtkinter.CTkToplevel):
         button_cancel.grid(row=0, column=1, sticky="ew", padx=(10, 0), pady=5)
 
     def currency_confirm_button_callback(self):
-        data_file = "data.json"
-        if os.path.exists(data_file):
-            with open(data_file, "r") as file:
-                data = json.load(file)
-        else:
-            data = {"transactions": []}
+        try:
+            df_transactions = pd.read_excel(
+                "data.xlsx", sheet_name="transactions")
+            df_exchange_rates = pd.read_excel(
+                "data.xlsx", sheet_name="exchange_rates")
 
-        transaction_found = False
-        for transaction in data["transactions"]:
-            if transaction["id"] == \
-                    self.parent.selected_currency_transaction_code:
-                transaction["isdeleted"] = True
-                transaction_found = True
-                break
+            transaction_found = False
+            for idx, transaction in df_transactions.iterrows():
+                if transaction[
+                    "id"
+                ] == self.parent.selected_currency_transaction_code:
+                    df_transactions.at[idx, "isdeleted"] = True
+                    transaction_found = True
+                    break
 
-        if not transaction_found:
-            messagebox.showerror("Error", "Transaction ID not found.")
-            return
+            if not transaction_found:
+                messagebox.showerror("Error", "Transaction ID not found.")
+                return
 
-        with open(data_file, "w") as file:
-            json.dump(data, file, indent=4)
+            with pd.ExcelWriter("data.xlsx", engine="openpyxl", mode="a",
+                                if_sheet_exists="replace") as writer:
+                df_transactions.to_excel(
+                    writer, sheet_name="transactions", index=False)
+                df_exchange_rates.to_excel(
+                    writer, sheet_name="exchange_rates", index=False)
 
-        messagebox \
-            .showinfo("Success", "Currency transaction deleted successfully! \
-                            \nPlease Refresh Data!")
-        self.destroy()
+            messagebox.showinfo(
+                "Success",
+                "Currency transaction deleted successfully! \
+                \nPlease Refresh Data!")
+            self.destroy()
+
+        except Exception as e:
+            messagebox.showerror(
+                "Error", f"An error occurred while writing to Excel: {e}")
+            self.focus()
 
 
 class FilterWindow(customtkinter.CTkToplevel):
