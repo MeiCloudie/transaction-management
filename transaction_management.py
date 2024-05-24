@@ -5636,6 +5636,12 @@ class TabReport(customtkinter.CTkTabview):
                                                    weeks, totals)
             self.plot_gold_bar_chart_for_this_month(statistics_chart_frame,
                                                     weeks, transactions)
+            self.plot_gold_markers_chart_for_this_month(statistics_chart_frame,
+                                                        weeks, transactions)
+            self.plot_currency_bar_chart_for_this_month(statistics_chart_frame,
+                                                        weeks, transactions)
+            self.plot_currency_markers_chart_for_this_month(
+                statistics_chart_frame, weeks, transactions)
 
         elif tab_type == self.tab_week:
             self.plot_bar_chart_for_this_week(statistics_chart_frame,
@@ -5893,6 +5899,240 @@ class TabReport(customtkinter.CTkTabview):
         canvas = FigureCanvasTkAgg(fig, master=parent)
         canvas.draw()
         canvas.get_tk_widget().pack(padx=5, pady=(0, 2), fill="x")
+
+    def plot_gold_markers_chart_for_this_month(self, parent,
+                                               weeks, transactions):
+        week_labels = [
+            f"Week {i+1}\n{start.strftime('%d/%m/%Y')
+                           } - {end.strftime('%d/%m/%Y')}"
+            for i, (start, end) in enumerate(weeks)
+        ]
+
+        sjc_totals = [0] * len(weeks)
+        pnj_totals = [0] * len(weeks)
+        doji_totals = [0] * len(weeks)
+
+        for i, (start, end) in enumerate(weeks):
+            for txn in transactions:
+                if isinstance(txn, GoldTransaction):
+                    txn_date = datetime.date(txn._year, txn._month, txn._day)
+                    if start <= txn_date <= end:
+                        if txn._gold_type == GoldType.SJC:
+                            sjc_totals[i] += txn._total_amount
+                        elif txn._gold_type == GoldType.PNJ:
+                            pnj_totals[i] += txn._total_amount
+                        elif txn._gold_type == GoldType.DOJI:
+                            doji_totals[i] += txn._total_amount
+
+        fig, ax = plt.subplots()
+
+        ax.plot(week_labels, sjc_totals, marker='o',
+                linestyle='-', label='SJC', color='#f5d45f')
+        ax.plot(week_labels, pnj_totals, marker='o',
+                linestyle='-', label='PNJ', color='#df760b')
+        ax.plot(week_labels, doji_totals, marker='o',
+                linestyle='-', label='DOJI', color='#743c08')
+
+        ax.set_xlabel('Weeks')
+        ax.set_ylabel('Total Amount (VND)')
+        ax.set_title('Gold Transactions by Type for Current Month')
+
+        ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
+
+        max_sjc = max(sjc_totals, default=0)
+        max_pnj = max(pnj_totals, default=0)
+        max_doji = max(doji_totals, default=0)
+        max_total = max(max_sjc, max_pnj, max_doji)
+
+        if max_total > 0:
+            max_ticks = min(5, max(2, int(max_total // 1_000_000) + 1))
+        else:
+            max_ticks = 2
+
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
+        ax.yaxis.set_major_formatter(
+            lambda x, pos: f'{x:,.0f}'
+            if x < 1_000_000 else f'{int(x // 1_000_000)}M')
+
+        for i, v in enumerate(sjc_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#f5d45f')
+
+        for i, v in enumerate(pnj_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#df760b')
+
+        for i, v in enumerate(doji_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#743c08')
+
+        fig.subplots_adjust(bottom=0.2)
+
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.draw()
+        canvas.get_tk_widget().pack(padx=5, pady=(0, 2), fill="x")
+
+    def plot_currency_bar_chart_for_this_month(self, parent,
+                                               weeks, transactions):
+        week_labels = [
+            f"Week {i+1}\n{start.strftime('%d/%m/%Y')
+                           } - {end.strftime('%d/%m/%Y')}"
+            for i, (start, end) in enumerate(weeks)
+        ]
+
+        vnd_totals = [0] * len(weeks)
+        usd_totals = [0] * len(weeks)
+        eur_totals = [0] * len(weeks)
+
+        for i, (start, end) in enumerate(weeks):
+            for txn in transactions:
+                if isinstance(txn, CurrencyTransaction):
+                    txn_date = datetime.date(txn._year, txn._month, txn._day)
+                    if start <= txn_date <= end:
+                        if txn._currency_type == CurrencyType.VND:
+                            vnd_totals[i] += txn._total_amount
+                        elif txn._currency_type == CurrencyType.USD:
+                            usd_totals[i] += txn._total_amount
+                        elif txn._currency_type == CurrencyType.EUR:
+                            eur_totals[i] += txn._total_amount
+
+        fig, ax = plt.subplots()
+        bar_width = 0.2
+        x = np.arange(len(weeks))
+
+        ax.bar(x - bar_width, vnd_totals, width=bar_width,
+               label='VND', color='#006769')
+        ax.bar(x, usd_totals, width=bar_width,
+               label='USD', color='#2ea64d')
+        ax.bar(x + bar_width, eur_totals, width=bar_width,
+               label='EUR', color='#9dde8b')
+
+        ax.set_xlabel('Weeks')
+        ax.set_ylabel('Total Amount (VND)')
+        ax.set_title('Currency Transactions by Type for Current Month')
+        ax.set_xticks(x)
+        ax.set_xticklabels(week_labels, ha='center')
+
+        ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
+
+        max_vnd = max(vnd_totals, default=0)
+        max_usd = max(usd_totals, default=0)
+        max_eur = max(eur_totals, default=0)
+        max_total = max(max_vnd, max_usd, max_eur)
+
+        if max_total > 0:
+            max_ticks = min(5, max(2, int(max_total // 1_000_000) + 1))
+        else:
+            max_ticks = 2
+
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
+        ax.yaxis.set_major_formatter(lambda x, pos: f'{x:,.0f}'
+                                     if x < 1_000_000
+                                     else f'{int(x // 1_000_000)}M')
+
+        for i, v in enumerate(vnd_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i - bar_width, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#006769')
+
+        for i, v in enumerate(usd_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount, ha='center',
+                    va='bottom', color='#2ea64d')
+
+        for i, v in enumerate(eur_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i + bar_width, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#9dde8b')
+
+        fig.subplots_adjust(bottom=0.2)
+
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.draw()
+        canvas.get_tk_widget().pack(padx=5, pady=(0, 2), fill="x")
+
+    def plot_currency_markers_chart_for_this_month(self, parent,
+                                                   weeks, transactions):
+        week_labels = [
+            f"Week {i+1}\n{start.strftime('%d/%m/%Y')
+                           } - {end.strftime('%d/%m/%Y')}"
+            for i, (start, end) in enumerate(weeks)
+        ]
+
+        vnd_totals = [0] * len(weeks)
+        usd_totals = [0] * len(weeks)
+        eur_totals = [0] * len(weeks)
+
+        for i, (start, end) in enumerate(weeks):
+            for txn in transactions:
+                if isinstance(txn, CurrencyTransaction):
+                    txn_date = datetime.date(txn._year, txn._month, txn._day)
+                    if start <= txn_date <= end:
+                        if txn._currency_type == CurrencyType.VND:
+                            vnd_totals[i] += txn._total_amount
+                        elif txn._currency_type == CurrencyType.USD:
+                            usd_totals[i] += txn._total_amount
+                        elif txn._currency_type == CurrencyType.EUR:
+                            eur_totals[i] += txn._total_amount
+
+        fig, ax = plt.subplots()
+
+        ax.plot(week_labels, vnd_totals, marker='o',
+                linestyle='-', label='VND', color='#006769')
+        ax.plot(week_labels, usd_totals, marker='o',
+                linestyle='-', label='USD', color='#2ea64d')
+        ax.plot(week_labels, eur_totals, marker='o',
+                linestyle='-', label='EUR', color='#9dde8b')
+
+        ax.set_xlabel('Weeks')
+        ax.set_ylabel('Total Amount (VND)')
+        ax.set_title('Currency Transactions by Type for Current Month')
+
+        ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
+
+        max_vnd = max(vnd_totals, default=0)
+        max_usd = max(usd_totals, default=0)
+        max_eur = max(eur_totals, default=0)
+        max_total = max(max_vnd, max_usd, max_eur)
+
+        if max_total > 0:
+            max_ticks = min(5, max(2, int(max_total // 1_000_000) + 1))
+        else:
+            max_ticks = 2
+
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
+        ax.yaxis.set_major_formatter(
+            lambda x, pos: f'{x:,.0f}'
+            if x < 1_000_000 else f'{int(x // 1_000_000)}M')
+
+        for i, v in enumerate(vnd_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#006769')
+
+        for i, v in enumerate(usd_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#2ea64d')
+
+        for i, v in enumerate(eur_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#9dde8b')
+
+        fig.subplots_adjust(bottom=0.2)
+
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.draw()
+        canvas.get_tk_widget().pack(padx=5, pady=(0, 2), fill="x")
+
+    # WEEK
 
     def plot_bar_chart_for_this_week(self, parent, transactions):
         days = ["Monday", "Tuesday", "Wednesday",
