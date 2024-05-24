@@ -857,6 +857,13 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         self.gold_treeviews = {}
         self.currency_treeviews = {}
 
+        self.items_per_page = 100
+        self.current_page = 0
+        self.total_pages = (len(self.transactions) +
+                            self.items_per_page - 1) // self.items_per_page
+
+        self.pagination_frame = None
+
         self.create_tab_group_by_sort_by_widgets()
 
     def create_tab_group_by_sort_by_widgets(self):
@@ -864,7 +871,7 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         self.create_option_menu_group_by()
 
         self.date_frame = self.create_date_group_by_frame(
-            self.tab_group_by, self.transactions)
+            self.tab_group_by, self.get_paginated_transactions_by_date())
         self.category_frame = self.create_category_group_by_frame(
             self.tab_group_by, self.transactions)
 
@@ -877,16 +884,14 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         self.buttons_frame.pack(padx=10, pady=5, fill="x")
         self.buttons_frame.configure(fg_color="transparent")
         self.create_option_menu_sort_by(self.buttons_frame)
-        self.create_segmented_button_sort_by(
-            self.buttons_frame)
+        self.create_segmented_button_sort_by(self.buttons_frame)
         self.grid_columnconfigure(0, weight=1)
 
-        self.date_sort_by_frame = \
-            self.create_date_sort_by_frame(
-                self.tab_sort_by, self.transactions,
-                option=self.option_segmented_button_date)
-        self.total_amount_sort_by_frame = \
-            self.create_total_amount_sort_by_frame(
+        self.date_sort_by_frame = self.create_date_sort_by_frame(
+            self.tab_sort_by, self.transactions,
+            option=self.option_segmented_button_date)
+        self.total_amount_sort_by_frame \
+            = self.create_total_amount_sort_by_frame(
                 self.tab_sort_by, self.transactions,
                 option=self.option_segmented_button_total_amount)
 
@@ -894,12 +899,67 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
 
         self.show_default_frame_sort_by()
 
+    # Paging
+    def create_pagination_controls(self, parent):
+        if self.pagination_frame is not None:
+            self.pagination_frame.destroy()
+        self.pagination_frame = customtkinter.CTkFrame(parent)
+        self.pagination_frame.pack(padx=20, pady=5, fill="x")
+
+        previous_button = customtkinter.CTkButton(
+            self.pagination_frame, text="Previous", command=self.previous_page)
+        previous_button.pack(side="left", padx=(0, 5))
+
+        next_button = customtkinter.CTkButton(
+            self.pagination_frame, text="Next", command=self.next_page)
+        next_button.pack(side="right", padx=(5, 0))
+
+        self.pagination_label = customtkinter.CTkLabel(
+            self.pagination_frame,
+            text=f"Page {self.current_page + 1} of {self.total_pages}")
+        self.pagination_label.pack(side="left", expand=True)
+
+    def get_paginated_transactions_by_date(self):
+        sorted_transactions_by_date = \
+            self.sort_transactions_by_date(self.transactions)
+        start = self.current_page * self.items_per_page
+        end = start + self.items_per_page
+        return sorted_transactions_by_date[start:end]
+
+    def sort_transactions_by_date(self, transactions):
+        return sorted(transactions, key=lambda x: (x._year, x._month, x._day),
+                      reverse=True)
+
+    def update_page(self):
+        self.date_frame.pack_forget()
+        self.date_frame.destroy()
+
+        self.date_frame = self.create_date_group_by_frame(
+            self.tab_group_by,
+            self.get_paginated_transactions_by_date())
+
+        self.pagination_label.configure(
+            text=f"Page {self.current_page + 1} of {self.total_pages}")
+
+        self.show_default_frame_group_by()
+
+    def next_page(self):
+        if self.current_page < self.total_pages - 1:
+            self.current_page += 1
+            self.update_page()
+
+    def previous_page(self):
+        if self.current_page > 0:
+            self.current_page -= 1
+            self.update_page()
+
     # Set up Tab View
     def show_default_frame_group_by(self):
         self.gold_treeviews = {}
         self.currency_treeviews = {}
         self.show_frame(self.date_frame)
         self.hide_frame(self.category_frame)
+        self.create_pagination_controls(self.tab_group_by)
 
     def show_default_frame_sort_by(self):
         self.gold_treeviews = {}
@@ -912,22 +972,20 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         self.buttons_frame.pack(padx=10, pady=5, fill="x")
         self.buttons_frame.configure(fg_color="transparent")
 
-        self.optionmenu = customtkinter. \
-            CTkOptionMenu(self.buttons_frame,
-                          values=[
-                              "Date", "Category"],
-                          command=self.option_menu_group_by_callback)
+        self.optionmenu = customtkinter.CTkOptionMenu(
+            self.buttons_frame,
+            values=["Date", "Category"],
+            command=self.option_menu_group_by_callback)
         self.optionmenu.set("Date")
         self.optionmenu.pack(padx=10, pady=0, side="left")
 
         self.grid_columnconfigure(0, weight=1)
 
     def create_option_menu_sort_by(self, frame):
-        self.optionmenu = customtkinter. \
-            CTkOptionMenu(frame,
-                          values=[
-                              "Date", "Total Amount"],
-                          command=self.option_menu_sort_by_callback)
+        self.optionmenu = customtkinter.CTkOptionMenu(
+            frame,
+            values=["Date", "Total Amount"],
+            command=self.option_menu_sort_by_callback)
         self.optionmenu.set("Date")
         self.optionmenu.pack(padx=10, pady=0, side="left")
 
@@ -944,9 +1002,13 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         if choice == "Date":
             self.show_frame(self.date_frame)
             self.hide_frame(self.category_frame)
+            self.create_pagination_controls(self.tab_group_by)
         elif choice == "Category":
             self.show_frame(self.category_frame)
             self.hide_frame(self.date_frame)
+            if self.pagination_frame is not None:
+                self.pagination_frame.destroy()
+                self.pagination_frame = None
 
     def option_menu_sort_by_callback(self, choice):
         if choice == "Date":
