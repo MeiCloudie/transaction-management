@@ -3011,15 +3011,23 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
         self.configure(fg_color="#d9d9d9")
         self.parent = parent
 
-        with open('data.json', 'r') as json_file:
-            data = json.load(json_file)
-
-        self.exchange_rates = data['exchange_rates']
-
+        self.load_exchange_rates_from_excel()
         self.create_widget()
 
         if platform.startswith("win"):
             self.after(200, lambda: self.iconbitmap("./logo.ico"))
+
+    def load_exchange_rates_from_excel(self):
+        try:
+            df_exchange_rates = pd.read_excel(
+                "data.xlsx", sheet_name="exchange_rates")
+            self.exchange_rates = df_exchange_rates.to_dict('records')
+        except FileNotFoundError:
+            messagebox.showerror("Error", "Data file not found.")
+            self.exchange_rates = []
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred: {e}")
+            self.exchange_rates = []
 
     def create_widget(self):
         edit_frame = customtkinter.CTkFrame(
@@ -3224,8 +3232,8 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
 
         if not all(map(str.isdigit, [day_submit, month_submit, year_submit])):
             messagebox.showerror(
-                "Invalid Input", "Please enter valid numerical \
-                \nvalues for date fields.")
+                "Invalid Input",
+                "Please enter valid numerical values for date fields.")
             self.after(10, self.lift)
             return
 
@@ -3239,59 +3247,72 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
             return
 
         if currency_type not in ["VND", "USD", "EUR"]:
-            messagebox. \
-                showerror("Invalid Currency Type",
-                          "Currency Type must be 'VND', 'USD', or 'EUR'.")
+            messagebox.showerror(
+                "Invalid Currency Type",
+                "Currency Type must be 'VND', 'USD', or 'EUR'.")
             self.focus()
             return
 
-        data_file = "data.json"
-        if os.path.exists(data_file):
-            with open(data_file, "r") as file:
-                data = json.load(file)
-        else:
-            data = {"transactions": []}
+        try:
+            df_transactions = pd.read_excel(
+                "data.xlsx", sheet_name="transactions")
+            df_exchange_rates = pd.read_excel(
+                "data.xlsx", sheet_name="exchange_rates")
 
-        exchange_rates = data["exchange_rates"]
+            currency_type_enum = CurrencyType[currency_type].value
+            exchange_rate_row = df_exchange_rates[
+                df_exchange_rates["currency_type"] ==
+                currency_type_enum].iloc[0]
+            exchange_rate = exchange_rate_row["rate"]
+            exchange_rate_id = exchange_rate_row["id"]
 
-        exchange_rate = None
-        for rate in exchange_rates:
-            if rate["currency_type"] == CurrencyType[currency_type].value:
-                exchange_rate = rate
-                break
+            transaction_found = False
+            for idx, transaction in df_transactions.iterrows():
+                if transaction[
+                        "id"
+                ] == self.parent.selected_currency_transaction_code:
+                    df_transactions.at[idx, "day"] = day
+                    df_transactions.at[idx, "month"] = month
+                    df_transactions.at[idx, "year"] = year
+                    df_transactions.at[idx, "quantity"] = quantity
+                    df_transactions.at[idx,
+                                       "currency_type"] = currency_type_enum
+                    df_transactions.at[idx,
+                                       "exchange_rate_id"] = exchange_rate_id
+                    df_transactions.at[idx, "exchange_rate"] = exchange_rate
+                    df_transactions.at[idx,
+                                       "effective_day"
+                                       ] = exchange_rate_row["effective_day"]
+                    df_transactions.at[idx,
+                                       "effective_month"
+                                       ] = exchange_rate_row["effective_month"]
+                    df_transactions.at[idx,
+                                       "effective_year"
+                                       ] = exchange_rate_row["effective_year"]
+                    transaction_found = True
+                    break
 
-        if exchange_rate is None:
-            messagebox.showerror("Exchange Rate Not Found",
-                                 f"No exchange rate found for currency type \
-                                {currency_type}.")
+            if not transaction_found:
+                messagebox.showerror("Error", "Transaction ID not found.")
+                return
+
+            with pd.ExcelWriter("data.xlsx", engine="openpyxl", mode="a",
+                                if_sheet_exists="replace") as writer:
+                df_transactions.to_excel(
+                    writer, sheet_name="transactions", index=False)
+                df_exchange_rates.to_excel(
+                    writer, sheet_name="exchange_rates", index=False)
+
+            messagebox.showinfo(
+                "Success",
+                "Currency transaction updated successfully! \
+                \nPlease Refresh Data!")
+            self.destroy()
+
+        except Exception as e:
+            messagebox.showerror(
+                "Error", f"An error occurred while writing to Excel: {e}")
             self.focus()
-            return
-
-        transaction_found = False
-        for transaction in data["transactions"]:
-            if transaction["id"] == \
-                    self.parent.selected_currency_transaction_code:
-                transaction["day"] = day
-                transaction["month"] = month
-                transaction["year"] = year
-                transaction["quantity"] = quantity
-                transaction["exchange_rate"] = exchange_rate
-                transaction["currency_type"] = \
-                    CurrencyType[currency_type].value
-                transaction_found = True
-                break
-
-        if not transaction_found:
-            messagebox.showerror("Error", "Transaction ID not found.")
-            return
-
-        with open(data_file, "w") as file:
-            json.dump(data, file, indent=4)
-
-        messagebox \
-            .showinfo("Success", "Currency transaction updated successfully! \
-                            \nPlease Refresh Data!")
-        self.destroy()
 
     def validate_and_convert_input(self, input_str):
         try:
