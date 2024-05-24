@@ -871,7 +871,8 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         self.create_option_menu_group_by()
 
         self.date_frame = self.create_date_group_by_frame(
-            self.tab_group_by, self.get_paginated_transactions_by_date())
+            self.tab_group_by,
+            self.get_paginated_transactions_by_date())
         self.category_frame = self.create_category_group_by_frame(
             self.tab_group_by, self.transactions)
 
@@ -926,9 +927,9 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         end = start + self.items_per_page
         return sorted_transactions_by_date[start:end]
 
-    def sort_transactions_by_date(self, transactions):
+    def sort_transactions_by_date(self, transactions, sort_type=True):
         return sorted(transactions, key=lambda x: (x._year, x._month, x._day),
-                      reverse=True)
+                      reverse=sort_type)
 
     def update_page(self):
         self.date_frame.pack_forget()
