@@ -1,4 +1,4 @@
-import json
+# import json
 import tkinter
 from tkinter import ttk, messagebox
 import customtkinter
@@ -8,11 +8,13 @@ from PIL import Image
 import datetime
 from datetime import timedelta
 from sys import platform
-import os
+# import os
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.ticker import MaxNLocator
-import math
+# import math
+import pandas as pd
+import numpy as np
 
 
 class CurrencyType(Enum):
@@ -143,6 +145,115 @@ class TransactionList:
         self._transactions = []
 
 
+# Initialize data
+# transactions
+transactions_data = [
+    {
+        "id": "GLD001", "day": 2, "month": 5, "year": 2024,
+        "unit_price": 85200000.0, "quantity": 2.0, "type": "gold",
+        "gold_type": 0, "isdeleted": False, "exchange_rate_id": None,
+        "currency_type": None, "exchange_rate": None, "effective_day": None,
+        "effective_month": None, "effective_year": None
+    },
+    {
+        "id": "GLD002", "day": 2, "month": 5, "year": 2024,
+        "unit_price": 75500000.0, "quantity": 3.0, "type": "gold",
+        "gold_type": 1, "isdeleted": False, "exchange_rate_id": None,
+        "currency_type": None, "exchange_rate": None, "effective_day": None,
+        "effective_month": None, "effective_year": None
+    },
+    {
+        "id": "GLD003", "day": 22, "month": 4, "year": 2024,
+        "unit_price": 84800000.0, "quantity": 3.0, "type": "gold",
+        "gold_type": 2, "isdeleted": False, "exchange_rate_id": None,
+        "currency_type": None, "exchange_rate": None, "effective_day": None,
+        "effective_month": None, "effective_year": None
+    },
+    {
+        "id": "GLD004", "day": 15, "month": 6, "year": 2024,
+        "unit_price": 83200000.0, "quantity": 1.0, "type": "gold",
+        "gold_type": 0, "isdeleted": False, "exchange_rate_id": None,
+        "currency_type": None, "exchange_rate": None, "effective_day": None,
+        "effective_month": None, "effective_year": None
+    },
+    {
+        "id": "GLD005", "day": 19, "month": 2, "year": 2024,
+        "unit_price": 74500000.0, "quantity": 1.0, "type": "gold",
+        "gold_type": 1, "isdeleted": False, "exchange_rate_id": None,
+        "currency_type": None, "exchange_rate": None, "effective_day": None,
+        "effective_month": None, "effective_year": None
+    },
+    {
+        "id": "GLD006", "day": 25, "month": 4, "year": 2024,
+        "unit_price": 84800000.0, "quantity": 2.0, "type": "gold",
+        "gold_type": 2, "isdeleted": False, "exchange_rate_id": None,
+        "currency_type": None, "exchange_rate": None, "effective_day": None,
+        "effective_month": None, "effective_year": None
+    },
+    {
+        "id": "CUR001", "day": 2, "month": 5, "year": 2024, "quantity": 50.0,
+        "type": "currency", "currency_type": 1, "exchange_rate_id": 2,
+        "exchange_rate": 25137.0, "effective_day": 1, "effective_month": 1,
+        "effective_year": 2024, "isdeleted": False
+    },
+    {
+        "id": "CUR002", "day": 28, "month": 4, "year": 2024, "quantity": 500.0,
+        "type": "currency", "currency_type": 2, "exchange_rate_id": 3,
+        "exchange_rate": 26777.56, "effective_day": 1, "effective_month": 1,
+        "effective_year": 2024, "isdeleted": False
+    },
+    {
+        "id": "CUR003", "day": 12, "month": 4, "year": 2024,
+        "quantity": 500000.0, "type": "currency", "currency_type": 0,
+        "exchange_rate_id": 1, "exchange_rate": 1.0, "effective_day": 1,
+        "effective_month": 1, "effective_year": 2024, "isdeleted": False
+    },
+    {
+        "id": "CUR004", "day": 25, "month": 4, "year": 2024, "quantity": 70.0,
+        "type": "currency", "currency_type": 1, "exchange_rate_id": 2,
+        "exchange_rate": 25137.0, "effective_day": 1, "effective_month": 1,
+        "effective_year": 2024, "isdeleted": False
+    },
+    {
+        "id": "CUR005", "day": 11, "month": 4, "year": 2024, "quantity": 200.0,
+        "type": "currency", "currency_type": 2, "exchange_rate_id": 3,
+        "exchange_rate": 26777.56, "effective_day": 1, "effective_month": 1,
+        "effective_year": 2024, "isdeleted": False
+    },
+    {
+        "id": "CUR006", "day": 15, "month": 6, "year": 2024,
+        "quantity": 90000000.0, "type": "currency", "currency_type": 0,
+        "exchange_rate_id": 1, "exchange_rate": 1.0, "effective_day": 1,
+        "effective_month": 1, "effective_year": 2024, "isdeleted": False
+    }
+]
+
+# exchange_rates
+exchange_rates_data = [
+    {
+        "id": 1, "currency_type": 0, "rate": 1.0, "effective_day": 1,
+        "effective_month": 1, "effective_year": 2024
+    },
+    {
+        "id": 2, "currency_type": 1, "rate": 25137.0, "effective_day": 1,
+        "effective_month": 1, "effective_year": 2024
+    },
+    {
+        "id": 3, "currency_type": 2, "rate": 26777.56, "effective_day": 1,
+        "effective_month": 1, "effective_year": 2024
+    }
+]
+
+df_transactions = pd.DataFrame(transactions_data)
+df_exchange_rates = pd.DataFrame(exchange_rates_data)
+
+# Write file for testing
+# with pd.ExcelWriter("data.xlsx") as writer:
+#     df_transactions.to_excel(writer, sheet_name="transactions", index=False)
+#     df_exchange_rates.to_excel(
+#         writer, sheet_name="exchange_rates", index=False)
+
+# Theme
 customtkinter.set_appearance_mode("light")
 customtkinter.set_default_color_theme("dark-blue")
 
@@ -155,19 +266,22 @@ class TransactionApp(customtkinter.CTk):
         self.iconbitmap(icon_path)
         self.minsize(1720, 960)
 
+        self.current_theme = "Dark-Blue"
+
         self.transaction_list = TransactionList()
-        self.load_data_from_json()
+        self.load_data_from_excel()
         self.create_widget()
 
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def create_widget(self):
-        self.header_frame = HeaderFrame(master=self)
+        self.header_frame = HeaderFrame(
+            master=self, initial_theme=self.current_theme)
         self.header_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
         self.tab_filter = TabFilter(master=self)
-        self.tab_filter.grid(row=1, column=0, padx=10,
-                             pady=(0, 10), sticky="ew")
+        self.tab_filter.grid(row=1, column=0, padx=10, pady=(0, 10),
+                             sticky="ew")
 
         self.grid_columnconfigure(0, weight=1)
 
@@ -179,74 +293,76 @@ class TransactionApp(customtkinter.CTk):
             except Exception as e:
                 print(f"Error during closing: {e}")
 
-    def load_data_from_json(self):
+    def load_data_from_excel(self):
         try:
-            with open("data.json", "r") as json_file:
-                data = json.load(json_file)
-                transactions_data = data.get("transactions", [])
-                exchange_rates_data = data.get("exchange_rates", [])
+            df_transactions = pd.read_excel("data.xlsx",
+                                            sheet_name="transactions")
+            df_exchange_rates = pd.read_excel("data.xlsx",
+                                              sheet_name="exchange_rates")
 
-                for transaction_data in transactions_data:
-                    if transaction_data["isdeleted"]:
-                        continue
+            if not self.check_data_validity(df_transactions):
+                return
 
-                    if transaction_data["type"] == "gold":
-                        transaction = GoldTransaction(
-                            transaction_data["id"],
-                            transaction_data["day"],
-                            transaction_data["month"],
-                            transaction_data["year"],
-                            transaction_data["unit_price"],
-                            transaction_data["quantity"],
-                            GoldType(transaction_data["gold_type"]),
-                            isdeleted=transaction_data["isdeleted"]
-                        )
-                    elif transaction_data["type"] == "currency":
-                        exchange_rate_data = transaction_data["exchange_rate"]
-                        exchange_rate = ExchangeRate(
-                            exchange_rate_data["id"],
-                            CurrencyType(exchange_rate_data["currency_type"]),
-                            exchange_rate_data["rate"],
-                            exchange_rate_data["effective_day"],
-                            exchange_rate_data["effective_month"],
-                            exchange_rate_data["effective_year"]
-                        )
-                        transaction = CurrencyTransaction(
-                            transaction_data["id"],
-                            transaction_data["day"],
-                            transaction_data["month"],
-                            transaction_data["year"],
-                            transaction_data["quantity"],
-                            CurrencyType(transaction_data["currency_type"]),
-                            exchange_rate,
-                            isdeleted=transaction_data["isdeleted"]
-                        )
-                    else:
-                        continue
+            for _, row in df_transactions.iterrows():
+                if row['isdeleted']:
+                    continue
 
-                    self.transaction_list.add_transaction(transaction)
-
-                for exchange_rate_data in exchange_rates_data:
-                    _ = ExchangeRate(
-                        exchange_rate_data["id"],
-                        CurrencyType(exchange_rate_data["currency_type"]),
-                        exchange_rate_data["rate"],
-                        exchange_rate_data["effective_day"],
-                        exchange_rate_data["effective_month"],
-                        exchange_rate_data["effective_year"]
+                if row['type'] == "gold":
+                    transaction = GoldTransaction(
+                        row['id'],
+                        row['day'],
+                        row['month'],
+                        row['year'],
+                        row['unit_price'],
+                        row['quantity'],
+                        GoldType(row['gold_type']),
+                        isdeleted=row['isdeleted']
                     )
+                elif row['type'] == "currency":
+                    exchange_rate = ExchangeRate(
+                        row['exchange_rate_id'],
+                        CurrencyType(row['currency_type']),
+                        row['exchange_rate'],
+                        row['effective_day'],
+                        row['effective_month'],
+                        row['effective_year']
+                    )
+                    transaction = CurrencyTransaction(
+                        row['id'],
+                        row['day'],
+                        row['month'],
+                        row['year'],
+                        row['quantity'],
+                        CurrencyType(row['currency_type']),
+                        exchange_rate,
+                        isdeleted=row['isdeleted']
+                    )
+                else:
+                    continue
+
+                self.transaction_list.add_transaction(transaction)
+
+            for _, row in df_exchange_rates.iterrows():
+                _ = ExchangeRate(
+                    row['id'],
+                    CurrencyType(row['currency_type']),
+                    row['rate'],
+                    row['effective_day'],
+                    row['effective_month'],
+                    row['effective_year']
+                )
 
         except FileNotFoundError:
             messagebox.showerror("Error", "Data file not found.")
-        except json.JSONDecodeError:
-            messagebox.showerror("Error", "Invalid JSON format in data file.")
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred: {e}")
 
-    def refresh_data_from_json(self):
+    def refresh_data_from_excel(self):
         messagebox.showinfo("Refreshing Data",
                             "Refreshing data. Please wait...")
 
         self.transaction_list.clear()
-        self.load_data_from_json()
+        self.load_data_from_excel()
 
         if self.header_frame is not None:
             self.header_frame.destroy()
@@ -255,9 +371,105 @@ class TransactionApp(customtkinter.CTk):
 
         self.create_widget()
 
+    def convert_to_int(self, value, field_name, row_index):
+        try:
+            return int(value)
+        except ValueError:
+            messagebox.showerror("Data Error", f"Invalid '{
+                field_name}' at row {row_index + 1}")
+            return None
+
+    def convert_to_float(self, value, field_name, row_index):
+        try:
+            return float(value)
+        except ValueError:
+            messagebox.showerror("Data Error", f"Invalid '{
+                field_name}' at row {row_index + 1}")
+            return None
+
+    def check_data_validity(self, df):
+        for idx, row in df.iterrows():
+            if pd.isna(row['id']) or not isinstance(row['id'], str):
+                messagebox.showerror("Data Error", f"Invalid 'id' at row {
+                    idx + 1}")
+                return False
+
+            day = self.convert_to_int(row['day'], 'day', idx)
+            month = self.convert_to_int(row['month'], 'month', idx)
+            year = self.convert_to_int(row['year'], 'year', idx)
+            if day is None or month is None or year is None:
+                return False
+
+            if not (1 <= day <= 31):
+                messagebox.showerror(
+                    "Data Error", f"Invalid 'day' at row {idx + 1}")
+                return False
+            if not (1 <= month <= 12):
+                messagebox.showerror(
+                    "Data Error", f"Invalid 'month' at row {idx + 1}")
+                return False
+
+            if row['type'] == "gold":
+                unit_price = self.convert_to_float(
+                    row['unit_price'], 'unit_price', idx)
+                quantity = self.convert_to_float(row['quantity'], 'quantity',
+                                                 idx)
+                gold_type = self.convert_to_int(row['gold_type'], 'gold_type',
+                                                idx)
+                if unit_price is None or quantity is None or gold_type is None:
+                    return False
+            elif row['type'] == "currency":
+                quantity = self.convert_to_float(row['quantity'], 'quantity',
+                                                 idx)
+                currency_type = self.convert_to_int(
+                    row['currency_type'], 'currency_type', idx)
+                exchange_rate_id = self.convert_to_int(
+                    row['exchange_rate_id'], 'exchange_rate_id', idx)
+                exchange_rate = self.convert_to_float(
+                    row['exchange_rate'], 'exchange_rate', idx)
+                effective_day = self.convert_to_int(
+                    row['effective_day'], 'effective_day', idx)
+                effective_month = self.convert_to_int(
+                    row['effective_month'], 'effective_month', idx)
+                effective_year = self.convert_to_int(
+                    row['effective_year'], 'effective_year', idx)
+                if quantity is None or currency_type is None or \
+                        exchange_rate_id is None or exchange_rate is \
+                        None or effective_day is None or effective_month is \
+                        None or effective_year is None:
+                    return False
+                if not (1 <= effective_day <= 31):
+                    messagebox.showerror(
+                        "Data Error", f"Invalid 'effective_day' at row {
+                            idx + 1}")
+                    return False
+                if not (1 <= effective_month <= 12):
+                    messagebox.showerror(
+                        "Data Error", f"Invalid 'effective_month' at row {
+                            idx + 1}")
+                    return False
+            else:
+                messagebox.showerror(
+                    "Data Error", f"Invalid 'type' at row {idx + 1}")
+                return False
+        return True
+
+    def update_theme(self, new_theme):
+        update_message = messagebox.showinfo(
+            "Updating Theme", "Updating theme. Please wait a moment...")
+
+        self.current_theme = new_theme
+        self.header_frame.destroy()
+        self.tab_filter.destroy()
+
+        self.create_widget()
+
+        if update_message:
+            self.focus()
+
 
 class HeaderFrame(customtkinter.CTkFrame):
-    def __init__(self, master, **kwargs):
+    def __init__(self, master, initial_theme="Dark-Blue", **kwargs):
         super().__init__(master, **kwargs)
         self.configure(fg_color="#dbdbdb", bg_color="#f2f2f2")
         self.refresh_icon = customtkinter.CTkImage(
@@ -302,7 +514,7 @@ class HeaderFrame(customtkinter.CTkFrame):
             fg_color="green",
             hover_color="dark green",
             width=30, height=30)
-        self.btn_refresh.configure(command=self.master.refresh_data_from_json)
+        self.btn_refresh.configure(command=self.master.refresh_data_from_excel)
         self.btn_refresh.pack(side="right", padx=5, pady=5)
 
         self.btn_add_transaction = customtkinter.CTkButton(
@@ -322,8 +534,34 @@ class HeaderFrame(customtkinter.CTkFrame):
 
         self.report_window = None
 
+        self.vertical_separator = customtkinter.CTkFrame(
+            self.buttons_frame, width=2, height=30, fg_color="grey")
+        self.vertical_separator.pack(side="right", padx=5, pady=5, fill="y")
+
+        self.optionmenu_theme = customtkinter. \
+            CTkOptionMenu(self.buttons_frame,
+                          values=[
+                              "Dark-Blue", "Blue", "Green"],
+                          command=self.option_menu_theme_callback)
+        self.optionmenu_theme.set(initial_theme)
+        self.optionmenu_theme.pack(side="right", padx=5, pady=5)
+
+        theme_label = customtkinter.CTkLabel(
+            self.buttons_frame, text="Theme: ", text_color="black",
+            font=("Arial", 14, "bold"))
+        theme_label.pack(side="right", padx=0, pady=5)
+
         self.columnconfigure(0, weight=0)
         self.columnconfigure(1, weight=1)
+
+    def option_menu_theme_callback(self, choice):
+        if choice == "Dark-Blue":
+            customtkinter.set_default_color_theme("dark-blue")
+        elif choice == "Blue":
+            customtkinter.set_default_color_theme("blue")
+        elif choice == "Green":
+            customtkinter.set_default_color_theme("green")
+        self.master.update_theme(choice)
 
     def open_filter_window(self):
         if self.filter_window is None or not \
@@ -619,6 +857,19 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         self.gold_treeviews = {}
         self.currency_treeviews = {}
 
+        self.items_per_page = 10
+        self.current_page = 0
+        self.total_pages = (len(self.transactions) +
+                            self.items_per_page - 1) // self.items_per_page
+
+        self.sort_by_current_page = 0
+        self.sort_by_total_pages = 1
+        self.sort_by_option = "Date"
+        self.sort_by_order = "Descending"
+
+        self.pagination_frame = None
+        self.pagination_frame_for_sort_by = None
+
         self.create_tab_group_by_sort_by_widgets()
 
     def create_tab_group_by_sort_by_widgets(self):
@@ -626,7 +877,8 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         self.create_option_menu_group_by()
 
         self.date_frame = self.create_date_group_by_frame(
-            self.tab_group_by, self.transactions)
+            self.tab_group_by,
+            self.get_paginated_transactions_by_date())
         self.category_frame = self.create_category_group_by_frame(
             self.tab_group_by, self.transactions)
 
@@ -639,22 +891,146 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         self.buttons_frame.pack(padx=10, pady=5, fill="x")
         self.buttons_frame.configure(fg_color="transparent")
         self.create_option_menu_sort_by(self.buttons_frame)
-        self.create_segmented_button_sort_by(
-            self.buttons_frame)
+        self.create_segmented_button_sort_by(self.buttons_frame)
         self.grid_columnconfigure(0, weight=1)
 
-        self.date_sort_by_frame = \
-            self.create_date_sort_by_frame(
-                self.tab_sort_by, self.transactions,
-                option=self.option_segmented_button_date)
+        self.sort_by_total_pages = (
+            len(self.transactions) + self.items_per_page - 1
+        ) // self.items_per_page
+
+        self.date_sort_by_frame = self.create_date_sort_by_frame(
+            self.tab_sort_by, self.get_paginated_transactions_sort_by_date(),
+            option=self.option_segmented_button_date)
         self.total_amount_sort_by_frame = \
             self.create_total_amount_sort_by_frame(
-                self.tab_sort_by, self.transactions,
+                self.tab_sort_by,
+                self.get_paginated_transactions_sort_by_total_amount(),
                 option=self.option_segmented_button_total_amount)
 
         self.total_amount_sort_by_frame.pack_forget()
 
         self.show_default_frame_sort_by()
+
+    # Paging
+    def create_pagination_controls(self, parent):
+        if self.pagination_frame is not None:
+            self.pagination_frame.destroy()
+        self.pagination_frame = \
+            customtkinter.CTkFrame(parent, fg_color="#ffffff",
+                                   bg_color="#dbdbdb")
+        self.pagination_frame.pack(padx=20, pady=5, fill="x")
+
+        previous_button = customtkinter.CTkButton(
+            self.pagination_frame, text="Previous", command=self.previous_page)
+        previous_button.pack(side="left", padx=(0, 5))
+
+        next_button = customtkinter.CTkButton(
+            self.pagination_frame, text="Next", command=self.next_page)
+        next_button.pack(side="right", padx=(5, 0))
+
+        self.pagination_label = customtkinter.CTkLabel(
+            self.pagination_frame,
+            text=f"Page {self.current_page + 1} of {self.total_pages}")
+        self.pagination_label.pack(side="left", expand=True)
+
+    def get_paginated_transactions_by_date(self):
+        sorted_transactions_by_date = self.sort_transactions_by_date(
+            self.transactions)
+        start = self.current_page * self.items_per_page
+        end = start + self.items_per_page
+        return sorted_transactions_by_date[start:end]
+
+    def get_paginated_transactions_sort_by_date(self):
+        sorted_transactions_by_date = self.sort_transactions_by_date(
+            self.transactions, sort_type=self.option_segmented_button_date)
+        start = self.sort_by_current_page * self.items_per_page
+        end = start + self.items_per_page
+        return sorted_transactions_by_date[start:end]
+
+    def get_paginated_transactions_sort_by_total_amount(self):
+        sorted_transactions_by_total_amount = \
+            self.sort_transactions_by_total_amount(
+                self.transactions,
+                sort_type=self.option_segmented_button_total_amount)
+        start = self.sort_by_current_page * self.items_per_page
+        end = start + self.items_per_page
+        return sorted_transactions_by_total_amount[start:end]
+
+    def sort_transactions_by_date(self, transactions, sort_type=True):
+        return sorted(transactions, key=lambda x: (x._year, x._month, x._day),
+                      reverse=sort_type)
+
+    def sort_transactions_by_total_amount(self, transactions, sort_type=True):
+        return sorted(transactions, key=lambda x: x._total_amount,
+                      reverse=sort_type)
+
+    def update_page(self):
+        self.date_frame.pack_forget()
+        self.date_frame.destroy()
+
+        self.date_frame = self.create_date_group_by_frame(
+            self.tab_group_by,
+            self.get_paginated_transactions_by_date())
+
+        self.pagination_label.configure(
+            text=f"Page {self.current_page + 1} of {self.total_pages}")
+
+        self.show_default_frame_group_by()
+
+    def update_sort_by_page(self):
+        self.sort_by_total_pages = (
+            len(self.transactions) + self.items_per_page - 1
+        ) // self.items_per_page
+
+        if self.sort_by_option == "Date":
+            self.date_sort_by_frame.pack_forget()
+            self.date_sort_by_frame.destroy()
+
+            self.date_sort_by_frame = self.create_date_sort_by_frame(
+                self.tab_sort_by,
+                self.get_paginated_transactions_sort_by_date(),
+                option=self.option_segmented_button_date)
+
+            self.pagination_label_for_sort_by.configure(
+                text=f"Page {self.sort_by_current_page + 1} of {
+                    self.sort_by_total_pages}")
+
+            self.show_default_frame_sort_by()
+        elif self.sort_by_option == "Total Amount":
+            self.total_amount_sort_by_frame.pack_forget()
+            self.total_amount_sort_by_frame.destroy()
+
+            self.total_amount_sort_by_frame = \
+                self.create_total_amount_sort_by_frame(
+                    self.tab_sort_by,
+                    self.get_paginated_transactions_sort_by_total_amount(),
+                    option=self.option_segmented_button_total_amount)
+
+            self.pagination_label_for_sort_by.configure(
+                text=f"Page {self.sort_by_current_page + 1} of {
+                    self.sort_by_total_pages}")
+
+            self.show_default_frame_sort_by()
+
+    def next_page(self):
+        if self.current_page < self.total_pages - 1:
+            self.current_page += 1
+            self.update_page()
+
+    def previous_page(self):
+        if self.current_page > 0:
+            self.current_page -= 1
+            self.update_page()
+
+    def next_sort_by_page(self):
+        if self.sort_by_current_page < self.sort_by_total_pages - 1:
+            self.sort_by_current_page += 1
+            self.update_sort_by_page()
+
+    def previous_sort_by_page(self):
+        if self.sort_by_current_page > 0:
+            self.sort_by_current_page -= 1
+            self.update_sort_by_page()
 
     # Set up Tab View
     def show_default_frame_group_by(self):
@@ -662,34 +1038,62 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         self.currency_treeviews = {}
         self.show_frame(self.date_frame)
         self.hide_frame(self.category_frame)
+        self.create_pagination_controls(self.tab_group_by)
 
     def show_default_frame_sort_by(self):
         self.gold_treeviews = {}
         self.currency_treeviews = {}
-        self.show_frame(self.date_sort_by_frame)
-        self.hide_frame(self.total_amount_sort_by_frame)
+        if self.sort_by_option == "Date":
+            self.show_frame(self.date_sort_by_frame)
+            self.hide_frame(self.total_amount_sort_by_frame)
+        elif self.sort_by_option == "Total Amount":
+            self.show_frame(self.total_amount_sort_by_frame)
+            self.hide_frame(self.date_sort_by_frame)
+        self.create_sort_by_pagination_controls(self.tab_sort_by)
+
+    def create_sort_by_pagination_controls(self, parent):
+        if self.pagination_frame_for_sort_by is not None:
+            self.pagination_frame_for_sort_by.destroy()
+        self.pagination_frame_for_sort_by = \
+            customtkinter.CTkFrame(parent, fg_color="#ffffff",
+                                   bg_color="#dbdbdb", corner_radius=5)
+        self.pagination_frame_for_sort_by.pack(padx=20, pady=5, fill="x")
+
+        previous_button = customtkinter.CTkButton(
+            self.pagination_frame_for_sort_by, text="Previous",
+            command=self.previous_sort_by_page)
+        previous_button.pack(side="left", padx=(0, 5))
+
+        next_button = customtkinter.CTkButton(
+            self.pagination_frame_for_sort_by, text="Next",
+            command=self.next_sort_by_page)
+        next_button.pack(side="right", padx=(5, 0))
+
+        self.pagination_label_for_sort_by = customtkinter.CTkLabel(
+            self.pagination_frame_for_sort_by,
+            text=f"Page {self.sort_by_current_page + 1
+                         } of {self.sort_by_total_pages}")
+        self.pagination_label_for_sort_by.pack(side="left", expand=True)
 
     def create_option_menu_group_by(self):
         self.buttons_frame = customtkinter.CTkFrame(self.tab_group_by)
         self.buttons_frame.pack(padx=10, pady=5, fill="x")
         self.buttons_frame.configure(fg_color="transparent")
 
-        self.optionmenu = customtkinter. \
-            CTkOptionMenu(self.buttons_frame,
-                          values=[
-                              "Date", "Category"],
-                          command=self.option_menu_group_by_callback)
+        self.optionmenu = customtkinter.CTkOptionMenu(
+            self.buttons_frame,
+            values=["Date", "Category"],
+            command=self.option_menu_group_by_callback)
         self.optionmenu.set("Date")
         self.optionmenu.pack(padx=10, pady=0, side="left")
 
         self.grid_columnconfigure(0, weight=1)
 
     def create_option_menu_sort_by(self, frame):
-        self.optionmenu = customtkinter. \
-            CTkOptionMenu(frame,
-                          values=[
-                              "Date", "Total Amount"],
-                          command=self.option_menu_sort_by_callback)
+        self.optionmenu = customtkinter.CTkOptionMenu(
+            frame,
+            values=["Date", "Total Amount"],
+            command=self.option_menu_sort_by_callback)
         self.optionmenu.set("Date")
         self.optionmenu.pack(padx=10, pady=0, side="left")
 
@@ -706,57 +1110,42 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         if choice == "Date":
             self.show_frame(self.date_frame)
             self.hide_frame(self.category_frame)
+            self.create_pagination_controls(self.tab_group_by)
         elif choice == "Category":
             self.show_frame(self.category_frame)
             self.hide_frame(self.date_frame)
+            if self.pagination_frame is not None:
+                self.pagination_frame.destroy()
+                self.pagination_frame = None
 
     def option_menu_sort_by_callback(self, choice):
+        self.sort_by_option = choice
+        self.sort_by_current_page = 0
+        self.sort_by_total_pages = (
+            len(self.transactions) + self.items_per_page - 1
+        ) // self.items_per_page
+        self.update_sort_by_page()
         if choice == "Date":
-            self.show_frame(self.date_sort_by_frame)
-            self.hide_frame(self.total_amount_sort_by_frame)
             if self.option_segmented_button_date:
                 self.segmented_button.set("Descending")
             else:
                 self.segmented_button.set("Ascending")
         elif choice == "Total Amount":
-            self.show_frame(self.total_amount_sort_by_frame)
-            self.hide_frame(self.date_sort_by_frame)
             if self.option_segmented_button_total_amount:
                 self.segmented_button.set("Descending")
             else:
                 self.segmented_button.set("Ascending")
 
     def segmented_button_callback(self, selected_option):
-        option = self.optionmenu.get()
-        if option == "Date":
+        if self.sort_by_option == "Date":
             self.option_segmented_button_date = selected_option == "Descending"
-            self.update_date_sort_by_frame()
-        elif option == "Total Amount":
+            self.sort_by_current_page = 0
+            self.update_sort_by_page()
+        elif self.sort_by_option == "Total Amount":
             self.option_segmented_button_total_amount = \
                 selected_option == "Descending"
-            self.update_total_amount_sort_by_frame()
-
-    def update_date_sort_by_frame(self):
-        self.date_sort_by_frame.pack_forget()
-        self.date_sort_by_frame.destroy()
-
-        self.date_sort_by_frame = self.create_date_sort_by_frame(
-            self.tab_sort_by, self.transactions,
-            option=self.option_segmented_button_date)
-
-        self.show_default_frame_sort_by()
-
-    def update_total_amount_sort_by_frame(self):
-        self.total_amount_sort_by_frame.pack_forget()
-        self.total_amount_sort_by_frame.destroy()
-
-        self.total_amount_sort_by_frame = \
-            self.create_total_amount_sort_by_frame(
-                self.tab_sort_by, self.transactions,
-                option=self.option_segmented_button_total_amount)
-
-        self.show_frame(self.total_amount_sort_by_frame)
-        self.hide_frame(self.date_sort_by_frame)
+            self.sort_by_current_page = 0
+            self.update_sort_by_page()
 
     # Group By Frame
     def create_date_group_by_frame(self, parent, transactions):
@@ -2644,29 +3033,28 @@ class EditGoldTransactionWindow(customtkinter.CTkToplevel):
 
         if not all([unit_price, quantity, day_submit, month_submit,
                     year_submit, gold_type]):
-            messagebox.showerror(
-                "Missing Input", "Please fill in all fields.")
+            messagebox.showerror("Missing Input", "Please fill in all fields.")
             self.focus()
             return
 
         unit_price = self.validate_and_convert_input(unit_price)
         if unit_price is None:
-            messagebox.showerror(
-                "Invalid Unit Price", "Unit Price must be a valid number.")
+            messagebox.showerror("Invalid Unit Price",
+                                 "Unit Price must be a valid number.")
             self.focus()
             return
 
         quantity = self.validate_and_convert_input(quantity)
         if quantity is None:
-            messagebox.showerror(
-                "Invalid Quantity", "Quantity must be a valid number.")
+            messagebox.showerror("Invalid Quantity",
+                                 "Quantity must be a valid number.")
             self.focus()
             return
 
         if not all(map(str.isdigit, [day_submit, month_submit, year_submit])):
             messagebox.showerror(
-                "Invalid Input", "Please enter valid numerical \
-                \nvalues for date fields.")
+                "Invalid Input",
+                "Please enter valid numerical values for date fields.")
             self.after(10, self.lift)
             return
 
@@ -2685,37 +3073,42 @@ class EditGoldTransactionWindow(customtkinter.CTkToplevel):
             self.focus()
             return
 
-        data_file = "data.json"
-        if os.path.exists(data_file):
-            with open(data_file, "r") as file:
-                data = json.load(file)
-        else:
-            data = {"transactions": []}
+        try:
+            df_transactions = pd.read_excel(
+                "data.xlsx", sheet_name="transactions")
 
-        transaction_found = False
-        for transaction in data["transactions"]:
-            if transaction["id"] == self.parent.selected_gold_transaction_code:
-                transaction["day"] = day
-                transaction["month"] = month
-                transaction["year"] = year
-                transaction["unit_price"] = unit_price
-                transaction["quantity"] = quantity
-                transaction["gold_type"] = \
-                    GoldType[self.gold_combobox_gold_type.get()].value
-                transaction_found = True
-                break
+            transaction_found = False
+            for idx, transaction in df_transactions.iterrows():
+                if transaction["id"
+                               ] == self.parent.selected_gold_transaction_code:
+                    df_transactions.at[idx, "day"] = day
+                    df_transactions.at[idx, "month"] = month
+                    df_transactions.at[idx, "year"] = year
+                    df_transactions.at[idx, "unit_price"] = unit_price
+                    df_transactions.at[idx, "quantity"] = quantity
+                    df_transactions.at[idx, "gold_type"] = \
+                        GoldType[gold_type].value
+                    transaction_found = True
+                    break
 
-        if not transaction_found:
-            messagebox.showerror("Error", "Transaction ID not found.")
-            return
+            if not transaction_found:
+                messagebox.showerror("Error", "Transaction ID not found.")
+                return
 
-        with open(data_file, "w") as file:
-            json.dump(data, file, indent=4)
+            with pd.ExcelWriter("data.xlsx", engine="openpyxl", mode="a",
+                                if_sheet_exists="replace") as writer:
+                df_transactions.to_excel(
+                    writer, sheet_name="transactions", index=False)
 
-        messagebox \
-            .showinfo("Success", "Gold transaction updated successfully! \
-                            \nPlease Refresh Data!")
-        self.destroy()
+            messagebox.showinfo(
+                "Success",
+                "Gold transaction updated successfully! Please Refresh Data!")
+            self.destroy()
+
+        except Exception as e:
+            messagebox.showerror(
+                "Error", f"An error occurred while writing to Excel: {e}")
+            self.focus()
 
     def validate_and_convert_input(self, input_str):
         try:
@@ -2769,15 +3162,23 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
         self.configure(fg_color="#d9d9d9")
         self.parent = parent
 
-        with open('data.json', 'r') as json_file:
-            data = json.load(json_file)
-
-        self.exchange_rates = data['exchange_rates']
-
+        self.load_exchange_rates_from_excel()
         self.create_widget()
 
         if platform.startswith("win"):
             self.after(200, lambda: self.iconbitmap("./logo.ico"))
+
+    def load_exchange_rates_from_excel(self):
+        try:
+            df_exchange_rates = pd.read_excel(
+                "data.xlsx", sheet_name="exchange_rates")
+            self.exchange_rates = df_exchange_rates.to_dict('records')
+        except FileNotFoundError:
+            messagebox.showerror("Error", "Data file not found.")
+            self.exchange_rates = []
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred: {e}")
+            self.exchange_rates = []
 
     def create_widget(self):
         edit_frame = customtkinter.CTkFrame(
@@ -2982,8 +3383,8 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
 
         if not all(map(str.isdigit, [day_submit, month_submit, year_submit])):
             messagebox.showerror(
-                "Invalid Input", "Please enter valid numerical \
-                \nvalues for date fields.")
+                "Invalid Input",
+                "Please enter valid numerical values for date fields.")
             self.after(10, self.lift)
             return
 
@@ -2997,59 +3398,72 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
             return
 
         if currency_type not in ["VND", "USD", "EUR"]:
-            messagebox. \
-                showerror("Invalid Currency Type",
-                          "Currency Type must be 'VND', 'USD', or 'EUR'.")
+            messagebox.showerror(
+                "Invalid Currency Type",
+                "Currency Type must be 'VND', 'USD', or 'EUR'.")
             self.focus()
             return
 
-        data_file = "data.json"
-        if os.path.exists(data_file):
-            with open(data_file, "r") as file:
-                data = json.load(file)
-        else:
-            data = {"transactions": []}
+        try:
+            df_transactions = pd.read_excel(
+                "data.xlsx", sheet_name="transactions")
+            df_exchange_rates = pd.read_excel(
+                "data.xlsx", sheet_name="exchange_rates")
 
-        exchange_rates = data["exchange_rates"]
+            currency_type_enum = CurrencyType[currency_type].value
+            exchange_rate_row = df_exchange_rates[
+                df_exchange_rates["currency_type"] ==
+                currency_type_enum].iloc[0]
+            exchange_rate = exchange_rate_row["rate"]
+            exchange_rate_id = exchange_rate_row["id"]
 
-        exchange_rate = None
-        for rate in exchange_rates:
-            if rate["currency_type"] == CurrencyType[currency_type].value:
-                exchange_rate = rate
-                break
+            transaction_found = False
+            for idx, transaction in df_transactions.iterrows():
+                if transaction[
+                        "id"
+                ] == self.parent.selected_currency_transaction_code:
+                    df_transactions.at[idx, "day"] = day
+                    df_transactions.at[idx, "month"] = month
+                    df_transactions.at[idx, "year"] = year
+                    df_transactions.at[idx, "quantity"] = quantity
+                    df_transactions.at[idx,
+                                       "currency_type"] = currency_type_enum
+                    df_transactions.at[idx,
+                                       "exchange_rate_id"] = exchange_rate_id
+                    df_transactions.at[idx, "exchange_rate"] = exchange_rate
+                    df_transactions.at[idx,
+                                       "effective_day"
+                                       ] = exchange_rate_row["effective_day"]
+                    df_transactions.at[idx,
+                                       "effective_month"
+                                       ] = exchange_rate_row["effective_month"]
+                    df_transactions.at[idx,
+                                       "effective_year"
+                                       ] = exchange_rate_row["effective_year"]
+                    transaction_found = True
+                    break
 
-        if exchange_rate is None:
-            messagebox.showerror("Exchange Rate Not Found",
-                                 f"No exchange rate found for currency type \
-                                {currency_type}.")
+            if not transaction_found:
+                messagebox.showerror("Error", "Transaction ID not found.")
+                return
+
+            with pd.ExcelWriter("data.xlsx", engine="openpyxl", mode="a",
+                                if_sheet_exists="replace") as writer:
+                df_transactions.to_excel(
+                    writer, sheet_name="transactions", index=False)
+                df_exchange_rates.to_excel(
+                    writer, sheet_name="exchange_rates", index=False)
+
+            messagebox.showinfo(
+                "Success",
+                "Currency transaction updated successfully! \
+                \nPlease Refresh Data!")
+            self.destroy()
+
+        except Exception as e:
+            messagebox.showerror(
+                "Error", f"An error occurred while writing to Excel: {e}")
             self.focus()
-            return
-
-        transaction_found = False
-        for transaction in data["transactions"]:
-            if transaction["id"] == \
-                    self.parent.selected_currency_transaction_code:
-                transaction["day"] = day
-                transaction["month"] = month
-                transaction["year"] = year
-                transaction["quantity"] = quantity
-                transaction["exchange_rate"] = exchange_rate
-                transaction["currency_type"] = \
-                    CurrencyType[currency_type].value
-                transaction_found = True
-                break
-
-        if not transaction_found:
-            messagebox.showerror("Error", "Transaction ID not found.")
-            return
-
-        with open(data_file, "w") as file:
-            json.dump(data, file, indent=4)
-
-        messagebox \
-            .showinfo("Success", "Currency transaction updated successfully! \
-                            \nPlease Refresh Data!")
-        self.destroy()
 
     def validate_and_convert_input(self, input_str):
         try:
@@ -3096,7 +3510,7 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
 class DeleteGoldTransactionWindow(customtkinter.CTkToplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
-        self.title("View Details Transaction")
+        self.title("Delete Transaction")
         self.iconbitmap(default='./logo.ico')
         self.minsize(400, 500)
         self.maxsize(400, 500)
@@ -3255,37 +3669,47 @@ class DeleteGoldTransactionWindow(customtkinter.CTkToplevel):
         button_cancel.grid(row=0, column=1, sticky="ew", padx=(10, 0), pady=5)
 
     def gold_confirm_button_callback(self):
-        data_file = "data.json"
-        if os.path.exists(data_file):
-            with open(data_file, "r") as file:
-                data = json.load(file)
-        else:
-            data = {"transactions": []}
+        try:
+            df_transactions = pd.read_excel(
+                "data.xlsx", sheet_name="transactions")
+            df_exchange_rates = pd.read_excel(
+                "data.xlsx", sheet_name="exchange_rates")
 
-        transaction_found = False
-        for transaction in data["transactions"]:
-            if transaction["id"] == self.parent.selected_gold_transaction_code:
-                transaction["isdeleted"] = True
-                transaction_found = True
-                break
+            transaction_found = False
+            for idx, transaction in df_transactions.iterrows():
+                if transaction[
+                    "id"
+                ] == self.parent.selected_gold_transaction_code:
+                    df_transactions.at[idx, "isdeleted"] = True
+                    transaction_found = True
+                    break
 
-        if not transaction_found:
-            messagebox.showerror("Error", "Transaction ID not found.")
-            return
+            if not transaction_found:
+                messagebox.showerror("Error", "Transaction ID not found.")
+                return
 
-        with open(data_file, "w") as file:
-            json.dump(data, file, indent=4)
+            with pd.ExcelWriter("data.xlsx", engine="openpyxl", mode="a",
+                                if_sheet_exists="replace") as writer:
+                df_transactions.to_excel(
+                    writer, sheet_name="transactions", index=False)
+                df_exchange_rates.to_excel(
+                    writer, sheet_name="exchange_rates", index=False)
 
-        messagebox \
-            .showinfo("Success", "Gold transaction deleted successfully! \
-                            \nPlease Refresh Data!")
-        self.destroy()
+            messagebox.showinfo(
+                "Success",
+                "Gold transaction deleted successfully! Please Refresh Data!")
+            self.destroy()
+
+        except Exception as e:
+            messagebox.showerror(
+                "Error", f"An error occurred while writing to Excel: {e}")
+            self.focus()
 
 
 class DeleteCurrencyTransactionWindow(customtkinter.CTkToplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
-        self.title("View Details Transaction")
+        self.title("Delete Transaction")
         self.iconbitmap(default='./logo.ico')
         self.minsize(400, 500)
         self.maxsize(400, 500)
@@ -3445,32 +3869,42 @@ class DeleteCurrencyTransactionWindow(customtkinter.CTkToplevel):
         button_cancel.grid(row=0, column=1, sticky="ew", padx=(10, 0), pady=5)
 
     def currency_confirm_button_callback(self):
-        data_file = "data.json"
-        if os.path.exists(data_file):
-            with open(data_file, "r") as file:
-                data = json.load(file)
-        else:
-            data = {"transactions": []}
+        try:
+            df_transactions = pd.read_excel(
+                "data.xlsx", sheet_name="transactions")
+            df_exchange_rates = pd.read_excel(
+                "data.xlsx", sheet_name="exchange_rates")
 
-        transaction_found = False
-        for transaction in data["transactions"]:
-            if transaction["id"] == \
-                    self.parent.selected_currency_transaction_code:
-                transaction["isdeleted"] = True
-                transaction_found = True
-                break
+            transaction_found = False
+            for idx, transaction in df_transactions.iterrows():
+                if transaction[
+                    "id"
+                ] == self.parent.selected_currency_transaction_code:
+                    df_transactions.at[idx, "isdeleted"] = True
+                    transaction_found = True
+                    break
 
-        if not transaction_found:
-            messagebox.showerror("Error", "Transaction ID not found.")
-            return
+            if not transaction_found:
+                messagebox.showerror("Error", "Transaction ID not found.")
+                return
 
-        with open(data_file, "w") as file:
-            json.dump(data, file, indent=4)
+            with pd.ExcelWriter("data.xlsx", engine="openpyxl", mode="a",
+                                if_sheet_exists="replace") as writer:
+                df_transactions.to_excel(
+                    writer, sheet_name="transactions", index=False)
+                df_exchange_rates.to_excel(
+                    writer, sheet_name="exchange_rates", index=False)
 
-        messagebox \
-            .showinfo("Success", "Currency transaction deleted successfully! \
-                            \nPlease Refresh Data!")
-        self.destroy()
+            messagebox.showinfo(
+                "Success",
+                "Currency transaction deleted successfully! \
+                \nPlease Refresh Data!")
+            self.destroy()
+
+        except Exception as e:
+            messagebox.showerror(
+                "Error", f"An error occurred while writing to Excel: {e}")
+            self.focus()
 
 
 class FilterWindow(customtkinter.CTkToplevel):
@@ -4495,16 +4929,24 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         self.set("GOLD")
         self.configure(corner_radius=5)
 
-        with open('data.json', 'r') as json_file:
-            data = json.load(json_file)
-
-        self.exchange_rates = data['exchange_rates']
+        self.load_exchange_rates_from_excel()
 
         self.create_widgets()
 
+    def load_exchange_rates_from_excel(self):
+        try:
+            df_exchange_rates = pd.read_excel(
+                "data.xlsx", sheet_name="exchange_rates")
+            self.exchange_rates = df_exchange_rates.to_dict('records')
+        except FileNotFoundError:
+            messagebox.showerror("Error", "Data file not found.")
+            self.exchange_rates = []
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred: {e}")
+            self.exchange_rates = []
+
     def create_widgets(self):
-        self.create_tab_add_gold_transaction(
-            self.tab_add_gold_transaction)
+        self.create_tab_add_gold_transaction(self.tab_add_gold_transaction)
         self.create_tab_add_currency_transaction(
             self.tab_add_currency_transaction)
 
@@ -4569,8 +5011,7 @@ class AddTransactionTabView(customtkinter.CTkTabview):
 
         separator_day_month = ttk.Separator(
             date_frame, orient="horizontal", style="Separator.TSeparator")
-        separator_day_month.grid(row=0, column=1,
-                                 padx=0, pady=0, sticky="ew")
+        separator_day_month.grid(row=0, column=1, padx=0, pady=0, sticky="ew")
 
         self.gold_entry_month = customtkinter.CTkEntry(
             master=date_frame, placeholder_text="Month", width=95)
@@ -4604,97 +5045,6 @@ class AddTransactionTabView(customtkinter.CTkTabview):
             command=self.master.destroy)
         button_cancel.grid(row=0, column=1, sticky="ew", padx=(6, 0), pady=5)
 
-    def gold_confirm_button_callback(self):
-        unit_price = self.gold_entry_unit_price.get()
-        quantity = self.gold_entry_quantity.get()
-        day_submit = self.gold_entry_day.get()
-        month_submit = self.gold_entry_month.get()
-        year_submit = self.gold_entry_year.get()
-        gold_type = self.gold_combobox_gold_type.get()
-
-        if not all([unit_price, quantity, day_submit, month_submit,
-                    year_submit, gold_type]):
-            messagebox.showerror(
-                "Missing Input", "Please fill in all fields.")
-            self.focus()
-            return
-
-        unit_price = self.validate_and_convert_input(unit_price)
-        if unit_price is None:
-            messagebox.showerror(
-                "Invalid Unit Price", "Unit Price must be a valid number.")
-            self.focus()
-            return
-
-        quantity = self.validate_and_convert_input(quantity)
-        if quantity is None:
-            messagebox.showerror(
-                "Invalid Quantity", "Quantity must be a valid number.")
-            self.focus()
-            return
-
-        if not all(map(str.isdigit, [day_submit, month_submit, year_submit])):
-            messagebox.showerror(
-                "Invalid Input", "Please enter valid numerical \
-                \nvalues for date fields.")
-            self.after(10, self.lift)
-            return
-
-        day = int(day_submit)
-        month = int(month_submit)
-        year = int(year_submit)
-
-        if not self.validate_date(day, month, year):
-            messagebox.showerror("Invalid Date", "Date is not valid.")
-            self.focus()
-            return
-
-        if gold_type not in ["SJC", "PNJ", "DOJI"]:
-            messagebox.showerror("Invalid Gold Type",
-                                 "Gold Type must be 'SJC', 'PNJ', or 'DOJI'.")
-            self.focus()
-            return
-
-        with open("data.json", "r") as file:
-            data = json.load(file)
-
-        new_data = {
-            "id": "",
-            "day": day,
-            "month": month,
-            "year": year,
-            "unit_price": unit_price,
-            "quantity": quantity,
-            "type": "gold",
-            "gold_type": GoldType[self.gold_combobox_gold_type.get()].value,
-            "isdeleted": False
-        }
-
-        new_data_id = self.generate_gold_id(data["transactions"])
-        new_data["id"] = new_data_id
-
-        data["transactions"].append(new_data)
-
-        with open("data.json", "w") as file:
-            json.dump(data, file, indent=4)
-
-        messagebox.showinfo("Success", "Gold transaction added successfully. \
-                            \nPlease Refresh Data!")
-        self.focus()
-
-    def generate_gold_id(self, transactions):
-        gold_transactions = [t for t in transactions if t["type"] == "gold"]
-        num_gold_transactions = len(gold_transactions)
-
-        new_id = f"GLD{num_gold_transactions + 1:03}"
-
-        for transaction in transactions:
-            if transaction["id"] == new_id:
-                num_gold_transactions += 1
-                new_id = f"GLD{num_gold_transactions + 1:03}"
-
-        return new_id
-
     def create_tab_add_currency_transaction(self, tab):
         label_quantity = customtkinter.CTkLabel(
             master=tab,
@@ -4717,13 +5067,9 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         )
         label_currency_type.pack(padx=20, pady=5, anchor="w")
 
-        self.currency_combobox_currency_type = \
-            customtkinter.CTkComboBox(tab,
-                                      values=[
-                                          "VND", "USD", "EUR"
-                                      ],
-                                      command=self.
-                                      combobox_currency_type_callback)
+        self.currency_combobox_currency_type = customtkinter.CTkComboBox(
+            tab, values=["VND", "USD", "EUR"],
+            command=self.combobox_currency_type_callback)
         self.currency_combobox_currency_type.set("VND")
         self.currency_combobox_currency_type.pack(
             padx=20, pady=0, anchor="w", fill="x")
@@ -4738,8 +5084,8 @@ class AddTransactionTabView(customtkinter.CTkTabview):
 
         self.currency_entry_exchange_rate = customtkinter.CTkEntry(
             master=tab, placeholder_text="23,130.6")
-        self.currency_entry_exchange_rate.pack(padx=20, pady=0, anchor="w",
-                                               fill="x")
+        self.currency_entry_exchange_rate.pack(padx=20, pady=0,
+                                               anchor="w", fill="x")
         self.currency_entry_exchange_rate.insert(
             0, str(self.exchange_rates[0]["rate"]))
         self.currency_entry_exchange_rate.configure(state="readonly")
@@ -4760,22 +5106,20 @@ class AddTransactionTabView(customtkinter.CTkTabview):
 
         self.currency_entry_day = customtkinter.CTkEntry(
             master=date_frame, placeholder_text="Day", width=95)
-        self.currency_entry_day.grid(row=0, column=0, padx=(0, 5), pady=0,
-                                     sticky="ew")
+        self.currency_entry_day.grid(row=0, column=0, padx=(0, 5),
+                                     pady=0, sticky="ew")
 
-        separator_day_month = ttk.Separator(
-            date_frame, orient="horizontal", style="Separator.TSeparator")
-        separator_day_month.grid(row=0, column=1,
-                                 padx=0, pady=0, sticky="ew")
+        separator_day_month = ttk.Separator(date_frame, orient="horizontal",
+                                            style="Separator.TSeparator")
+        separator_day_month.grid(row=0, column=1, padx=0, pady=0, sticky="ew")
 
         self.currency_entry_month = customtkinter.CTkEntry(
             master=date_frame, placeholder_text="Month", width=95)
         self.currency_entry_month.grid(row=0, column=2, padx=5, pady=0)
 
-        separator_month_year = ttk.Separator(
-            date_frame, orient="horizontal", style="Separator.TSeparator")
-        separator_month_year.grid(
-            row=0, column=3, padx=0, pady=0, sticky="ew")
+        separator_month_year = ttk.Separator(date_frame, orient="horizontal",
+                                             style="Separator.TSeparator")
+        separator_month_year.grid(row=0, column=3, padx=0, pady=0, sticky="ew")
 
         self.currency_entry_year = customtkinter.CTkEntry(
             master=date_frame, placeholder_text="Year", width=95)
@@ -4800,6 +5144,90 @@ class AddTransactionTabView(customtkinter.CTkTabview):
             command=self.master.destroy)
         button_cancel.grid(row=0, column=1, sticky="ew", padx=(6, 0), pady=5)
 
+    def gold_confirm_button_callback(self):
+        unit_price = self.gold_entry_unit_price.get()
+        quantity = self.gold_entry_quantity.get()
+        day_submit = self.gold_entry_day.get()
+        month_submit = self.gold_entry_month.get()
+        year_submit = self.gold_entry_year.get()
+        gold_type = self.gold_combobox_gold_type.get()
+
+        if not all([unit_price, quantity, day_submit, month_submit,
+                    year_submit, gold_type]):
+            messagebox.showerror("Missing Input", "Please fill in all fields.")
+            self.focus()
+            return
+
+        unit_price = self.validate_and_convert_input(unit_price)
+        if unit_price is None:
+            messagebox.showerror("Invalid Unit Price",
+                                 "Unit Price must be a valid number.")
+            self.focus()
+            return
+
+        quantity = self.validate_and_convert_input(quantity)
+        if quantity is None:
+            messagebox.showerror("Invalid Quantity",
+                                 "Quantity must be a valid number.")
+            self.focus()
+            return
+
+        if not all(map(str.isdigit, [day_submit, month_submit, year_submit])):
+            messagebox.showerror(
+                "Invalid Input",
+                "Please enter valid numerical values for date fields.")
+            self.after(10, self.lift)
+            return
+
+        day = int(day_submit)
+        month = int(month_submit)
+        year = int(year_submit)
+
+        if not self.validate_date(day, month, year):
+            messagebox.showerror("Invalid Date", "Date is not valid.")
+            self.focus()
+            return
+
+        if gold_type not in ["SJC", "PNJ", "DOJI"]:
+            messagebox.showerror("Invalid Gold Type",
+                                 "Gold Type must be 'SJC', 'PNJ', or 'DOJI'.")
+            self.focus()
+            return
+
+        try:
+            new_data = {
+                "id": self.generate_gold_id(
+                    pd.read_excel("data.xlsx", sheet_name="transactions")),
+                "day": day,
+                "month": month,
+                "year": year,
+                "unit_price": unit_price,
+                "quantity": quantity,
+                "type": "gold",
+                "gold_type": GoldType[gold_type].value,
+                "isdeleted": False
+            }
+            self.append_to_excel(new_data, "transactions")
+
+            messagebox.showinfo(
+                "Success",
+                "Gold transaction added successfully. Please Refresh Data!")
+            self.focus()
+        except Exception as e:
+            messagebox.showerror(
+                "Error",
+                f"An error occurred while writing to Excel: {e}")
+            self.focus()
+
+    def generate_gold_id(self, df_transactions):
+        gold_transactions = df_transactions[df_transactions["type"] == "gold"]
+        num_gold_transactions = len(gold_transactions)
+        new_id = f"GLD{num_gold_transactions + 1:03}"
+        while new_id in df_transactions["id"].values:
+            num_gold_transactions += 1
+            new_id = f"GLD{num_gold_transactions + 1:03}"
+        return new_id
+
     def combobox_currency_type_callback(self, choice):
         try:
             currency_type = CurrencyType[choice].value
@@ -4821,38 +5249,28 @@ class AddTransactionTabView(customtkinter.CTkTabview):
 
     def currency_confirm_button_callback(self):
         quantity = self.currency_entry_quantity.get()
-        exchange_rate = self.currency_entry_exchange_rate.get()
         day_submit = self.currency_entry_day.get()
         month_submit = self.currency_entry_month.get()
         year_submit = self.currency_entry_year.get()
         currency_type = self.currency_combobox_currency_type.get()
 
-        if not all([quantity, exchange_rate, day_submit, month_submit,
+        if not all([quantity, day_submit, month_submit,
                     year_submit, currency_type]):
-            messagebox.showerror(
-                "Missing Input", "Please fill in all fields.")
+            messagebox.showerror("Missing Input", "Please fill in all fields.")
             self.focus()
             return
 
         quantity = self.validate_and_convert_input(quantity)
         if quantity is None:
-            messagebox.showerror(
-                "Invalid Quantity", "Quantity must be a valid number.")
-            self.focus()
-            return
-
-        exchange_rate = self.validate_and_convert_input(exchange_rate)
-        if exchange_rate is None:
-            messagebox.showerror(
-                "Invalid Exchange Rate",
-                "Exchange Rate must be a valid number.")
+            messagebox.showerror("Invalid Quantity",
+                                 "Quantity must be a valid number.")
             self.focus()
             return
 
         if not all(map(str.isdigit, [day_submit, month_submit, year_submit])):
             messagebox.showerror(
-                "Invalid Input", "Please enter valid numerical \
-                \nvalues for date fields.")
+                "Invalid Input",
+                "Please enter valid numerical values for date fields.")
             self.after(10, self.lift)
             return
 
@@ -4866,68 +5284,94 @@ class AddTransactionTabView(customtkinter.CTkTabview):
             return
 
         if currency_type not in ["VND", "USD", "EUR"]:
-            messagebox. \
-                showerror("Invalid Currency Type",
-                          "Currency Type must be 'VND', 'USD', or 'EUR'.")
+            messagebox.showerror(
+                "Invalid Currency Type",
+                "Currency Type must be 'VND', 'USD', or 'EUR'.")
             self.focus()
             return
 
-        with open("data.json", "r") as file:
-            data = json.load(file)
+        try:
+            df_transactions = pd.read_excel(
+                "data.xlsx", sheet_name="transactions")
+            df_exchange_rates = pd.read_excel(
+                "data.xlsx", sheet_name="exchange_rates")
 
-        exchange_rates = data["exchange_rates"]
+            currency_type_enum = CurrencyType[currency_type].value
+            exchange_rate_row = df_exchange_rates[
+                df_exchange_rates["currency_type"] ==
+                currency_type_enum].iloc[0]
+            exchange_rate = exchange_rate_row["rate"]
+            exchange_rate_id = exchange_rate_row["id"]
 
-        exchange_rate = None
-        for rate in exchange_rates:
-            if rate["currency_type"] == CurrencyType[currency_type].value:
-                exchange_rate = rate
-                break
+            new_data = {
+                "id": self.generate_currency_id(df_transactions),
+                "day": day,
+                "month": month,
+                "year": year,
+                "quantity": quantity,
+                "type": "currency",
+                "currency_type": currency_type_enum,
+                "exchange_rate_id": exchange_rate_id,
+                "exchange_rate": exchange_rate,
+                "effective_day": exchange_rate_row["effective_day"],
+                "effective_month": exchange_rate_row["effective_month"],
+                "effective_year": exchange_rate_row["effective_year"],
+                "isdeleted": False
+            }
 
-        if exchange_rate is None:
-            messagebox.showerror("Exchange Rate Not Found",
-                                 f"No exchange rate found for currency type \
-                                {currency_type}.")
+            self.append_to_excel(new_data, "transactions")
+
+            messagebox.showinfo(
+                "Success",
+                "Currency transaction added successfully. Please Refresh Data!"
+            )
             self.focus()
-            return
+        except Exception as e:
+            messagebox.showerror(
+                "Error", f"An error occurred while writing to Excel: {e}")
+            self.focus()
 
-        new_data = {
-            "id": "",
-            "day": day,
-            "month": month,
-            "year": year,
-            "quantity": quantity,
-            "type": "currency",
-            "currency_type": CurrencyType[currency_type].value,
-            "exchange_rate": exchange_rate,
-            "isdeleted": False
-        }
-
-        new_data_id = self.generate_currency_id(data["transactions"])
-        new_data["id"] = new_data_id
-
-        data["transactions"].append(new_data)
-
-        with open("data.json", "w") as file:
-            json.dump(data, file, indent=4)
-
-        messagebox.showinfo("Success",
-                            "Currency transaction added successfully. \
-                            Please Refresh Data!")
-        self.focus()
-
-    def generate_currency_id(self, transactions):
-        currency_transactions = [
-            t for t in transactions if t["type"] == "currency"]
+    def generate_currency_id(self, df_transactions):
+        currency_transactions = df_transactions[
+            df_transactions["type"] == "currency"]
         num_currency_transactions = len(currency_transactions)
-
         new_id = f"CUR{num_currency_transactions + 1:03}"
-
-        for transaction in transactions:
-            if transaction["id"] == new_id:
-                num_currency_transactions += 1
-                new_id = f"CUR{num_currency_transactions + 1:03}"
-
+        while new_id in df_transactions["id"].values:
+            num_currency_transactions += 1
+            new_id = f"CUR{num_currency_transactions + 1:03}"
         return new_id
+
+    def append_to_excel(self, new_data, sheet_name):
+        try:
+            df_transactions = pd.read_excel(
+                "data.xlsx", sheet_name="transactions")
+            df_exchange_rates = pd.read_excel(
+                "data.xlsx", sheet_name="exchange_rates")
+
+            if sheet_name == "transactions":
+                df_transactions = pd.concat(
+                    [df_transactions, pd.DataFrame([new_data])],
+                    ignore_index=True)
+            elif sheet_name == "exchange_rates":
+                df_exchange_rates = pd.concat(
+                    [df_exchange_rates, pd.DataFrame([new_data])],
+                    ignore_index=True)
+
+            with pd.ExcelWriter("data.xlsx", engine="openpyxl", mode="a",
+                                if_sheet_exists="replace") as writer:
+                df_transactions.to_excel(
+                    writer, sheet_name="transactions", index=False)
+                df_exchange_rates.to_excel(
+                    writer, sheet_name="exchange_rates", index=False)
+        except Exception as e:
+            messagebox.showerror(
+                "Error", f"An error occurred while writing to Excel: {e}")
+
+    def get_exchange_rate_id(self, currency_type):
+        for rate in self.exchange_rates:
+            if rate["currency_type"] == CurrencyType[currency_type].value:
+                return rate["id"]
+        return None
 
     def validate_and_convert_input(self, input_str):
         try:
@@ -5190,21 +5634,40 @@ class TabReport(customtkinter.CTkTabview):
 
             return total_chart_frame
 
-        total_amount_transaction = 0
-        gold_total_amount_transaction = 0
-        currency_total_amount_transaction = 0
-        total_amount_quantity_transaction = 0
-        gold_total_amount_quantity_transaction = 0
-        currency_total_amount_quantity_transaction = 0
-        for transaction in transactions:
-            total_amount_transaction += transaction._total_amount
-            total_amount_quantity_transaction += 1
-            if isinstance(transaction, GoldTransaction):
-                gold_total_amount_transaction += transaction._total_amount
-                gold_total_amount_quantity_transaction += 1
-            if isinstance(transaction, CurrencyTransaction):
-                currency_total_amount_transaction += transaction._total_amount
-                currency_total_amount_quantity_transaction += 1
+        # total_amount_transaction = 0
+        # gold_total_amount_transaction = 0
+        # currency_total_amount_transaction = 0
+        # total_amount_quantity_transaction = 0
+        # gold_total_amount_quantity_transaction = 0
+        # currency_total_amount_quantity_transaction = 0
+        # for transaction in transactions:
+        #     total_amount_transaction += transaction._total_amount
+        #     total_amount_quantity_transaction += 1
+        #     if isinstance(transaction, GoldTransaction):
+        #         gold_total_amount_transaction += transaction._total_amount
+        #         gold_total_amount_quantity_transaction += 1
+        #     if isinstance(transaction, CurrencyTransaction):
+        #         currency_total_amount_transaction += \
+        #             transaction._total_amount
+        #         currency_total_amount_quantity_transaction += 1
+
+        total_amounts = np.array([txn._total_amount for txn in transactions])
+        total_amount_transaction = np.sum(total_amounts)
+        total_amount_quantity_transaction = len(transactions)
+
+        gold_transactions = [
+            txn for txn in transactions if isinstance(txn, GoldTransaction)]
+        currency_transactions = [
+            txn for txn in transactions if isinstance(txn,
+                                                      CurrencyTransaction)]
+
+        # gold_total_amount_transaction = np.sum(
+        #     [txn._total_amount for txn in gold_transactions])
+        # currency_total_amount_transaction = np.sum(
+        #     [txn._total_amount for txn in currency_transactions])
+
+        gold_total_amount_quantity_transaction = len(gold_transactions)
+        currency_total_amount_quantity_transaction = len(currency_transactions)
 
         formatted_total_amount = self.format_price_number(
             total_amount_transaction)
@@ -5232,9 +5695,9 @@ class TabReport(customtkinter.CTkTabview):
         ax.pie(piechart_values, labels=piechart_labels, autopct='%1.1f%%',
                colors=piechart_colors)
         ax.legend(title="Category", loc='center left',
-                  bbox_to_anchor=(-0.85, 0.5))
+                  bbox_to_anchor=(-0.55, 0.5))
 
-        fig.set_size_inches(2, 2)
+        fig.set_size_inches(3, 3)
 
         canvas = FigureCanvasTkAgg(fig, master=total_chart_frame)
         canvas.draw()
@@ -5375,10 +5838,30 @@ class TabReport(customtkinter.CTkTabview):
 
             self.plot_bar_chart_for_this_month(statistics_chart_frame,
                                                weeks, totals)
+            self.plot_markers_chart_for_this_month(statistics_chart_frame,
+                                                   weeks, totals)
+            self.plot_gold_bar_chart_for_this_month(statistics_chart_frame,
+                                                    weeks, transactions)
+            self.plot_gold_markers_chart_for_this_month(statistics_chart_frame,
+                                                        weeks, transactions)
+            self.plot_currency_bar_chart_for_this_month(statistics_chart_frame,
+                                                        weeks, transactions)
+            self.plot_currency_markers_chart_for_this_month(
+                statistics_chart_frame, weeks, transactions)
 
         elif tab_type == self.tab_week:
             self.plot_bar_chart_for_this_week(statistics_chart_frame,
                                               transactions)
+            self.plot_markers_chart_for_this_week(statistics_chart_frame,
+                                                  transactions)
+            self.plot_gold_bar_chart_for_this_week(statistics_chart_frame,
+                                                   transactions)
+            self.plot_gold_markers_chart_for_this_week(statistics_chart_frame,
+                                                       transactions)
+            self.plot_currency_bar_chart_for_this_week(statistics_chart_frame,
+                                                       transactions)
+            self.plot_currency_markers_chart_for_this_week(
+                statistics_chart_frame, transactions)
 
         return statistics_chart_frame
 
@@ -5413,17 +5896,109 @@ class TabReport(customtkinter.CTkTabview):
         return weeks
 
     def plot_bar_chart_for_this_month(self, parent, weeks, totals):
-        week_labels = \
-            [f"Week {i+1}\n{start.strftime('%d/%m/%Y')} - {end.strftime(
-                '%d/%m/%Y')}" for i, (start, end) in enumerate(weeks)]
+        week_labels = [
+            f"Week {i+1}\n{start.strftime('%d/%m/%Y')
+                           } - {end.strftime('%d/%m/%Y')}"
+            for i, (start, end) in enumerate(weeks)
+        ]
+
+        gold_totals = [0] * len(weeks)
+        currency_totals = [0] * len(weeks)
+        for i, (start, end) in enumerate(weeks):
+            for txn in self.all_transactions:
+                txn_date = datetime.date(txn._year, txn._month, txn._day)
+                if start <= txn_date <= end:
+                    if isinstance(txn, GoldTransaction):
+                        gold_totals[i] += txn._total_amount
+                    elif isinstance(txn, CurrencyTransaction):
+                        currency_totals[i] += txn._total_amount
 
         fig, ax = plt.subplots()
+        bar_width = 0.2
+        x = np.arange(len(weeks))
 
-        ax.bar(week_labels, totals)
+        ax.bar(x - bar_width, gold_totals,
+               width=bar_width, label='Gold', color='#f5d45f')
+        ax.bar(
+            x, currency_totals, width=bar_width,
+            label='Currency', color='#2ea64d')
+        ax.bar(x + bar_width, totals,
+               width=bar_width, label='Total')
 
         ax.set_xlabel('Weeks')
         ax.set_ylabel('Total Amount (VND)')
         ax.set_title('Weekly Total Amount for Current Month')
+        ax.set_xticks(x)
+        ax.set_xticklabels(week_labels, ha='center')
+
+        ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
+
+        max_total = max(totals, default=0)
+        if max_total > 0:
+            max_ticks = min(5, max(2, int(max_total // 1_000_000) + 1))
+        else:
+            max_ticks = 2
+
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
+        ax.yaxis.set_major_formatter(
+            lambda x, pos: f'{x:,.0f}'
+            if x < 1_000_000 else f'{int(x // 1_000_000)}M')
+
+        for i, v in enumerate(gold_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i - bar_width, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#f5d45f')
+
+        for i, v in enumerate(currency_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#2ea64d')
+
+        for i, v in enumerate(totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i + bar_width, v + 0.01, formatted_amount,
+                    ha='center', va='bottom')
+
+        fig.subplots_adjust(bottom=0.2)
+
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.draw()
+        canvas.get_tk_widget().pack(padx=5, pady=(0, 2), fill="x")
+
+    def plot_markers_chart_for_this_month(self, parent, weeks, totals):
+        week_labels = [
+            f"Week {i+1}\n{start.strftime('%d/%m/%Y')
+                           } - {end.strftime('%d/%m/%Y')}"
+            for i, (start, end) in enumerate(weeks)
+        ]
+
+        gold_totals = [0] * len(weeks)
+        currency_totals = [0] * len(weeks)
+        for i, (start, end) in enumerate(weeks):
+            for txn in self.all_transactions:
+                txn_date = datetime.date(txn._year, txn._month, txn._day)
+                if start <= txn_date <= end:
+                    if isinstance(txn, GoldTransaction):
+                        gold_totals[i] += txn._total_amount
+                    elif isinstance(txn, CurrencyTransaction):
+                        currency_totals[i] += txn._total_amount
+
+        fig, ax = plt.subplots()
+
+        ax.plot(week_labels, gold_totals, marker='o', linestyle='-',
+                label='Gold', color='#f5d45f')
+        ax.plot(week_labels, currency_totals, marker='o', linestyle='-',
+                label='Currency', color='#2ea64d')
+        ax.plot(week_labels, totals, marker='o', linestyle='-',
+                label='Total')
+
+        ax.set_xlabel('Weeks')
+        ax.set_ylabel('Total Amount (VND)')
+        ax.set_title('Weekly Total Amount for Current Month')
+
+        ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
 
         max_total = max(totals, default=0)
 
@@ -5435,19 +6010,343 @@ class TabReport(customtkinter.CTkTabview):
         ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
 
         ax.yaxis.set_major_formatter(
-            lambda x, pos: f'{x:,.0f}' if x < 1_000_000
-            else f'{int(x // 1_000_000)}M'
+            lambda x, pos: f'{x:,.0f}'
+            if x < 1_000_000 else f'{int(x // 1_000_000)}M'
         )
 
         for i, v in enumerate(totals):
             formatted_amount = self.format_price_number(v)
-            ax.text(i, v + 0.01, formatted_amount, ha='center', va='bottom')
+            ax.text(i, v + 0.01, formatted_amount, ha='center',
+                    va='bottom')
+
+        for i, v in enumerate(gold_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount, ha='center', va='bottom',
+                    color='#f5d45f')
+
+        for i, v in enumerate(currency_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount, ha='center', va='bottom',
+                    color='#2ea64d')
 
         fig.subplots_adjust(bottom=0.2)
 
         canvas = FigureCanvasTkAgg(fig, master=parent)
         canvas.draw()
         canvas.get_tk_widget().pack(padx=5, pady=(0, 2), fill="x")
+
+    def plot_gold_bar_chart_for_this_month(self, parent, weeks, transactions):
+        week_labels = [
+            f"Week {i+1}\n{start.strftime('%d/%m/%Y')
+                           } - {end.strftime('%d/%m/%Y')}"
+            for i, (start, end) in enumerate(weeks)
+        ]
+
+        sjc_totals = [0] * len(weeks)
+        pnj_totals = [0] * len(weeks)
+        doji_totals = [0] * len(weeks)
+
+        for i, (start, end) in enumerate(weeks):
+            for txn in transactions:
+                if isinstance(txn, GoldTransaction):
+                    txn_date = datetime.date(txn._year, txn._month, txn._day)
+                    if start <= txn_date <= end:
+                        if txn._gold_type == GoldType.SJC:
+                            sjc_totals[i] += txn._total_amount
+                        elif txn._gold_type == GoldType.PNJ:
+                            pnj_totals[i] += txn._total_amount
+                        elif txn._gold_type == GoldType.DOJI:
+                            doji_totals[i] += txn._total_amount
+
+        fig, ax = plt.subplots()
+        bar_width = 0.2
+        x = np.arange(len(weeks))
+
+        ax.bar(x - bar_width, sjc_totals,
+               width=bar_width, label='SJC', color='#f5d45f')
+        ax.bar(x, pnj_totals, width=bar_width, label='PNJ', color='#df760b')
+        ax.bar(x + bar_width, doji_totals,
+               width=bar_width, label='DOJI', color='#743c08')
+
+        ax.set_xlabel('Weeks')
+        ax.set_ylabel('Total Amount (VND)')
+        ax.set_title('Gold Transactions by Type for Current Month')
+        ax.set_xticks(x)
+        ax.set_xticklabels(week_labels, ha='center')
+
+        ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
+
+        max_sjc = max(sjc_totals, default=0)
+        max_pnj = max(pnj_totals, default=0)
+        max_doji = max(doji_totals, default=0)
+        max_total = max(max_sjc, max_pnj, max_doji)
+
+        if max_total > 0:
+            max_ticks = min(5, max(2, int(max_total // 1_000_000) + 1))
+        else:
+            max_ticks = 2
+
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
+        ax.yaxis.set_major_formatter(
+            lambda x, pos: f'{x:,.0f}' if x < 1_000_000 else f'{
+                int(x // 1_000_000)}M'
+        )
+
+        for i, v in enumerate(sjc_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i - bar_width, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#f5d45f')
+
+        for i, v in enumerate(pnj_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#df760b')
+
+        for i, v in enumerate(doji_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i + bar_width, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#743c08')
+
+        fig.subplots_adjust(bottom=0.2)
+
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.draw()
+        canvas.get_tk_widget().pack(padx=5, pady=(0, 2), fill="x")
+
+    def plot_gold_markers_chart_for_this_month(self, parent,
+                                               weeks, transactions):
+        week_labels = [
+            f"Week {i+1}\n{start.strftime('%d/%m/%Y')
+                           } - {end.strftime('%d/%m/%Y')}"
+            for i, (start, end) in enumerate(weeks)
+        ]
+
+        sjc_totals = [0] * len(weeks)
+        pnj_totals = [0] * len(weeks)
+        doji_totals = [0] * len(weeks)
+
+        for i, (start, end) in enumerate(weeks):
+            for txn in transactions:
+                if isinstance(txn, GoldTransaction):
+                    txn_date = datetime.date(txn._year, txn._month, txn._day)
+                    if start <= txn_date <= end:
+                        if txn._gold_type == GoldType.SJC:
+                            sjc_totals[i] += txn._total_amount
+                        elif txn._gold_type == GoldType.PNJ:
+                            pnj_totals[i] += txn._total_amount
+                        elif txn._gold_type == GoldType.DOJI:
+                            doji_totals[i] += txn._total_amount
+
+        fig, ax = plt.subplots()
+
+        ax.plot(week_labels, sjc_totals, marker='o',
+                linestyle='-', label='SJC', color='#f5d45f')
+        ax.plot(week_labels, pnj_totals, marker='o',
+                linestyle='-', label='PNJ', color='#df760b')
+        ax.plot(week_labels, doji_totals, marker='o',
+                linestyle='-', label='DOJI', color='#743c08')
+
+        ax.set_xlabel('Weeks')
+        ax.set_ylabel('Total Amount (VND)')
+        ax.set_title('Gold Transactions by Type for Current Month')
+
+        ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
+
+        max_sjc = max(sjc_totals, default=0)
+        max_pnj = max(pnj_totals, default=0)
+        max_doji = max(doji_totals, default=0)
+        max_total = max(max_sjc, max_pnj, max_doji)
+
+        if max_total > 0:
+            max_ticks = min(5, max(2, int(max_total // 1_000_000) + 1))
+        else:
+            max_ticks = 2
+
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
+        ax.yaxis.set_major_formatter(
+            lambda x, pos: f'{x:,.0f}'
+            if x < 1_000_000 else f'{int(x // 1_000_000)}M')
+
+        for i, v in enumerate(sjc_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#f5d45f')
+
+        for i, v in enumerate(pnj_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#df760b')
+
+        for i, v in enumerate(doji_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#743c08')
+
+        fig.subplots_adjust(bottom=0.2)
+
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.draw()
+        canvas.get_tk_widget().pack(padx=5, pady=(0, 2), fill="x")
+
+    def plot_currency_bar_chart_for_this_month(self, parent,
+                                               weeks, transactions):
+        week_labels = [
+            f"Week {i+1}\n{start.strftime('%d/%m/%Y')
+                           } - {end.strftime('%d/%m/%Y')}"
+            for i, (start, end) in enumerate(weeks)
+        ]
+
+        vnd_totals = [0] * len(weeks)
+        usd_totals = [0] * len(weeks)
+        eur_totals = [0] * len(weeks)
+
+        for i, (start, end) in enumerate(weeks):
+            for txn in transactions:
+                if isinstance(txn, CurrencyTransaction):
+                    txn_date = datetime.date(txn._year, txn._month, txn._day)
+                    if start <= txn_date <= end:
+                        if txn._currency_type == CurrencyType.VND:
+                            vnd_totals[i] += txn._total_amount
+                        elif txn._currency_type == CurrencyType.USD:
+                            usd_totals[i] += txn._total_amount
+                        elif txn._currency_type == CurrencyType.EUR:
+                            eur_totals[i] += txn._total_amount
+
+        fig, ax = plt.subplots()
+        bar_width = 0.2
+        x = np.arange(len(weeks))
+
+        ax.bar(x - bar_width, vnd_totals, width=bar_width,
+               label='VND', color='#006769')
+        ax.bar(x, usd_totals, width=bar_width,
+               label='USD', color='#2ea64d')
+        ax.bar(x + bar_width, eur_totals, width=bar_width,
+               label='EUR', color='#9dde8b')
+
+        ax.set_xlabel('Weeks')
+        ax.set_ylabel('Total Amount (VND)')
+        ax.set_title('Currency Transactions by Type for Current Month')
+        ax.set_xticks(x)
+        ax.set_xticklabels(week_labels, ha='center')
+
+        ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
+
+        max_vnd = max(vnd_totals, default=0)
+        max_usd = max(usd_totals, default=0)
+        max_eur = max(eur_totals, default=0)
+        max_total = max(max_vnd, max_usd, max_eur)
+
+        if max_total > 0:
+            max_ticks = min(5, max(2, int(max_total // 1_000_000) + 1))
+        else:
+            max_ticks = 2
+
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
+        ax.yaxis.set_major_formatter(lambda x, pos: f'{x:,.0f}'
+                                     if x < 1_000_000
+                                     else f'{int(x // 1_000_000)}M')
+
+        for i, v in enumerate(vnd_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i - bar_width, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#006769')
+
+        for i, v in enumerate(usd_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount, ha='center',
+                    va='bottom', color='#2ea64d')
+
+        for i, v in enumerate(eur_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i + bar_width, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#9dde8b')
+
+        fig.subplots_adjust(bottom=0.2)
+
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.draw()
+        canvas.get_tk_widget().pack(padx=5, pady=(0, 2), fill="x")
+
+    def plot_currency_markers_chart_for_this_month(self, parent,
+                                                   weeks, transactions):
+        week_labels = [
+            f"Week {i+1}\n{start.strftime('%d/%m/%Y')
+                           } - {end.strftime('%d/%m/%Y')}"
+            for i, (start, end) in enumerate(weeks)
+        ]
+
+        vnd_totals = [0] * len(weeks)
+        usd_totals = [0] * len(weeks)
+        eur_totals = [0] * len(weeks)
+
+        for i, (start, end) in enumerate(weeks):
+            for txn in transactions:
+                if isinstance(txn, CurrencyTransaction):
+                    txn_date = datetime.date(txn._year, txn._month, txn._day)
+                    if start <= txn_date <= end:
+                        if txn._currency_type == CurrencyType.VND:
+                            vnd_totals[i] += txn._total_amount
+                        elif txn._currency_type == CurrencyType.USD:
+                            usd_totals[i] += txn._total_amount
+                        elif txn._currency_type == CurrencyType.EUR:
+                            eur_totals[i] += txn._total_amount
+
+        fig, ax = plt.subplots()
+
+        ax.plot(week_labels, vnd_totals, marker='o',
+                linestyle='-', label='VND', color='#006769')
+        ax.plot(week_labels, usd_totals, marker='o',
+                linestyle='-', label='USD', color='#2ea64d')
+        ax.plot(week_labels, eur_totals, marker='o',
+                linestyle='-', label='EUR', color='#9dde8b')
+
+        ax.set_xlabel('Weeks')
+        ax.set_ylabel('Total Amount (VND)')
+        ax.set_title('Currency Transactions by Type for Current Month')
+
+        ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
+
+        max_vnd = max(vnd_totals, default=0)
+        max_usd = max(usd_totals, default=0)
+        max_eur = max(eur_totals, default=0)
+        max_total = max(max_vnd, max_usd, max_eur)
+
+        if max_total > 0:
+            max_ticks = min(5, max(2, int(max_total // 1_000_000) + 1))
+        else:
+            max_ticks = 2
+
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
+        ax.yaxis.set_major_formatter(
+            lambda x, pos: f'{x:,.0f}'
+            if x < 1_000_000 else f'{int(x // 1_000_000)}M')
+
+        for i, v in enumerate(vnd_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#006769')
+
+        for i, v in enumerate(usd_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#2ea64d')
+
+        for i, v in enumerate(eur_totals):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#9dde8b')
+
+        fig.subplots_adjust(bottom=0.2)
+
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.draw()
+        canvas.get_tk_widget().pack(padx=5, pady=(0, 2), fill="x")
+
+    # WEEK
 
     def plot_bar_chart_for_this_week(self, parent, transactions):
         days = ["Monday", "Tuesday", "Wednesday",
@@ -5458,6 +6357,8 @@ class TabReport(customtkinter.CTkTabview):
                         ).strftime("%A\n%d/%m/%Y") for i in range(7)]
 
         totals = {day: 0 for day in days}
+        gold_totals = {day: 0 for day in days}
+        currency_totals = {day: 0 for day in days}
 
         for transaction in transactions:
             transaction_date = datetime.date(
@@ -5465,14 +6366,110 @@ class TabReport(customtkinter.CTkTabview):
             day_of_week = transaction_date.strftime('%A')
             if day_of_week in totals:
                 totals[day_of_week] += transaction._total_amount
+                if isinstance(transaction, GoldTransaction):
+                    gold_totals[day_of_week] += transaction._total_amount
+                elif isinstance(transaction, CurrencyTransaction):
+                    currency_totals[day_of_week] += transaction._total_amount
 
         total_amounts = [totals[day] for day in days]
+        gold_amounts = [gold_totals[day] for day in days]
+        currency_amounts = [currency_totals[day] for day in days]
 
         fig, ax = plt.subplots()
-        ax.bar(date_labels, total_amounts)
+        bar_width = 0.2
+        x = np.arange(len(days))
+
+        ax.bar(x - bar_width, gold_amounts, width=bar_width,
+               label='Gold', color='#f5d45f')
+        ax.bar(x, currency_amounts, width=bar_width,
+               label='Currency', color='#2ea64d')
+        ax.bar(x + bar_width, total_amounts, width=bar_width,
+               label='Total')
+
         ax.set_xlabel('Days of the Week')
         ax.set_ylabel('Total Amount (VND)')
         ax.set_title('Total Amounts for Each Day of the Week')
+        ax.set_xticks(x)
+        ax.set_xticklabels(date_labels, ha='center')
+
+        ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
+
+        max_total = max(total_amounts, default=0)
+        if max_total > 0:
+            max_ticks = min(5, max(2, int(max_total // 1_000_000) + 1))
+        else:
+            max_ticks = 2
+
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
+        ax.yaxis.set_major_formatter(lambda x, pos: f'{x:,.0f}'
+                                     if x < 1_000_000
+                                     else f'{int(x // 1_000_000)}M')
+
+        for i, v in enumerate(gold_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i - bar_width, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#f5d45f')
+
+        for i, v in enumerate(currency_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount, ha='center',
+                    va='bottom', color='#2ea64d')
+
+        for i, v in enumerate(total_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i + bar_width, v + 0.01, formatted_amount,
+                    ha='center', va='bottom')
+
+        fig.subplots_adjust(bottom=0.2)
+
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.draw()
+        canvas.get_tk_widget().pack(padx=5, pady=(0, 20), fill="x")
+
+    def plot_markers_chart_for_this_week(self, parent, transactions):
+        days = ["Monday", "Tuesday", "Wednesday", "Thursday",
+                "Friday", "Saturday", "Sunday"]
+        now = datetime.datetime.now()
+        start_of_week = now - datetime.timedelta(days=now.weekday())
+        date_labels = [(start_of_week
+                        + datetime.timedelta(days=i)).strftime("%A\n%d/%m/%Y")
+                       for i in range(7)]
+
+        totals = {day: 0 for day in days}
+        gold_totals = {day: 0 for day in days}
+        currency_totals = {day: 0 for day in days}
+
+        for transaction in transactions:
+            transaction_date = datetime.date(
+                transaction._year, transaction._month, transaction._day)
+            day_of_week = transaction_date.strftime('%A')
+            if day_of_week in totals:
+                totals[day_of_week] += transaction._total_amount
+                if isinstance(transaction, GoldTransaction):
+                    gold_totals[day_of_week] += transaction._total_amount
+                elif isinstance(transaction, CurrencyTransaction):
+                    currency_totals[day_of_week] += transaction._total_amount
+
+        total_amounts = [totals[day] for day in days]
+        gold_amounts = [gold_totals[day] for day in days]
+        currency_amounts = [currency_totals[day] for day in days]
+
+        fig, ax = plt.subplots()
+
+        ax.plot(date_labels, gold_amounts, marker='o',
+                linestyle='-', label='Gold', color='#f5d45f')
+        ax.plot(date_labels, currency_amounts, marker='o',
+                linestyle='-', label='Currency', color='#2ea64d')
+        ax.plot(date_labels, total_amounts, marker='o',
+                linestyle='-', label='Total')
+
+        ax.set_xlabel('Days of the Week')
+        ax.set_ylabel('Total Amount (VND)')
+        ax.set_title('Total Amounts for Each Day of the Week')
+
+        ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
 
         max_total = max(total_amounts, default=0)
 
@@ -5484,13 +6481,357 @@ class TabReport(customtkinter.CTkTabview):
         ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
 
         ax.yaxis.set_major_formatter(
-            lambda x, pos: f'{x:,.0f}' if x < 1_000_000
-            else f'{int(x // 1_000_000)}M'
+            lambda x, pos: f'{x:,.0f}'
+            if x < 1_000_000 else f'{int(x // 1_000_000)}M'
         )
 
         for i, v in enumerate(total_amounts):
             formatted_amount = self.format_price_number(v)
-            ax.text(i, v + 0.01, formatted_amount, ha='center', va='bottom')
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom')
+
+        for i, v in enumerate(gold_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#f5d45f')
+
+        for i, v in enumerate(currency_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#2ea64d')
+
+        fig.subplots_adjust(bottom=0.2)
+
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.draw()
+        canvas.get_tk_widget().pack(padx=5, pady=(0, 20), fill="x")
+
+    def plot_gold_bar_chart_for_this_week(self, parent, transactions):
+        days = ["Monday", "Tuesday", "Wednesday", "Thursday",
+                "Friday", "Saturday", "Sunday"]
+        now = datetime.datetime.now()
+        start_of_week = now - datetime.timedelta(days=now.weekday())
+        date_labels = [(start_of_week
+                        + datetime.timedelta(days=i)).strftime("%A\n%d/%m/%Y")
+                       for i in range(7)]
+
+        sjc_totals = {day: 0 for day in days}
+        pnj_totals = {day: 0 for day in days}
+        doji_totals = {day: 0 for day in days}
+
+        for transaction in transactions:
+            if isinstance(transaction, GoldTransaction):
+                transaction_date = datetime.date(transaction._year,
+                                                 transaction._month,
+                                                 transaction._day)
+                day_of_week = transaction_date.strftime('%A')
+                if day_of_week in sjc_totals:
+                    if transaction._gold_type == GoldType.SJC:
+                        sjc_totals[day_of_week] += transaction._total_amount
+                    elif transaction._gold_type == GoldType.PNJ:
+                        pnj_totals[day_of_week] += transaction._total_amount
+                    elif transaction._gold_type == GoldType.DOJI:
+                        doji_totals[day_of_week] += transaction._total_amount
+
+        sjc_amounts = [sjc_totals[day] for day in days]
+        pnj_amounts = [pnj_totals[day] for day in days]
+        doji_amounts = [doji_totals[day] for day in days]
+
+        fig, ax = plt.subplots()
+        bar_width = 0.2
+        x = np.arange(len(days))
+
+        ax.bar(x - bar_width, sjc_amounts, width=bar_width,
+               label='SJC', color='#f5d45f')
+        ax.bar(x, pnj_amounts, width=bar_width,
+               label='PNJ', color='#df760b')
+        ax.bar(x + bar_width, doji_amounts, width=bar_width,
+               label='DOJI', color='#743c08')
+
+        ax.set_xlabel('Days of the Week')
+        ax.set_ylabel('Total Amount (VND)')
+        ax.set_title('Gold Transactions by Type for Current Week')
+        ax.set_xticks(x)
+        ax.set_xticklabels(date_labels, ha='center')
+
+        ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
+
+        max_sjc = max(sjc_amounts, default=0)
+        max_pnj = max(pnj_amounts, default=0)
+        max_doji = max(doji_amounts, default=0)
+        max_total = max(max_sjc, max_pnj, max_doji)
+
+        if max_total > 0:
+            max_ticks = min(5, max(2, int(max_total // 1_000_000) + 1))
+        else:
+            max_ticks = 2
+
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
+        ax.yaxis.set_major_formatter(lambda x, pos: f'{x:,.0f}'
+                                     if x < 1_000_000
+                                     else f'{int(x // 1_000_000)}M')
+
+        for i, v in enumerate(sjc_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i - bar_width, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#f5d45f')
+
+        for i, v in enumerate(pnj_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount, ha='center',
+                    va='bottom', color='#df760b')
+
+        for i, v in enumerate(doji_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i + bar_width, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#743c08')
+
+        fig.subplots_adjust(bottom=0.2)
+
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.draw()
+        canvas.get_tk_widget().pack(padx=5, pady=(0, 20), fill="x")
+
+    def plot_gold_markers_chart_for_this_week(self, parent, transactions):
+        days = ["Monday", "Tuesday", "Wednesday",
+                "Thursday", "Friday", "Saturday", "Sunday"]
+        now = datetime.datetime.now()
+        start_of_week = now - datetime.timedelta(days=now.weekday())
+        date_labels = [(start_of_week + datetime.timedelta(days=i)
+                        ).strftime("%A\n%d/%m/%Y") for i in range(7)]
+
+        sjc_totals = {day: 0 for day in days}
+        pnj_totals = {day: 0 for day in days}
+        doji_totals = {day: 0 for day in days}
+
+        for transaction in transactions:
+            if isinstance(transaction, GoldTransaction):
+                transaction_date = datetime.date(
+                    transaction._year, transaction._month, transaction._day)
+                day_of_week = transaction_date.strftime('%A')
+                if day_of_week in sjc_totals:
+                    if transaction._gold_type == GoldType.SJC:
+                        sjc_totals[day_of_week] += transaction._total_amount
+                    elif transaction._gold_type == GoldType.PNJ:
+                        pnj_totals[day_of_week] += transaction._total_amount
+                    elif transaction._gold_type == GoldType.DOJI:
+                        doji_totals[day_of_week] += transaction._total_amount
+
+        sjc_amounts = [sjc_totals[day] for day in days]
+        pnj_amounts = [pnj_totals[day] for day in days]
+        doji_amounts = [doji_totals[day] for day in days]
+
+        fig, ax = plt.subplots()
+
+        ax.plot(date_labels, sjc_amounts, marker='o',
+                linestyle='-', label='SJC', color='#f5d45f')
+        ax.plot(date_labels, pnj_amounts, marker='o',
+                linestyle='-', label='PNJ', color='#df760b')
+        ax.plot(date_labels, doji_amounts, marker='o',
+                linestyle='-', label='DOJI', color='#743c08')
+
+        ax.set_xlabel('Days of the Week')
+        ax.set_ylabel('Total Amount (VND)')
+        ax.set_title('Gold Transactions by Type for Current Week')
+
+        ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
+
+        max_sjc = max(sjc_amounts, default=0)
+        max_pnj = max(pnj_amounts, default=0)
+        max_doji = max(doji_amounts, default=0)
+        max_total = max(max_sjc, max_pnj, max_doji)
+
+        if max_total > 0:
+            max_ticks = min(5, max(2, int(max_total // 1_000_000) + 1))
+        else:
+            max_ticks = 2
+
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
+        ax.yaxis.set_major_formatter(
+            lambda x, pos: f'{x:,.0f}'
+            if x < 1_000_000 else f'{int(x // 1_000_000)}M')
+
+        for i, v in enumerate(sjc_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#f5d45f')
+
+        for i, v in enumerate(pnj_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#df760b')
+
+        for i, v in enumerate(doji_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#743c08')
+
+        fig.subplots_adjust(bottom=0.2)
+
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.draw()
+        canvas.get_tk_widget().pack(padx=5, pady=(0, 20), fill="x")
+
+    def plot_currency_bar_chart_for_this_week(self, parent, transactions):
+        days = ["Monday", "Tuesday", "Wednesday",
+                "Thursday", "Friday", "Saturday", "Sunday"]
+        now = datetime.datetime.now()
+        start_of_week = now - datetime.timedelta(days=now.weekday())
+        date_labels = [(start_of_week + datetime.timedelta(days=i)
+                        ).strftime("%A\n%d/%m/%Y") for i in range(7)]
+
+        vnd_totals = {day: 0 for day in days}
+        usd_totals = {day: 0 for day in days}
+        eur_totals = {day: 0 for day in days}
+
+        for transaction in transactions:
+            if isinstance(transaction, CurrencyTransaction):
+                transaction_date = datetime.date(
+                    transaction._year, transaction._month, transaction._day)
+                day_of_week = transaction_date.strftime('%A')
+                if day_of_week in vnd_totals:
+                    if transaction._currency_type == CurrencyType.VND:
+                        vnd_totals[day_of_week] += transaction._total_amount
+                    elif transaction._currency_type == CurrencyType.USD:
+                        usd_totals[day_of_week] += transaction._total_amount
+                    elif transaction._currency_type == CurrencyType.EUR:
+                        eur_totals[day_of_week] += transaction._total_amount
+
+        vnd_amounts = [vnd_totals[day] for day in days]
+        usd_amounts = [usd_totals[day] for day in days]
+        eur_amounts = [eur_totals[day] for day in days]
+
+        fig, ax = plt.subplots()
+        bar_width = 0.2
+        x = np.arange(len(days))
+
+        ax.bar(x - bar_width, vnd_amounts, width=bar_width,
+               label='VND', color='#006769')
+        ax.bar(x, usd_amounts, width=bar_width, label='USD', color='#2ea64d')
+        ax.bar(x + bar_width, eur_amounts, width=bar_width,
+               label='EUR', color='#9dde8b')
+
+        ax.set_xlabel('Days of the Week')
+        ax.set_ylabel('Total Amount (VND)')
+        ax.set_title('Currency Transactions by Type for Current Week')
+        ax.set_xticks(x)
+        ax.set_xticklabels(date_labels, ha='center')
+
+        ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
+
+        max_vnd = max(vnd_amounts, default=0)
+        max_usd = max(usd_amounts, default=0)
+        max_eur = max(eur_amounts, default=0)
+        max_total = max(max_vnd, max_usd, max_eur)
+
+        if max_total > 0:
+            max_ticks = min(5, max(2, int(max_total // 1_000_000) + 1))
+        else:
+            max_ticks = 2
+
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
+        ax.yaxis.set_major_formatter(
+            lambda x, pos: f'{x:,.0f}'
+            if x < 1_000_000 else f'{int(x // 1_000_000)}M')
+
+        for i, v in enumerate(vnd_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i - bar_width, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#006769')
+
+        for i, v in enumerate(usd_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#2ea64d')
+
+        for i, v in enumerate(eur_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i + bar_width, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#9dde8b')
+
+        fig.subplots_adjust(bottom=0.2)
+
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.draw()
+        canvas.get_tk_widget().pack(padx=5, pady=(0, 20), fill="x")
+
+    def plot_currency_markers_chart_for_this_week(self, parent, transactions):
+        days = ["Monday", "Tuesday", "Wednesday",
+                "Thursday", "Friday", "Saturday", "Sunday"]
+        now = datetime.datetime.now()
+        start_of_week = now - datetime.timedelta(days=now.weekday())
+        date_labels = [(start_of_week + datetime.timedelta(days=i)
+                        ).strftime("%A\n%d/%m/%Y") for i in range(7)]
+
+        vnd_totals = {day: 0 for day in days}
+        usd_totals = {day: 0 for day in days}
+        eur_totals = {day: 0 for day in days}
+
+        for transaction in transactions:
+            if isinstance(transaction, CurrencyTransaction):
+                transaction_date = datetime.date(
+                    transaction._year, transaction._month, transaction._day)
+                day_of_week = transaction_date.strftime('%A')
+                if day_of_week in vnd_totals:
+                    if transaction._currency_type == CurrencyType.VND:
+                        vnd_totals[day_of_week] += transaction._total_amount
+                    elif transaction._currency_type == CurrencyType.USD:
+                        usd_totals[day_of_week] += transaction._total_amount
+                    elif transaction._currency_type == CurrencyType.EUR:
+                        eur_totals[day_of_week] += transaction._total_amount
+
+        vnd_amounts = [vnd_totals[day] for day in days]
+        usd_amounts = [usd_totals[day] for day in days]
+        eur_amounts = [eur_totals[day] for day in days]
+
+        fig, ax = plt.subplots()
+
+        ax.plot(date_labels, vnd_amounts, marker='o',
+                linestyle='-', label='VND', color='#006769')
+        ax.plot(date_labels, usd_amounts, marker='o',
+                linestyle='-', label='USD', color='#2ea64d')
+        ax.plot(date_labels, eur_amounts, marker='o',
+                linestyle='-', label='EUR', color='#9dde8b')
+
+        ax.set_xlabel('Days of the Week')
+        ax.set_ylabel('Total Amount (VND)')
+        ax.set_title('Currency Transactions by Type for Current Week')
+
+        ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend()
+
+        max_vnd = max(vnd_amounts, default=0)
+        max_usd = max(usd_amounts, default=0)
+        max_eur = max(eur_amounts, default=0)
+        max_total = max(max_vnd, max_usd, max_eur)
+
+        if max_total > 0:
+            max_ticks = min(5, max(2, int(max_total // 1_000_000) + 1))
+        else:
+            max_ticks = 2
+
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=max_ticks, integer=True))
+        ax.yaxis.set_major_formatter(
+            lambda x, pos: f'{x:,.0f}'
+            if x < 1_000_000 else f'{int(x // 1_000_000)}M')
+
+        for i, v in enumerate(vnd_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#006769')
+
+        for i, v in enumerate(usd_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#2ea64d')
+
+        for i, v in enumerate(eur_amounts):
+            formatted_amount = self.format_price_number(v)
+            ax.text(i, v + 0.01, formatted_amount,
+                    ha='center', va='bottom', color='#9dde8b')
 
         fig.subplots_adjust(bottom=0.2)
 
@@ -5499,20 +6840,18 @@ class TabReport(customtkinter.CTkTabview):
         canvas.get_tk_widget().pack(padx=5, pady=(0, 20), fill="x")
 
     def get_total_amount_per_week(self, transactions, weeks):
-        totals = []
-        for start, end in weeks:
-            total = sum(transaction._total_amount
-                        for transaction in transactions
-                        if datetime.date(transaction._year, transaction._month,
-                                         transaction._day) >= start and
-                        datetime.date(transaction._year, transaction._month,
-                                      transaction._day) <= end)
+        totals = np.zeros(len(weeks))
+        transaction_dates = np.array(
+            [datetime.date(txn._year, txn._month, txn._day)
+             for txn in transactions])
+        transaction_amounts = np.array(
+            [txn._total_amount for txn in transactions])
 
-            totals.append(total if not math.isnan(total) else 0)
+        for i, (start, end) in enumerate(weeks):
+            mask = (transaction_dates >= start) & (transaction_dates <= end)
+            totals[i] = np.sum(transaction_amounts[mask])
 
-        while len(totals) < 4:
-            totals.append(0)
-        return totals
+        return totals.tolist()
 
     def create_gold_transaction_treeview(self, frame):
         treeview_style = ttk.Style()
@@ -5525,7 +6864,7 @@ class TabReport(customtkinter.CTkTabview):
             "Transaction Date",
             "Unit Price (VND/tael)",
             "Quantity (tael)", "Gold Type", "Total Amount (VND)"
-        ), show="headings", height=2)
+        ), show="headings", height=4)
 
         treeview.heading("Transaction Code",
                          text="Transaction Code", anchor="w")
@@ -5558,7 +6897,7 @@ class TabReport(customtkinter.CTkTabview):
             "Transaction Date",
             "Quantity",
             "Currency Type", "Exchange Rate (VND)", "Total Amount (VND)"
-        ), show="headings", height=2)
+        ), show="headings", height=4)
 
         treeview.heading("Transaction Code",
                          text="Transaction Code", anchor="w")
@@ -5674,8 +7013,7 @@ class TotalDetailsWindow(customtkinter.CTkToplevel):
         super().__init__(parent, *args, **kwargs)
         self.title("Total Details")
         self.iconbitmap(default='./logo.ico')
-        self.minsize(500, 600)
-        self.maxsize(500, 600)
+        self.minsize(700, 600)
         self.configure(fg_color="#d9d9d9")
         self.parent = parent
         self.transactions = transactions
@@ -5816,7 +7154,6 @@ class StatisticsDetailsMonthWindow(customtkinter.CTkToplevel):
         self.title("Statistics Details")
         self.iconbitmap(default='./logo.ico')
         self.minsize(1400, 900)
-        self.maxsize(1400, 900)
         self.configure(fg_color="#d9d9d9")
         self.parent = parent
         self.transactions = transactions
@@ -5829,7 +7166,7 @@ class StatisticsDetailsMonthWindow(customtkinter.CTkToplevel):
     def create_widget(self):
         frame_scroll = customtkinter.CTkScrollableFrame(
             self, fg_color="transparent",
-            height=860)
+            height=1000)
         frame_scroll.pack(padx=5, pady=0, fill="both")
 
         month_statistics_chart = \
