@@ -248,7 +248,7 @@ df_transactions = pd.DataFrame(transactions_data)
 df_exchange_rates = pd.DataFrame(exchange_rates_data)
 
 # Write file for testing
-# with pd.ExcelWriter("data.xlsx") as writer:
+# with pd.ExcelWriter("./resources/data/data.xlsx") as writer:
 #     df_transactions.to_excel(writer, sheet_name="transactions", index=False)
 #     df_exchange_rates.to_excel(
 #         writer, sheet_name="exchange_rates", index=False)
@@ -262,7 +262,7 @@ class TransactionApp(customtkinter.CTk):
     def __init__(self):
         super().__init__()
         self.title("Transaction Management")
-        icon_path = "./logo.ico"
+        icon_path = "./resources/images/logo.ico"
         self.iconbitmap(icon_path)
         self.minsize(1720, 960)
 
@@ -295,9 +295,9 @@ class TransactionApp(customtkinter.CTk):
 
     def load_data_from_excel(self):
         try:
-            df_transactions = pd.read_excel("data.xlsx",
+            df_transactions = pd.read_excel("./resources/data/data.xlsx",
                                             sheet_name="transactions")
-            df_exchange_rates = pd.read_excel("data.xlsx",
+            df_exchange_rates = pd.read_excel("./resources/data/data.xlsx",
                                               sheet_name="exchange_rates")
 
             if not self.check_data_validity(df_transactions):
@@ -473,11 +473,11 @@ class HeaderFrame(customtkinter.CTkFrame):
         super().__init__(master, **kwargs)
         self.configure(fg_color="#dbdbdb", bg_color="#f2f2f2")
         self.refresh_icon = customtkinter.CTkImage(
-            Image.open('./refresh.ico'))
+            Image.open('./resources/images/refresh.ico'))
         self.filter_icon = customtkinter.CTkImage(
-            Image.open('./filter.ico'))
+            Image.open('./resources/images/filter.ico'))
         self.search_icon = customtkinter.CTkImage(
-            Image.open('./search.ico'))
+            Image.open('./resources/images/search.ico'))
 
         self.label_transaction = customtkinter.CTkLabel(
             self, text="Transaction", text_color="black",
@@ -1337,11 +1337,11 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         label_actions.pack(side="left", padx=5, pady=0)
 
         details_icon = customtkinter.CTkImage(
-            Image.open('./details.ico'))
+            Image.open('./resources/images/details.ico'))
         edit_icon = customtkinter.CTkImage(
-            Image.open('./edit.ico'))
+            Image.open('./resources/images/edit.ico'))
         delete_icon = customtkinter.CTkImage(
-            Image.open('./delete.ico'))
+            Image.open('./resources/images/delete.ico'))
 
         btn_details = customtkinter.CTkButton(
             frame_action_buttons,
@@ -1431,11 +1431,11 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         label_actions.pack(side="left", padx=5, pady=0)
 
         details_icon = customtkinter.CTkImage(
-            Image.open('./details.ico'))
+            Image.open('./resources/images/details.ico'))
         edit_icon = customtkinter.CTkImage(
-            Image.open('./edit.ico'))
+            Image.open('./resources/images/edit.ico'))
         delete_icon = customtkinter.CTkImage(
-            Image.open('./delete.ico'))
+            Image.open('./resources/images/delete.ico'))
 
         btn_details = customtkinter.CTkButton(
             frame_action_buttons,
@@ -1676,11 +1676,11 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         label_actions.pack(side="left", padx=5, pady=0)
 
         details_icon = customtkinter.CTkImage(
-            Image.open('./details.ico'))
+            Image.open('./resources/images/details.ico'))
         edit_icon = customtkinter.CTkImage(
-            Image.open('./edit.ico'))
+            Image.open('./resources/images/edit.ico'))
         delete_icon = customtkinter.CTkImage(
-            Image.open('./delete.ico'))
+            Image.open('./resources/images/delete.ico'))
 
         btn_details = customtkinter.CTkButton(
             frame_action_buttons,
@@ -1772,11 +1772,11 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         label_actions.pack(side="left", padx=5, pady=0)
 
         details_icon = customtkinter.CTkImage(
-            Image.open('./details.ico'))
+            Image.open('./resources/images/details.ico'))
         edit_icon = customtkinter.CTkImage(
-            Image.open('./edit.ico'))
+            Image.open('./resources/images/edit.ico'))
         delete_icon = customtkinter.CTkImage(
-            Image.open('./delete.ico'))
+            Image.open('./resources/images/delete.ico'))
 
         btn_details = customtkinter.CTkButton(
             frame_action_buttons,
@@ -2059,11 +2059,11 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         label_actions.pack(side="left", padx=5, pady=0)
 
         details_icon = customtkinter.CTkImage(
-            Image.open('./details.ico'))
+            Image.open('./resources/images/details.ico'))
         edit_icon = customtkinter.CTkImage(
-            Image.open('./edit.ico'))
+            Image.open('./resources/images/edit.ico'))
         delete_icon = customtkinter.CTkImage(
-            Image.open('./delete.ico'))
+            Image.open('./resources/images/delete.ico'))
 
         btn_details = customtkinter.CTkButton(
             frame_action_buttons,
@@ -2157,11 +2157,11 @@ class TabGroupBySortBy(customtkinter.CTkTabview):
         label_actions.pack(side="left", padx=5, pady=0)
 
         details_icon = customtkinter.CTkImage(
-            Image.open('./details.ico'))
+            Image.open('./resources/images/details.ico'))
         edit_icon = customtkinter.CTkImage(
-            Image.open('./edit.ico'))
+            Image.open('./resources/images/edit.ico'))
         delete_icon = customtkinter.CTkImage(
-            Image.open('./delete.ico'))
+            Image.open('./resources/images/delete.ico'))
 
         btn_details = customtkinter.CTkButton(
             frame_action_buttons,
@@ -2562,7 +2562,7 @@ class ViewDetailsGoldTransactionWindow(customtkinter.CTkToplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.title("View Details Transaction")
-        self.iconbitmap(default='./logo.ico')
+        self.iconbitmap(default='./resources/images/logo.ico')
         self.minsize(400, 500)
         self.maxsize(400, 500)
         self.configure(fg_color="#d9d9d9")
@@ -2571,7 +2571,8 @@ class ViewDetailsGoldTransactionWindow(customtkinter.CTkToplevel):
         self.create_widget()
 
         if platform.startswith("win"):
-            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+            self.after(200,
+                       lambda: self.iconbitmap("./resources/images/logo.ico"))
 
     def create_widget(self):
         details_frame = customtkinter.CTkFrame(
@@ -2713,7 +2714,7 @@ class ViewDetailsCurrencyTransactionWindow(customtkinter.CTkToplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.title("View Details Transaction")
-        self.iconbitmap(default='./logo.ico')
+        self.iconbitmap(default='./resources/images/logo.ico')
         self.minsize(400, 500)
         self.maxsize(400, 500)
         self.configure(fg_color="#d9d9d9")
@@ -2722,7 +2723,8 @@ class ViewDetailsCurrencyTransactionWindow(customtkinter.CTkToplevel):
         self.create_widget()
 
         if platform.startswith("win"):
-            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+            self.after(200,
+                       lambda: self.iconbitmap("./resources/images/logo.ico"))
 
     def create_widget(self):
         details_frame = customtkinter.CTkFrame(
@@ -2865,7 +2867,7 @@ class EditGoldTransactionWindow(customtkinter.CTkToplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.title("Edit Transaction")
-        self.iconbitmap(default='./logo.ico')
+        self.iconbitmap(default='./resources/images/logo.ico')
         self.minsize(400, 500)
         self.maxsize(400, 500)
         self.configure(fg_color="#d9d9d9")
@@ -2874,7 +2876,8 @@ class EditGoldTransactionWindow(customtkinter.CTkToplevel):
         self.create_widget()
 
         if platform.startswith("win"):
-            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+            self.after(200,
+                       lambda: self.iconbitmap("./resources/images/logo.ico"))
 
     def create_widget(self):
         edit_frame = customtkinter.CTkFrame(
@@ -3075,7 +3078,7 @@ class EditGoldTransactionWindow(customtkinter.CTkToplevel):
 
         try:
             df_transactions = pd.read_excel(
-                "data.xlsx", sheet_name="transactions")
+                "./resources/data/data.xlsx", sheet_name="transactions")
 
             transaction_found = False
             for idx, transaction in df_transactions.iterrows():
@@ -3095,7 +3098,8 @@ class EditGoldTransactionWindow(customtkinter.CTkToplevel):
                 messagebox.showerror("Error", "Transaction ID not found.")
                 return
 
-            with pd.ExcelWriter("data.xlsx", engine="openpyxl", mode="a",
+            with pd.ExcelWriter("./resources/data/data.xlsx",
+                                engine="openpyxl", mode="a",
                                 if_sheet_exists="replace") as writer:
                 df_transactions.to_excel(
                     writer, sheet_name="transactions", index=False)
@@ -3156,7 +3160,7 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.title("Edit Transaction")
-        self.iconbitmap(default='./logo.ico')
+        self.iconbitmap(default='./resources/images/logo.ico')
         self.minsize(400, 500)
         self.maxsize(400, 500)
         self.configure(fg_color="#d9d9d9")
@@ -3166,12 +3170,13 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
         self.create_widget()
 
         if platform.startswith("win"):
-            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+            self.after(200,
+                       lambda: self.iconbitmap("./resources/images/logo.ico"))
 
     def load_exchange_rates_from_excel(self):
         try:
             df_exchange_rates = pd.read_excel(
-                "data.xlsx", sheet_name="exchange_rates")
+                "./resources/data/data.xlsx", sheet_name="exchange_rates")
             self.exchange_rates = df_exchange_rates.to_dict('records')
         except FileNotFoundError:
             messagebox.showerror("Error", "Data file not found.")
@@ -3406,9 +3411,9 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
 
         try:
             df_transactions = pd.read_excel(
-                "data.xlsx", sheet_name="transactions")
+                "./resources/data/data.xlsx", sheet_name="transactions")
             df_exchange_rates = pd.read_excel(
-                "data.xlsx", sheet_name="exchange_rates")
+                "./resources/data/data.xlsx", sheet_name="exchange_rates")
 
             currency_type_enum = CurrencyType[currency_type].value
             exchange_rate_row = df_exchange_rates[
@@ -3447,7 +3452,8 @@ class EditCurrencyTransactionWindow(customtkinter.CTkToplevel):
                 messagebox.showerror("Error", "Transaction ID not found.")
                 return
 
-            with pd.ExcelWriter("data.xlsx", engine="openpyxl", mode="a",
+            with pd.ExcelWriter("./resources/data/data.xlsx",
+                                engine="openpyxl", mode="a",
                                 if_sheet_exists="replace") as writer:
                 df_transactions.to_excel(
                     writer, sheet_name="transactions", index=False)
@@ -3511,7 +3517,7 @@ class DeleteGoldTransactionWindow(customtkinter.CTkToplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.title("Delete Transaction")
-        self.iconbitmap(default='./logo.ico')
+        self.iconbitmap(default='./resources/images/logo.ico')
         self.minsize(400, 500)
         self.maxsize(400, 500)
         self.configure(fg_color="#d9d9d9")
@@ -3520,7 +3526,8 @@ class DeleteGoldTransactionWindow(customtkinter.CTkToplevel):
         self.create_widget()
 
         if platform.startswith("win"):
-            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+            self.after(200,
+                       lambda: self.iconbitmap("./resources/images/logo.ico"))
 
     def create_widget(self):
         delete_frame = customtkinter.CTkFrame(
@@ -3671,9 +3678,9 @@ class DeleteGoldTransactionWindow(customtkinter.CTkToplevel):
     def gold_confirm_button_callback(self):
         try:
             df_transactions = pd.read_excel(
-                "data.xlsx", sheet_name="transactions")
+                "./resources/data/data.xlsx", sheet_name="transactions")
             df_exchange_rates = pd.read_excel(
-                "data.xlsx", sheet_name="exchange_rates")
+                "./resources/data/data.xlsx", sheet_name="exchange_rates")
 
             transaction_found = False
             for idx, transaction in df_transactions.iterrows():
@@ -3688,7 +3695,8 @@ class DeleteGoldTransactionWindow(customtkinter.CTkToplevel):
                 messagebox.showerror("Error", "Transaction ID not found.")
                 return
 
-            with pd.ExcelWriter("data.xlsx", engine="openpyxl", mode="a",
+            with pd.ExcelWriter("./resources/data/data.xlsx",
+                                engine="openpyxl", mode="a",
                                 if_sheet_exists="replace") as writer:
                 df_transactions.to_excel(
                     writer, sheet_name="transactions", index=False)
@@ -3710,7 +3718,7 @@ class DeleteCurrencyTransactionWindow(customtkinter.CTkToplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.title("Delete Transaction")
-        self.iconbitmap(default='./logo.ico')
+        self.iconbitmap(default='./resources/images/logo.ico')
         self.minsize(400, 500)
         self.maxsize(400, 500)
         self.configure(fg_color="#d9d9d9")
@@ -3719,7 +3727,8 @@ class DeleteCurrencyTransactionWindow(customtkinter.CTkToplevel):
         self.create_widget()
 
         if platform.startswith("win"):
-            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+            self.after(200,
+                       lambda: self.iconbitmap("./resources/images/logo.ico"))
 
     def create_widget(self):
         delete_frame = customtkinter.CTkFrame(
@@ -3871,9 +3880,9 @@ class DeleteCurrencyTransactionWindow(customtkinter.CTkToplevel):
     def currency_confirm_button_callback(self):
         try:
             df_transactions = pd.read_excel(
-                "data.xlsx", sheet_name="transactions")
+                "./resources/data/data.xlsx", sheet_name="transactions")
             df_exchange_rates = pd.read_excel(
-                "data.xlsx", sheet_name="exchange_rates")
+                "./resources/data/data.xlsx", sheet_name="exchange_rates")
 
             transaction_found = False
             for idx, transaction in df_transactions.iterrows():
@@ -3888,7 +3897,8 @@ class DeleteCurrencyTransactionWindow(customtkinter.CTkToplevel):
                 messagebox.showerror("Error", "Transaction ID not found.")
                 return
 
-            with pd.ExcelWriter("data.xlsx", engine="openpyxl", mode="a",
+            with pd.ExcelWriter("./resources/data/data.xlsx",
+                                engine="openpyxl", mode="a",
                                 if_sheet_exists="replace") as writer:
                 df_transactions.to_excel(
                     writer, sheet_name="transactions", index=False)
@@ -3911,14 +3921,15 @@ class FilterWindow(customtkinter.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.title("Transaction Management - FILTER")
-        self.iconbitmap(default='./logo.ico')
+        self.iconbitmap(default='./resources/images/logo.ico')
         self.minsize(1720, 960)
         self.configure(fg_color="white")
 
         self.create_widget()
 
         if platform.startswith("win"):
-            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+            self.after(200,
+                       lambda: self.iconbitmap("./resources/images/logo.ico"))
 
         self.transactions = \
             self.master.master.transaction_list.get_transactions()
@@ -4413,14 +4424,15 @@ class SearchWindow(customtkinter.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.title("Transaction Management - SEARCH")
-        self.iconbitmap(default='./logo.ico')
+        self.iconbitmap(default='./resources/images/logo.ico')
         self.minsize(1720, 960)
         self.configure(fg_color="white")
 
         self.create_widget()
 
         if platform.startswith("win"):
-            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+            self.after(200, lambda: self.iconbitmap(
+                "./resources/images/logo.ico"))
 
         self.transactions = \
             self.master.master.transaction_list.get_transactions()
@@ -4764,7 +4776,7 @@ class HeaderFrameForWindow(customtkinter.CTkFrame):
         self.configure(fg_color="#dbdbdb", bg_color="#ffffff")
 
         self.search_icon = customtkinter.CTkImage(
-            Image.open('./search.ico'))
+            Image.open('./resources/images/search.ico'))
 
         self.label_transaction = customtkinter.CTkLabel(
             self, text=label_header, text_color="black",
@@ -4901,7 +4913,7 @@ class AddTransactionWindow(customtkinter.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.title("Add Transaction")
-        self.iconbitmap(default='./logo.ico')
+        self.iconbitmap(default='./resources/images/logo.ico')
         self.minsize(400, 500)
         self.maxsize(400, 500)
         self.configure(fg_color="#d9d9d9")
@@ -4909,7 +4921,8 @@ class AddTransactionWindow(customtkinter.CTkToplevel):
         self.create_widget()
 
         if platform.startswith("win"):
-            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+            self.after(200, lambda: self.iconbitmap(
+                "./resources/images/logo.ico"))
 
     def create_widget(self):
         self.add_transaction_tab_views = AddTransactionTabView(
@@ -4936,7 +4949,7 @@ class AddTransactionTabView(customtkinter.CTkTabview):
     def load_exchange_rates_from_excel(self):
         try:
             df_exchange_rates = pd.read_excel(
-                "data.xlsx", sheet_name="exchange_rates")
+                "./resources/data/data.xlsx", sheet_name="exchange_rates")
             self.exchange_rates = df_exchange_rates.to_dict('records')
         except FileNotFoundError:
             messagebox.showerror("Error", "Data file not found.")
@@ -5197,7 +5210,8 @@ class AddTransactionTabView(customtkinter.CTkTabview):
         try:
             new_data = {
                 "id": self.generate_gold_id(
-                    pd.read_excel("data.xlsx", sheet_name="transactions")),
+                    pd.read_excel("./resources/data/data.xlsx",
+                                  sheet_name="transactions")),
                 "day": day,
                 "month": month,
                 "year": year,
@@ -5292,9 +5306,9 @@ class AddTransactionTabView(customtkinter.CTkTabview):
 
         try:
             df_transactions = pd.read_excel(
-                "data.xlsx", sheet_name="transactions")
+                "./resources/data/data.xlsx", sheet_name="transactions")
             df_exchange_rates = pd.read_excel(
-                "data.xlsx", sheet_name="exchange_rates")
+                "./resources/data/data.xlsx", sheet_name="exchange_rates")
 
             currency_type_enum = CurrencyType[currency_type].value
             exchange_rate_row = df_exchange_rates[
@@ -5344,9 +5358,9 @@ class AddTransactionTabView(customtkinter.CTkTabview):
     def append_to_excel(self, new_data, sheet_name):
         try:
             df_transactions = pd.read_excel(
-                "data.xlsx", sheet_name="transactions")
+                "./resources/data/data.xlsx", sheet_name="transactions")
             df_exchange_rates = pd.read_excel(
-                "data.xlsx", sheet_name="exchange_rates")
+                "./resources/data/data.xlsx", sheet_name="exchange_rates")
 
             if sheet_name == "transactions":
                 df_transactions = pd.concat(
@@ -5357,7 +5371,8 @@ class AddTransactionTabView(customtkinter.CTkTabview):
                     [df_exchange_rates, pd.DataFrame([new_data])],
                     ignore_index=True)
 
-            with pd.ExcelWriter("data.xlsx", engine="openpyxl", mode="a",
+            with pd.ExcelWriter("./resources/data/data.xlsx",
+                                engine="openpyxl", mode="a",
                                 if_sheet_exists="replace") as writer:
                 df_transactions.to_excel(
                     writer, sheet_name="transactions", index=False)
@@ -5419,14 +5434,15 @@ class ReportWindow(customtkinter.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.title("Report")
-        self.iconbitmap(default='./logo.ico')
+        self.iconbitmap(default='./resources/images/logo.ico')
         self.minsize(1700, 990)
         self.configure(fg_color="#eaeaea")
 
         self.create_widget()
 
         if platform.startswith("win"):
-            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+            self.after(200,
+                       lambda: self.iconbitmap("./resources/images/logo.ico"))
 
     def create_widget(self):
         self.header_frame = HeaderFrameForReportWindow(master=self)
@@ -7012,7 +7028,7 @@ class TotalDetailsWindow(customtkinter.CTkToplevel):
     def __init__(self, parent, transactions, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.title("Total Details")
-        self.iconbitmap(default='./logo.ico')
+        self.iconbitmap(default='./resources/images/logo.ico')
         self.minsize(700, 600)
         self.configure(fg_color="#d9d9d9")
         self.parent = parent
@@ -7021,7 +7037,8 @@ class TotalDetailsWindow(customtkinter.CTkToplevel):
         self.create_widget()
 
         if platform.startswith("win"):
-            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+            self.after(200,
+                       lambda: self.iconbitmap("./resources/images/logo.ico"))
 
     def create_widget(self):
         month_total_chart = \
@@ -7152,7 +7169,7 @@ class StatisticsDetailsMonthWindow(customtkinter.CTkToplevel):
     def __init__(self, parent, transactions, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.title("Statistics Details")
-        self.iconbitmap(default='./logo.ico')
+        self.iconbitmap(default='./resources/images/logo.ico')
         self.minsize(1400, 900)
         self.configure(fg_color="#d9d9d9")
         self.parent = parent
@@ -7161,7 +7178,8 @@ class StatisticsDetailsMonthWindow(customtkinter.CTkToplevel):
         self.create_widget()
 
         if platform.startswith("win"):
-            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+            self.after(200,
+                       lambda: self.iconbitmap("./resources/images/logo.ico"))
 
     def create_widget(self):
         frame_scroll = customtkinter.CTkScrollableFrame(
@@ -7304,7 +7322,7 @@ class StatisticsDetailsWeekWindow(customtkinter.CTkToplevel):
     def __init__(self, parent, transactions, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.title("Statistics Details")
-        self.iconbitmap(default='./logo.ico')
+        self.iconbitmap(default='./resources/images/logo.ico')
         self.minsize(1400, 900)
         self.maxsize(1400, 900)
         self.configure(fg_color="#d9d9d9")
@@ -7314,7 +7332,8 @@ class StatisticsDetailsWeekWindow(customtkinter.CTkToplevel):
         self.create_widget()
 
         if platform.startswith("win"):
-            self.after(200, lambda: self.iconbitmap("./logo.ico"))
+            self.after(200,
+                       lambda: self.iconbitmap("./resources/images/logo.ico"))
 
     def create_widget(self):
         self.frame_scroll = customtkinter.CTkScrollableFrame(
