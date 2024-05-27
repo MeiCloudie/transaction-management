@@ -1,14 +1,15 @@
+import setup  # noqa: F401
+
 # import json
 import tkinter
 from tkinter import ttk, messagebox
 import customtkinter
 from enum import Enum
-from abc import ABC, abstractmethod
+# from abc import ABC, abstractmethod
 from PIL import Image
 import datetime
 from datetime import timedelta
 from sys import platform
-# import os
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.ticker import MaxNLocator
@@ -16,133 +17,147 @@ from matplotlib.ticker import MaxNLocator
 import pandas as pd
 import numpy as np
 
+from enums import (
+    MonthLabel,
+    GoldType,
+    CurrencyType
+)
 
-class CurrencyType(Enum):
-    VND = 0
-    USD = 1
-    EUR = 2
+from models import (
+    # AbstractTransaction,
+    # Transaction,
+    GoldTransaction,
+    ExchangeRate,
+    CurrencyTransaction,
+    TransactionList
+)
 
-
-class GoldType(Enum):
-    SJC = 0
-    PNJ = 1
-    DOJI = 2
-
-
-class MonthLabel(Enum):
-    JANUARY = 1
-    FEBRUARY = 2
-    MARCH = 3
-    APRIL = 4
-    MAY = 5
-    JUNE = 6
-    JULY = 7
-    AUGUST = 8
-    SEPTEMBER = 9
-    OCTOBER = 10
-    NOVEMBER = 11
-    DECEMBER = 12
-
-    def __str__(self):
-        return self.name.capitalize()
+# class CurrencyType(Enum):
+#     VND = 0
+#     USD = 1
+#     EUR = 2
 
 
-class AbstractTransaction(ABC):
-    def __init__(self, id, day, month, year, *args):
-        self._id = id
-        self._day = day
-        self._month = month
-        self._year = year
-        if len(args) == 1:
-            self._quantity = args[0]
-            self._unit_price = None
-        elif len(args) == 2:
-            self._unit_price = args[0]
-            self._quantity = args[1]
-        else:
-            raise ValueError("Invalid number of arguments")
-
-        self._total_amount = self.calculate_total_amount()
-
-    @abstractmethod
-    def calculate_total_amount(self):
-        pass
+# class GoldType(Enum):
+#     SJC = 0
+#     PNJ = 1
+#     DOJI = 2
 
 
-class Transaction(AbstractTransaction):
-    def __init__(self, id, day, month, year, *args, isdeleted=False):
-        super().__init__(id, day, month, year, *args)
-        self._isdeleted = isdeleted
+# class MonthLabel(Enum):
+#     JANUARY = 1
+#     FEBRUARY = 2
+#     MARCH = 3
+#     APRIL = 4
+#     MAY = 5
+#     JUNE = 6
+#     JULY = 7
+#     AUGUST = 8
+#     SEPTEMBER = 9
+#     OCTOBER = 10
+#     NOVEMBER = 11
+#     DECEMBER = 12
 
-    def calculate_total_amount(self):
-        return self._unit_price * self._quantity
-
-
-class GoldTransaction(Transaction):
-    def __init__(self, id, day, month, year, unit_price, quantity, gold_type,
-                 isdeleted=False):
-        super().__init__(id, day, month, year, unit_price, quantity,
-                         isdeleted=isdeleted)
-        self._gold_type = gold_type
-
-    def calculate_total_amount(self):
-        return self._unit_price * self._quantity
+#     def __str__(self):
+#         return self.name.capitalize()
 
 
-class ExchangeRate:
-    def __init__(self, id, currency_type, rate, effective_day, effective_month,
-                 effective_year):
-        self._id = id
-        self._currency_type = currency_type
-        self._rate = rate
-        self._effective_day = effective_day
-        self._effective_month = effective_month
-        self._effective_year = effective_year
+# class AbstractTransaction(ABC):
+#     def __init__(self, id, day, month, year, *args):
+#         self._id = id
+#         self._day = day
+#         self._month = month
+#         self._year = year
+#         if len(args) == 1:
+#             self._quantity = args[0]
+#             self._unit_price = None
+#         elif len(args) == 2:
+#             self._unit_price = args[0]
+#             self._quantity = args[1]
+#         else:
+#             raise ValueError("Invalid number of arguments")
+
+#         self._total_amount = self.calculate_total_amount()
+
+#     @abstractmethod
+#     def calculate_total_amount(self):
+#         pass
 
 
-class CurrencyTransaction(Transaction):
-    def __init__(self, id, day, month, year, quantity,
-                 currency_type, exchange_rate, isdeleted=False):
-        self._currency_type = currency_type
-        self._exchange_rate = exchange_rate
-        super().__init__(id, day, month, year, quantity, isdeleted=isdeleted)
+# class Transaction(AbstractTransaction):
+#     def __init__(self, id, day, month, year, *args, isdeleted=False):
+#         super().__init__(id, day, month, year, *args)
+#         self._isdeleted = isdeleted
 
-    def calculate_total_amount(self):
-        if self._currency_type == CurrencyType.VND:
-            return self._quantity
-        elif self._currency_type == CurrencyType.USD \
-                or self._currency_type == CurrencyType.EUR:
-            return self._quantity * self._exchange_rate._rate
-        else:
-            return 0
+#     def calculate_total_amount(self):
+#         return self._unit_price * self._quantity
 
 
-class TransactionList:
-    def __init__(self):
-        self._transactions = []
-        self._total_gold_transactions = 0
-        self._total_currency_transactions = 0
-        self._total_gold_amount = 0.0
-        self._total_currency_amount = 0.0
+# class GoldTransaction(Transaction):
+#     def __init__(self, id, day, month, year, unit_price, quantity, gold_type,
+#                  isdeleted=False):
+#         super().__init__(id, day, month, year, unit_price, quantity,
+#                          isdeleted=isdeleted)
+#         self._gold_type = gold_type
 
-    def add_transaction(self, transaction):
-        self._transactions.append(transaction)
-        if isinstance(transaction, GoldTransaction):
-            self._total_gold_transactions += 1
-            self._total_gold_amount += transaction._total_amount
-        elif isinstance(transaction, CurrencyTransaction):
-            self._total_currency_transactions += 1
-            self._total_currency_amount += transaction._total_amount
+#     def calculate_total_amount(self):
+#         return self._unit_price * self._quantity
 
-    def remove_transaction(self, transaction):
-        if transaction in self._transactions:
-            self._transactions.remove(transaction)
 
-    def get_transactions(self):
-        return self._transactions
+# class ExchangeRate:
+#     def __init__(self, id, currency_type, rate,
+#                  effective_day, effective_month, effective_year):
+#         self._id = id
+#         self._currency_type = currency_type
+#         self._rate = rate
+#         self._effective_day = effective_day
+#         self._effective_month = effective_month
+#         self._effective_year = effective_year
 
-    def clear(self):
-        self._transactions = []
+
+# class CurrencyTransaction(Transaction):
+#     def __init__(self, id, day, month, year, quantity,
+#                  currency_type, exchange_rate, isdeleted=False):
+#         self._currency_type = currency_type
+#         self._exchange_rate = exchange_rate
+#         super().__init__(id, day, month, year, quantity, isdeleted=isdeleted)
+
+#     def calculate_total_amount(self):
+#         if self._currency_type == CurrencyType.VND:
+#             return self._quantity
+#         elif self._currency_type == CurrencyType.USD \
+#                 or self._currency_type == CurrencyType.EUR:
+#             return self._quantity * self._exchange_rate._rate
+#         else:
+#             return 0
+
+
+# class TransactionList:
+#     def __init__(self):
+#         self._transactions = []
+#         self._total_gold_transactions = 0
+#         self._total_currency_transactions = 0
+#         self._total_gold_amount = 0.0
+#         self._total_currency_amount = 0.0
+
+#     def add_transaction(self, transaction):
+#         self._transactions.append(transaction)
+#         if isinstance(transaction, GoldTransaction):
+#             self._total_gold_transactions += 1
+#             self._total_gold_amount += transaction._total_amount
+#         elif isinstance(transaction, CurrencyTransaction):
+#             self._total_currency_transactions += 1
+#             self._total_currency_amount += transaction._total_amount
+
+#     def remove_transaction(self, transaction):
+#         if transaction in self._transactions:
+#             self._transactions.remove(transaction)
+
+#     def get_transactions(self):
+#         return self._transactions
+
+#     def clear(self):
+#         self._transactions = []
 
 
 # Initialize data
