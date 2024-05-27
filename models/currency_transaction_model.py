@@ -1,5 +1,5 @@
-from transaction_management.models.transaction_model import Transaction
-from transaction_management.enums.currency_type_enum import CurrencyType
+from models.transaction_model import Transaction
+from enums.currency_type_enum import CurrencyType
 
 
 class CurrencyTransaction(Transaction):

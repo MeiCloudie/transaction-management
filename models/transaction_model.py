@@ -1,4 +1,4 @@
-from .abstract_transaction_model import AbstractTransaction
+from models.abstract_transaction_model import AbstractTransaction
 
 
 class Transaction(AbstractTransaction):

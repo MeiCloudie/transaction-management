@@ -1,4 +1,4 @@
-from .transaction_model import Transaction
+from models.transaction_model import Transaction
 
 
 class GoldTransaction(Transaction):

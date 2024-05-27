@@ -1,5 +1,5 @@
-from .gold_transaction_model import GoldTransaction
-from .currency_transaction_model import CurrencyTransaction
+from models.gold_transaction_model import GoldTransaction
+from models.currency_transaction_model import CurrencyTransaction
 
 
 class TransactionList:
