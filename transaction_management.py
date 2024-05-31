@@ -2,148 +2,37 @@ import tkinter
 from tkinter import ttk, messagebox
 import customtkinter
 
-from enum import Enum
-# from abc import ABC, abstractmethod
+from sys import platform
 from PIL import Image
 import datetime
 from datetime import timedelta
-from sys import platform
 
+# import math
 # import json
+import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.ticker import MaxNLocator
-# import math
-import pandas as pd
-import numpy as np
 
+from enum import Enum
 from enums.month_label_enum import MonthLabel
 from enums.gold_type_enum import GoldType
 from enums.currency_type_enum import CurrencyType
 
-# from models.abstract_transaction_model import AbstractTransaction
-# from models.transaction_model import Transaction
 from models.gold_transaction_model import GoldTransaction
 from models.exchange_rate_model import ExchangeRate
 from models.currency_transaction_model import CurrencyTransaction
 from models.transaction_list_model import TransactionList
 
-# Initialize data
-# transactions
-transactions_data = [
-    {
-        "id": "GLD001", "day": 2, "month": 5, "year": 2024,
-        "unit_price": 85200000.0, "quantity": 2.0, "type": "gold",
-        "gold_type": 0, "isdeleted": False, "exchange_rate_id": None,
-        "currency_type": None, "exchange_rate": None, "effective_day": None,
-        "effective_month": None, "effective_year": None
-    },
-    {
-        "id": "GLD002", "day": 2, "month": 5, "year": 2024,
-        "unit_price": 75500000.0, "quantity": 3.0, "type": "gold",
-        "gold_type": 1, "isdeleted": False, "exchange_rate_id": None,
-        "currency_type": None, "exchange_rate": None, "effective_day": None,
-        "effective_month": None, "effective_year": None
-    },
-    {
-        "id": "GLD003", "day": 22, "month": 4, "year": 2024,
-        "unit_price": 84800000.0, "quantity": 3.0, "type": "gold",
-        "gold_type": 2, "isdeleted": False, "exchange_rate_id": None,
-        "currency_type": None, "exchange_rate": None, "effective_day": None,
-        "effective_month": None, "effective_year": None
-    },
-    {
-        "id": "GLD004", "day": 15, "month": 6, "year": 2024,
-        "unit_price": 83200000.0, "quantity": 1.0, "type": "gold",
-        "gold_type": 0, "isdeleted": False, "exchange_rate_id": None,
-        "currency_type": None, "exchange_rate": None, "effective_day": None,
-        "effective_month": None, "effective_year": None
-    },
-    {
-        "id": "GLD005", "day": 19, "month": 2, "year": 2024,
-        "unit_price": 74500000.0, "quantity": 1.0, "type": "gold",
-        "gold_type": 1, "isdeleted": False, "exchange_rate_id": None,
-        "currency_type": None, "exchange_rate": None, "effective_day": None,
-        "effective_month": None, "effective_year": None
-    },
-    {
-        "id": "GLD006", "day": 25, "month": 4, "year": 2024,
-        "unit_price": 84800000.0, "quantity": 2.0, "type": "gold",
-        "gold_type": 2, "isdeleted": False, "exchange_rate_id": None,
-        "currency_type": None, "exchange_rate": None, "effective_day": None,
-        "effective_month": None, "effective_year": None
-    },
-    {
-        "id": "CUR001", "day": 2, "month": 5, "year": 2024, "quantity": 50.0,
-        "type": "currency", "currency_type": 1, "exchange_rate_id": 2,
-        "exchange_rate": 25137.0, "effective_day": 1, "effective_month": 1,
-        "effective_year": 2024, "isdeleted": False
-    },
-    {
-        "id": "CUR002", "day": 28, "month": 4, "year": 2024, "quantity": 500.0,
-        "type": "currency", "currency_type": 2, "exchange_rate_id": 3,
-        "exchange_rate": 26777.56, "effective_day": 1, "effective_month": 1,
-        "effective_year": 2024, "isdeleted": False
-    },
-    {
-        "id": "CUR003", "day": 12, "month": 4, "year": 2024,
-        "quantity": 500000.0, "type": "currency", "currency_type": 0,
-        "exchange_rate_id": 1, "exchange_rate": 1.0, "effective_day": 1,
-        "effective_month": 1, "effective_year": 2024, "isdeleted": False
-    },
-    {
-        "id": "CUR004", "day": 25, "month": 4, "year": 2024, "quantity": 70.0,
-        "type": "currency", "currency_type": 1, "exchange_rate_id": 2,
-        "exchange_rate": 25137.0, "effective_day": 1, "effective_month": 1,
-        "effective_year": 2024, "isdeleted": False
-    },
-    {
-        "id": "CUR005", "day": 11, "month": 4, "year": 2024, "quantity": 200.0,
-        "type": "currency", "currency_type": 2, "exchange_rate_id": 3,
-        "exchange_rate": 26777.56, "effective_day": 1, "effective_month": 1,
-        "effective_year": 2024, "isdeleted": False
-    },
-    {
-        "id": "CUR006", "day": 15, "month": 6, "year": 2024,
-        "quantity": 90000000.0, "type": "currency", "currency_type": 0,
-        "exchange_rate_id": 1, "exchange_rate": 1.0, "effective_day": 1,
-        "effective_month": 1, "effective_year": 2024, "isdeleted": False
-    }
-]
-
-# exchange_rates
-exchange_rates_data = [
-    {
-        "id": 1, "currency_type": 0, "rate": 1.0, "effective_day": 1,
-        "effective_month": 1, "effective_year": 2024
-    },
-    {
-        "id": 2, "currency_type": 1, "rate": 25137.0, "effective_day": 1,
-        "effective_month": 1, "effective_year": 2024
-    },
-    {
-        "id": 3, "currency_type": 2, "rate": 26777.56, "effective_day": 1,
-        "effective_month": 1, "effective_year": 2024
-    }
-]
-
-df_transactions = pd.DataFrame(transactions_data)
-df_exchange_rates = pd.DataFrame(exchange_rates_data)
-
-# Write file for testing
-# with pd.ExcelWriter("./resources/data/data.xlsx") as writer:
-#     df_transactions.to_excel(writer, sheet_name="transactions", index=False)
-#     df_exchange_rates.to_excel(
-#         writer, sheet_name="exchange_rates", index=False)
-
-# Theme
-customtkinter.set_appearance_mode("light")
-customtkinter.set_default_color_theme("dark-blue")
-
 
 class TransactionApp(customtkinter.CTk):
     def __init__(self):
         super().__init__()
+
+        customtkinter.set_appearance_mode("light")
+        customtkinter.set_default_color_theme("dark-blue")
+
         self.title("Transaction Management")
         icon_path = "./resources/images/logo.ico"
         self.iconbitmap(icon_path)
